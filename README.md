@@ -79,9 +79,9 @@ bio-waila/
 │   │   ├── autolabel.py       optional GPU fallback labeler             (waila-autolabel)
 │   │   ├── cache.py           size-capped local cache                   (waila-cache)
 │   │   └── validate.py        local per-dataset pipeline validation     (waila-validate)
-│   ├── models/                clm_siglip (CLM-vision), clm_llm (CLM-LLM), jev_gemma (Jev), moondream_vision
+│   ├── models/                clm_siglip (CLM-vision), clm_llm (CLM-LLM), jev_gemma (Jev), moondream_vision, zoo_models (zoo backends)
 │   ├── train/                 labels, folds, data, losses; train_clm / train_clm_llm / train_jev   (waila-train-*)
-│   └── eval/                  metrics macro-averaged over held-out datasets, temperature fitting, mmbu-public scoring (public.py, run.py)
+│   └── eval/                  metrics macro-averaged over held-out datasets, temperature fitting, mmbu-public scoring (public.py, run.py), model zoo (zoo.py)
 ├── catalog/                   datasets.yaml + DATA.md: every training dataset (link, size, modality, description); built by scripts/build_catalog.py
 ├── plan/                      selection.jsonl, label_space.json, report.md (generated); registry_fixes.json, overrides.csv (hand-edited)
 ├── resources/                 taxonomy, MMBU vocabulary, alias maps, paper Fig. 3 numbers (self-contained copies)
@@ -149,6 +149,24 @@ Both write `public_metrics.json` and `public_predictions.parquet` into the run d
 top-1 class is in the target set (a stand-in for Pass 2), averaged over images; it is also split by modality and task type,
 next to the usual per-field metrics (macro-averaged over MMBU tasks, and pooled). `waila-eval` supports CLM-vision, CLM-LLM
 (needs the public images embedded by `embed`) and Jev (config saved as `config.json`).
+
+## Benchmark off-the-shelf models (model zoo)
+
+`waila-zoo` scores many released models zero-shot on mmbu-public Pass 2 and ranks them with the same context score C and
+field metrics as the trained teachers (details: [docs/experiments/zoo.md](docs/experiments/zoo.md)). The registry is
+`configs/zoo.yaml` (slug, HF id, mode, resources, licence/gating notes).
+
+```bash
+uv run waila-zoo list                                  # registry with enabled flags
+uv run waila-zoo prefetch [--models a,b]               # CPU: download weights (HF_TOKEN) + build plan/eval_public.parquet
+uv run waila-zoo run --model gen_medgemma_4b_it --limit 64    # GPU: smoke test; drop --limit for the full split
+uv run waila-zoo leaderboard                           # runs/zoo/*/public_metrics.json → runs/zoo/leaderboard.{csv,md}
+bash slurm/zoo_eval.sbatch submit [LIMIT]              # cluster: prefetch (CPU) → one GPU job per model → leaderboard (CPU)
+```
+
+Two modes: `generative` (image + the official Pass-2 prompt, greedy decode, parse the JSON, map strings onto the label space;
+unmappable answers count as wrong) and `decision` (Jev-style lettered options per field, read from next-token logits;
+Liquid d1 through its own `system_one` API). Gated models (MedGemma) need their terms accepted on Hugging Face first.
 
 ## Validate locally before using the cluster
 

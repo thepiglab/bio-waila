@@ -13,3 +13,4 @@ CACHE = Path(os.environ.get("WAILA_CACHE", DATA / "cache"))     # local validati
 # the public MMBU split (eval only) and the dataset registry live next to this repo in the mmbu/ workspace
 PUBLIC = Path(os.environ.get("WAILA_PUBLIC", REPO.parent / "mmbu-public"))
 REGISTRY = Path(os.environ.get("WAILA_REGISTRY", REPO.parent / "data_discovery" / "build" / "registry.json"))
+RUNS = Path(os.environ.get("WAILA_RUNS", REPO / "runs"))        # training / benchmark outputs (gitignored)

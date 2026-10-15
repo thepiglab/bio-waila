@@ -1,0 +1,234 @@
+# Model zoo registry (see docs/experiments/zoo.md). One entry per off-the-shelf model scored zero-shot on mmbu-public Pass 2.
+#   slug               unique; names runs/zoo/<slug>/ and the Slurm job
+#   hf_id              Hugging Face repo (for a LoRA adapter: the adapter repo, with `base` = the model it sits on)
+#   mode               generative (image + the official Pass-2 prompt, parse JSON)  |  decision (lettered-option readout per field)
+#   readout            decision only: letters (default, next-token letter probabilities)  |  d1 (Liquid system_one choice question)
+#   base               LoRA adapters: the base model repo
+#   trust_remote_code  only when the model ships its own code
+#   dtype              bfloat16 (default) | float16 | float32
+#   gpus, mem_gb       Slurm resources (every entry fits one 192 GB GPU in bf16)
+#   max_new_tokens     generative: decoding budget (default 384)
+#   k_max              decision: options per chunk before a tournament is used (default 26)
+#   enabled, reason    enabled: false entries are skipped by prefetch / run / the Slurm submit helper; reason says why
+#   notes              licence / gating
+models:
+  - slug: "gen_medgemma_4b_it"
+    hf_id: "google/medgemma-4b-it"
+    mode: "generative"
+    gpus: 1
+    mem_gb: 64
+    max_new_tokens: 384
+    enabled: true
+    notes: "gated (auto-approve): accept the terms on the model page with the HF_TOKEN account before `waila-zoo prefetch`. Health AI Developer Foundations terms."
+  - slug: "gen_medgemma_1_5_4b_it"
+    hf_id: "google/medgemma-1.5-4b-it"
+    mode: "generative"
+    gpus: 1
+    mem_gb: 64
+    max_new_tokens: 384
+    enabled: true
+    notes: "gated (auto-approve): accept the terms on the model page with the HF_TOKEN account before `waila-zoo prefetch`. Health AI Developer Foundations terms."
+  - slug: "gen_medgemma_27b_it"
+    hf_id: "google/medgemma-27b-it"
+    mode: "generative"
+    gpus: 1
+    mem_gb: 128
+    max_new_tokens: 384
+    enabled: true
+    notes: "gated (auto-approve): accept the terms on the model page with the HF_TOKEN account before `waila-zoo prefetch`. Health AI Developer Foundations terms. 27B multimodal variant."
+  - slug: "gen_gemma4_e2b_it"
+    hf_id: "google/gemma-4-E2B-it"
+    mode: "generative"
+    gpus: 1
+    mem_gb: 64
+    max_new_tokens: 384
+    enabled: true
+    notes: "Apache-2.0."
+  - slug: "gen_gemma4_e4b_it"
+    hf_id: "google/gemma-4-E4B-it"
+    mode: "generative"
+    gpus: 1
+    mem_gb: 64
+    max_new_tokens: 384
+    enabled: true
+    notes: "Apache-2.0."
+  - slug: "gen_gemma4_12b_it"
+    hf_id: "google/gemma-4-12B-it"
+    mode: "generative"
+    gpus: 1
+    mem_gb: 64
+    max_new_tokens: 384
+    enabled: true
+    notes: "Apache-2.0."
+  - slug: "gen_gemma4_26b_a4b_it"
+    hf_id: "google/gemma-4-26B-A4B-it"
+    mode: "generative"
+    gpus: 1
+    mem_gb: 128
+    max_new_tokens: 384
+    enabled: true
+    notes: "Apache-2.0. MoE (26B total, 4B active)."
+  - slug: "gen_lfm25_vl_1_6b"
+    hf_id: "LiquidAI/LFM2.5-VL-1.6B"
+    mode: "generative"
+    gpus: 1
+    mem_gb: 64
+    max_new_tokens: 384
+    enabled: true
+    notes: "LFM Open License v1.0 (free below USD 10M revenue; research use is fine)."
+  - slug: "gen_lfm25_vl_3b"
+    hf_id: "LiquidAI/LFM2.5-VL-3B"
+    mode: "generative"
+    gpus: 1
+    mem_gb: 64
+    max_new_tokens: 384
+    enabled: true
+    notes: "LFM Open License v1.0."
+  - slug: "gen_ministral3_3b"
+    hf_id: "mistralai/Ministral-3-3B-Instruct-2512"
+    mode: "generative"
+    gpus: 1
+    mem_gb: 64
+    max_new_tokens: 384
+    enabled: true
+    notes: "Apache-2.0."
+  - slug: "gen_mistral_small_3_2_24b"
+    hf_id: "mistralai/Mistral-Small-3.2-24B-Instruct-2506"
+    mode: "generative"
+    gpus: 1
+    mem_gb: 128
+    max_new_tokens: 384
+    enabled: true
+    notes: "Apache-2.0."
+  - slug: "gen_smolvlm2_2_2b"
+    hf_id: "HuggingFaceTB/SmolVLM2-2.2B-Instruct"
+    mode: "generative"
+    gpus: 1
+    mem_gb: 64
+    max_new_tokens: 384
+    enabled: true
+    notes: "Apache-2.0."
+  - slug: "gen_llama32_11b_vision"
+    hf_id: "meta-llama/Llama-3.2-11B-Vision-Instruct"
+    mode: "generative"
+    gpus: 1
+    mem_gb: 64
+    max_new_tokens: 384
+    enabled: false
+    reason: "manual gating: access must be granted by Meta before the weights can be downloaded; set enabled: true once approved"
+    notes: "Llama 3.2 community licence; gated with MANUAL approval by Meta."
+  - slug: "gen_phi4_multimodal"
+    hf_id: "microsoft/Phi-4-multimodal-instruct"
+    mode: "generative"
+    trust_remote_code: true
+    gpus: 1
+    mem_gb: 64
+    max_new_tokens: 384
+    enabled: false
+    reason: "custom remote code (Phi4MM) is not an AutoModelForImageTextToText architecture and breaks on recent transformers; needs a dedicated loader"
+    notes: "MIT. Custom modelling code."
+  - slug: "dec_gemma4_e4b_it"
+    hf_id: "google/gemma-4-E4B-it"
+    mode: "decision"
+    gpus: 1
+    mem_gb: 64
+    enabled: true
+    notes: "B1-gem baseline (stock letter readout). Apache-2.0."
+  - slug: "dec_gemma4_12b_it"
+    hf_id: "google/gemma-4-12B-it"
+    mode: "decision"
+    gpus: 1
+    mem_gb: 64
+    enabled: true
+    notes: "B1-gem baseline (stock letter readout). Apache-2.0."
+  - slug: "dec_gemma4_26b_a4b_it"
+    hf_id: "google/gemma-4-26B-A4B-it"
+    mode: "decision"
+    gpus: 1
+    mem_gb: 128
+    enabled: true
+    notes: "B1-gem baseline (stock letter readout). Apache-2.0."
+  - slug: "dec_liquid_d1_3b"
+    hf_id: "LiquidAI/d1-3B"
+    mode: "decision"
+    readout: "d1"
+    trust_remote_code: true
+    gpus: 1
+    mem_gb: 64
+    enabled: true
+    notes: "LFM Open License v1.0. Own decision API (model.system_one, choice question); needs transformers>=5.14."
+  - slug: "dec_liquid_d1_omni_600m"
+    hf_id: "LiquidAI/d1-omni-600M"
+    mode: "decision"
+    readout: "d1"
+    trust_remote_code: true
+    dtype: "float16"
+    gpus: 1
+    mem_gb: 64
+    enabled: true
+    notes: "LFM Open License v1.0. Same system_one API as d1-3B; custom D1OmniModel; needs transformers>=5.15; fp16 per its card."
+  - slug: "dec_xor_26b_a4b"
+    hf_id: "juspay/Xor-26B-A4B"
+    mode: "decision"
+    gpus: 1
+    mem_gb: 128
+    enabled: true
+    notes: "Apache-2.0. Gemma-4-26B-A4B fine-tune; stock letter readout (its serving shim is not used)."
+  - slug: "dec_gev_26b_decide"
+    hf_id: "autotrust/GEV-26B-Decide"
+    mode: "decision"
+    gpus: 1
+    mem_gb: 128
+    enabled: true
+    notes: "Apache-2.0. Ships its own decision head (head.safetensors); the stock LM letter readout is used here, which may understate it."
+  - slug: "dec_ajev_gemma4_12b_lora5"
+    hf_id: "andyzhang232/ajev-gemma4-12b-lora5"
+    mode: "decision"
+    base: "google/gemma-4-12B-it"
+    gpus: 1
+    mem_gb: 64
+    enabled: true
+    notes: "Apache-2.0. LoRA adapter merged onto the base; ajev_lm_config.json is not used."
+  - slug: "dec_torchcast_decision_12b"
+    hf_id: "torchcast-ai/torchcast-decision-12b"
+    mode: "decision"
+    gpus: 1
+    mem_gb: 64
+    enabled: true
+    notes: "cc-by-nc-4.0: evaluation only, never a base or teacher. Letter readout at the answer position (matches its card); per-type temperatures not applied."
+  - slug: "dec_jev_omni"
+    hf_id: "akhilaaa3/Jev-Omni"
+    mode: "decision"
+    gpus: 1
+    mem_gb: 64
+    enabled: true
+    notes: "Apache-2.0. Ships its own head (head.pt, jev_omni.py); stock LM letter readout here, which may understate it."
+  - slug: "dec_quyet_1_0_large"
+    hf_id: "chinhnc/Quyet-1.0-Large"
+    mode: "decision"
+    gpus: 1
+    mem_gb: 128
+    enabled: true
+    notes: "Apache-2.0. 31B Gemma-4 fine-tune; stock letter readout (quyet_config.json is not used)."
+  - slug: "dec_winnow_12b"
+    hf_id: "EldanRing/Winnow-12B"
+    mode: "decision"
+    gpus: 1
+    mem_gb: 64
+    enabled: false
+    reason: "the repo holds GGUF files only (no safetensors), so transformers cannot load it; re-enable if a safetensors export appears"
+    notes: "Apache-2.0."
+  - slug: "dec_blink_v0_3_26b_a4b_nvfp4"
+    hf_id: "PixilabAI/Blink-v0.3-26B-A4B-NVFP4"
+    mode: "decision"
+    gpus: 1
+    mem_gb: 128
+    enabled: false
+    reason: "NVFP4 quantised checkpoint: needs special kernels / a dedicated serving stack, not a plain bf16 transformers load"
+  - slug: "dec_rune_26b_a4b"
+    hf_id: "surogate/rune-26b-a4b"
+    mode: "decision"
+    gpus: 1
+    mem_gb: 128
+    enabled: false
+    reason: "the safetensors repo is private; only a GGUF export is public"

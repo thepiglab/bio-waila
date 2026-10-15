@@ -22,6 +22,7 @@ One line per document. Start with [OVERVIEW.md](OVERVIEW.md); the data pipeline 
 
 - [experiments/training_plan.md](experiments/training_plan.md): final plan; supersedes the model choices below.
 - [experiments/experiment_plan.md](experiments/experiment_plan.md): the full experiment matrix, metrics, decision rules and statistics (about 660 H100-hours).
+- [experiments/zoo.md](experiments/zoo.md): the model zoo: zero-shot benchmark of released models on mmbu-public Pass 2 (generative and decision modes, mapping, how to add a model).
 - [experiments/b200_plan.md](experiments/b200_plan.md): the same plan scheduled onto up to four B200s, with the data critical path and day-0 checklist.
 
 ## models/

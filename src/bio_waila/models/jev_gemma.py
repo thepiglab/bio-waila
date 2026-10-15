@@ -120,13 +120,22 @@ def letter_token_groups(tokenizer):
 
 
 class GemmaBackend(nn.Module):
+    """Letter-readout backend. Despite the name it takes any HF image-text-to-text repo (`name`); `adapter` is an optional
+    LoRA repo/dir merged on top of `name` (inference), `device_map="auto"` places the model on the visible GPU(s), and
+    `max_soft_tokens` is only passed to Gemma processors (the knob does not exist elsewhere)."""
+
     def __init__(self, name, lora=None, max_soft_tokens=280, dtype="bfloat16", train_vision=False,
-                 gradient_checkpointing=True):
+                 gradient_checkpointing=True, adapter=None, trust_remote_code=False, device_map=None):
         super().__init__()
         from transformers import AutoModelForImageTextToText, AutoProcessor
-        self.proc = AutoProcessor.from_pretrained(name)
+        self.proc = AutoProcessor.from_pretrained(name, trust_remote_code=trust_remote_code)
         self.proc.tokenizer.padding_side = "left"
-        self.model = AutoModelForImageTextToText.from_pretrained(name, dtype=getattr(torch, dtype))
+        kw = {"device_map": device_map} if device_map else {}
+        self.model = AutoModelForImageTextToText.from_pretrained(name, dtype=getattr(torch, dtype),
+                                                                 trust_remote_code=trust_remote_code, **kw)
+        if adapter:
+            from peft import PeftModel
+            self.model = PeftModel.from_pretrained(self.model, adapter).merge_and_unload()
         for p in self.model.parameters():
             p.requires_grad = False
         if lora:
@@ -149,7 +158,7 @@ class GemmaBackend(nn.Module):
         for i, ids in groups.items():
             member[i, ids] = True
         self.register_buffer("member", member, persistent=False)
-        self.budget = max_soft_tokens
+        self.budget = max_soft_tokens if type(self.proc).__name__.lower().startswith("gemma") else None
 
     def _chat(self, prompt):
         msgs = [{"role": "user", "content": [{"type": "image"}, {"type": "text", "text": prompt}]}]
@@ -160,14 +169,15 @@ class GemmaBackend(nn.Module):
 
     def letter_logits(self, images, prompts):
         dev = next(self.model.parameters()).device
+        kw = {"max_soft_tokens": self.budget} if self.budget else {}
         inputs = self.proc(text=[self._chat(p) for p in prompts], images=[[im] for im in images], padding=True,
-                           return_tensors="pt", max_soft_tokens=self.budget).to(dev)
+                           return_tensors="pt", **kw).to(dev)
         try:
             out = self.model(**inputs, logits_to_keep=1)
         except TypeError:
             out = self.model(**inputs)
         logp = torch.log_softmax(out.logits[:, -1].float(), -1)            # [B, V]
-        m = self.member[:, : logp.shape[-1]]
+        m = self.member[:, : logp.shape[-1]].to(logp.device)
         return torch.logsumexp(logp.unsqueeze(1).masked_fill(~m.unsqueeze(0), float("-inf")), -1)  # [B, 26]
 
 
@@ -197,23 +207,18 @@ def make_backend(cfg):
         return FakeBackend()
     return GemmaBackend(cfg["name"], lora=cfg.get("lora"), max_soft_tokens=cfg.get("max_soft_tokens", 280),
                         dtype=cfg.get("dtype", "bfloat16"), train_vision=cfg.get("train_vision", False),
-                        gradient_checkpointing=cfg.get("gradient_checkpointing", True))
+                        gradient_checkpointing=cfg.get("gradient_checkpointing", True), adapter=cfg.get("adapter"),
+                        trust_remote_code=cfg.get("trust_remote_code", False), device_map=cfg.get("device_map"))
 
 
 # ── inference over the whole vocabulary of a field ───────────────────────────────────────────────────────────────
-@torch.no_grad()
-def field_logprobs(backend, images, field, space, contexts=None, k_max=20, finalists_per_chunk=4):
-    """[B, n_classes] log-probabilities over every class of `field` (tournament when n_classes > k_max)."""
-    C = space.n(field)
-    names = space.classes[field]
-    B = len(images)
-    ctx = contexts or [None] * B
+def tournament_logprobs(run, B, C, k_max=20, finalists_per_chunk=4):
+    """[B, C] log-probabilities over C classes with at most k_max options per call.
 
-    def run(option_sets):
-        prompts = [build_prompt(field, [names[i] for i in opts], ctx[b]) for b, opts in enumerate(option_sets)]
-        lp = backend.letter_logits(images, prompts).float().cpu()
-        return [torch.log_softmax(lp[b, : len(opts)], -1) for b, opts in enumerate(option_sets)]
-
+    `run(option_sets)` scores one option set per image (list of class-index lists) and returns, per image, a log-prob
+    tensor over that set's options. C <= k_max is a single call. Otherwise round 1 scores chunks of k_max consecutive
+    classes; the top `finalists_per_chunk` of every chunk (shrunk so all finalists fit in one set) meet in a final round.
+    Finalists carry their final-round log-probs; everyone else keeps the within-chunk order, 10 nats below any finalist."""
     out = torch.full((B, C), -30.0)
     if C <= k_max:
         res = run([list(range(C))] * B)
@@ -221,14 +226,29 @@ def field_logprobs(backend, images, field, space, contexts=None, k_max=20, final
             out[b] = res[b]
         return out
     chunks = [list(range(s, min(C, s + k_max))) for s in range(0, C, k_max)]
+    keep = max(1, min(finalists_per_chunk, k_max // len(chunks)))
     finalists = [[] for _ in range(B)]
     for ch in chunks:
         res = run([ch] * B)
         for b in range(B):
             out[b, ch] = res[b] - 10.0                     # below any finalist, but keeps the within-chunk order
-            top = torch.topk(res[b], min(finalists_per_chunk, len(ch))).indices.tolist()
+            top = torch.topk(res[b], min(keep, len(ch))).indices.tolist()
             finalists[b] += [ch[i] for i in top]
     res = run([f[:k_max] for f in finalists])
     for b in range(B):
         out[b, finalists[b][:k_max]] = res[b]
     return out
+
+
+@torch.no_grad()
+def field_logprobs(backend, images, field, space, contexts=None, k_max=20, finalists_per_chunk=4):
+    """[B, n_classes] log-probabilities over every class of `field` (tournament when n_classes > k_max)."""
+    names = space.classes[field]
+    ctx = contexts or [None] * len(images)
+
+    def run(option_sets):
+        prompts = [build_prompt(field, [names[i] for i in opts], ctx[b]) for b, opts in enumerate(option_sets)]
+        lp = backend.letter_logits(images, prompts).float().cpu()
+        return [torch.log_softmax(lp[b, : len(opts)], -1) for b, opts in enumerate(option_sets)]
+
+    return tournament_logprobs(run, len(images), space.n(field), k_max, finalists_per_chunk)
