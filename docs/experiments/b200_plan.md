@@ -147,7 +147,7 @@ This answers the two questions that matter: which formulation teaches best, and 
 ## Day-0 checklist
 
 1. Confirm B200 access and the GPU request syntax (`sinfo`). Adjust `slurm/b200.sbatch` if the partition or GRES name differs.
-2. `git clone` this repo, run `bash slurm/setup.sh` (builds the uv venv in the checkout), and put `mmbu-public/` next to the checkout. Copy the Kaggle token file to `~/.kaggle/access_token` (chmod 600). `data_discovery/` is needed only to re-run `waila-select`.
+2. `git clone` this repo, run `bash slurm/setup.sh` (builds the uv venv in the checkout), and put `mmbu-public/` next to the checkout. Create `.env` from `.env.example` (`chmod 600 .env`) with `HF_TOKEN` and `KAGGLE_API_TOKEN`. `data_discovery/` is needed only to re-run `waila-select`.
 3. Check that compute nodes reach the internet (`srun --pty curl -I https://zenodo.org`). If not, run downloads on a login or transfer node.
 4. Launch the CPU pilot (`bash slurm/cpu_pilot.sbatch submit`), and in parallel write `src/bio_waila/eval/pass2.py`, `src/bio_waila/eval/folds.py`, `src/bio_waila/train/b0.py` and `src/bio_waila/eval/zeroshot.py`.
 5. Start the full download as soon as the pilot looks sane.

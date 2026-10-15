@@ -15,7 +15,7 @@ build/
 .DS_Store
 .idea/
 .vscode/
-# secrets (tokens live in ~/.kaggle and env vars, never in the repo)
+# secrets: copy .env.example to .env (gitignored) and chmod 600 it
 .env
 *kaggle*.json
 access_token
@@ -50,3 +50,4 @@ plan/dryrun_shard*.csv
 
 # private notes (cluster details etc.): local only, never pushed
 docs/private/
+!.env.example

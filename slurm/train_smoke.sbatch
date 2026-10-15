@@ -12,7 +12,7 @@
 #   1. CLM-vision  SigLIP 2 So400m: zero-shot eval, a few stage-A/B steps, WiSE-FT, temperatures
 #   2. CLM-LLM     Gemma-4-E4B: embed 256 images + label texts, train the heads
 #   3. Jev         Gemma-4-E4B + LoRA: a few F2 steps, then a small evaluation (letter readout + tournament)
-# Needs the prepared manifest ($WAILA_PREP/manifest.parquet) and HF access to the checkpoints (HF_TOKEN in ~/.bashrc
+# Needs the prepared manifest ($WAILA_PREP/manifest.parquet) and HF access to the checkpoints (HF_TOKEN in .env
 # if a model is gated). Outputs go to $WAILA_RUNS/smoke_*.
 #   cd $WAILA_HOME && sbatch slurm/train_smoke.sbatch
 : "${WAILA_HOME:=${SLURM_SUBMIT_DIR:?submit from the repo checkout}}"

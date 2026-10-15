@@ -10,9 +10,10 @@
 # Group xuefeng.liu: 20 GPUs / 210 CPUs / 1,640 GB investment cap (shared with the lab).
 #   CPU jobs: --qos=xuefeng.liu-b (burst: idle cores, low priority, 4-day limit, outside the 1,640 GB memory cap).
 #   GPU jobs: --qos=xuefeng.liu --partition=hpg-b200 (investment QOS; burst does not give GPUs).
-# Credentials: ~/.kaggle/access_token (chmod 600) and optional HF_TOKEN in ~/.bashrc. Never put them here.
+# Credentials: $WAILA_HOME/.env (copy .env.example, chmod 600); loaded below. Never put secrets in this file.
 
 export WAILA_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"      # the git checkout
+if [ -f "$WAILA_HOME/.env" ]; then set -a; . "$WAILA_HOME/.env"; set +a; fi    # secrets (HF_TOKEN, KAGGLE_API_TOKEN), gitignored
 export WAILA_WORK=${WAILA_WORK:-$WAILA_HOME/data}                         # everything big lives in the checkout, gitignored
 export WAILA_DATA=${WAILA_DATA:-$WAILA_WORK}                                # paths.py reads WAILA_DATA/RAW/PREP/CACHE
 export WAILA_RAW=${WAILA_RAW:-$WAILA_WORK/raw}

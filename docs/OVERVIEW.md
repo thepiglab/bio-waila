@@ -101,7 +101,7 @@ Committing to domain first would push its errors into every later field. So the 
 - **Remaining gaps:**
   - Specular microscopy: no permissive downloadable data exists.
   - Colonoscopy (645 planned images), gastroscopy (2,300), color doppler (3,240) and differential fluorescence (3,000) are small, but all above their full-benchmark shares (289, 197, 159 and 119 images).
-- **Credentials:** Kaggle (26 datasets) works through the token in `~/.kaggle/access_token`, with per-file sampling and rate-limit backoff. Mendeley (18 datasets) needs a browser download into `raw/<id>/archives/`.
+- **Credentials:** Kaggle (26 datasets) works through `KAGGLE_API_TOKEN` in `.env` (or `~/.kaggle/access_token`), with per-file sampling and rate-limit backoff. Mendeley (18 datasets) needs a browser download into `raw/<id>/archives/`.
 
 ## 6. Backbones
 

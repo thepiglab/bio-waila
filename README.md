@@ -167,8 +167,9 @@ Submit from the checkout. Every job sources `slurm/env.sh` (paths; `data/`, `run
 
 ## Credentials and data handling
 
-- **Kaggle:** `~/.kaggle/access_token` (Bearer token).
-- **Hugging Face:** `HF_TOKEN` (optional).
+- **All secrets go in `.env`:** `cp .env.example .env && chmod 600 .env`, then fill in `HF_TOKEN` and `KAGGLE_API_TOKEN`. It is gitignored and loaded automatically by the Python commands and the Slurm jobs. Variables already set in your shell take precedence.
+- **Kaggle:** `KAGGLE_API_TOKEN` (KGAT_… token). `~/.kaggle/access_token` still works as a fallback.
+- **Hugging Face:** `HF_TOKEN` (optional for downloads, needed for gated checkpoints).
 - **Mendeley Data** blocks scripts: download in a browser into `$WAILA_RAW/<id>/archives/`.
 - **No secrets, data or caches** are ever committed (see `.gitignore`).
 - **mmbu-public** is evaluation-only. `prepare.py` drops near-duplicates of its images from training.
