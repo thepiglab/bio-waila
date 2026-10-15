@@ -12,7 +12,7 @@ Every run is logged in `plan/public_looks.jsonl` as `zoo:<slug>`.
 |---|---|---|
 | `waila-zoo list [--porcelain]` | anywhere | the registry; `--porcelain` prints `slug<TAB>gpus<TAB>mem_gb` of enabled entries |
 | `waila-zoo prefetch [--models a,b] [--strict]` | CPU | `snapshot_download` into `HF_HOME` (uses `HF_TOKEN`), builds `plan/eval_public.parquet` if missing. Gated or unauthorized repos are reported per model and the rest continue |
-| `waila-zoo run --model SLUG [--limit N] [--batch B]` | GPU | scores one model; `--limit` takes a fixed-seed random subsample for smoke tests; works with `HF_HUB_OFFLINE=1` |
+| `waila-zoo run --model SLUG [--limit N] [--batch B] [--base-url URL] [--enable]` | GPU | scores one model; `--limit` takes a fixed-seed random subsample for smoke tests; works with `HF_HUB_OFFLINE=1`. A disabled entry is refused unless `--enable` is given (`--base-url`, systemone entries only, implies it) |
 | `waila-zoo leaderboard` | CPU | `runs/zoo/*/public_metrics.json` → `runs/zoo/leaderboard.csv` and `.md` (C, mean field acc, per-field acc, n, mode, params, seconds per image, unmapped rate) |
 
 Cluster: `bash slurm/zoo_eval.sbatch submit [LIMIT]` submits `slurm/zoo_prefetch.sbatch` (CPU), then one GPU job per enabled model
@@ -77,7 +77,7 @@ is the whole state (`None`), the options are the class names (description = name
 
 ## Registry (`configs/zoo.yaml`)
 
-Keys: `slug`, `hf_id`, `mode`, `readout` (letters | d1), `base`, `trust_remote_code`, `dtype`, `gpus`, `mem_gb`, `max_new_tokens`,
+Keys: `slug`, `hf_id`, `mode`, `readout` (letters | d1), `backend` (systemone), `options`, `base`, `trust_remote_code`, `dtype`, `gpus`, `mem_gb`, `max_new_tokens`,
 `k_max`, `enabled`, `reason` (required when disabled), `notes` (licence, gating). `load_registry` validates every entry and rejects
 unknown keys, duplicate slugs, bad modes, `k_max` above 26, and Chinese-origin / Qwen-family ids (project policy).
 
@@ -87,8 +87,42 @@ unknown keys, duplicate slugs, bad modes, `k_max` above 26, and Chinese-origin /
   GEV-26B-Decide, the AJev 12B LoRA (on Gemma 4 12B), Torchcast decision 12B (cc-by-nc-4.0: evaluation only), Jev-Omni,
   Quyet-1.0-Large (31B). Several of these ship their own decision heads or calibration; the stock LM letter readout used here
   ignores those, so their numbers can understate them.
+* **Disabled, own engine:** respanai/span-02 (see its section below; run with `--base-url` or `slurm/zoo_span.sbatch`).
 * **Disabled:** Llama-3.2-11B-Vision (manual gating by Meta), Phi-4-multimodal (custom code, not a stock image-text-to-text
   architecture), Winnow-12B (GGUF only, no safetensors), Blink-v0.3-26B-A4B-NVFP4 (NVFP4 kernels), rune-26b-a4b (safetensors repo private).
+
+## respanai/span-02 (System One backend)
+
+`dec_span_02` (Apache-2.0, a Gemma-4-26B-A4B fine-tune, image-capable) cannot be loaded with transformers or vLLM: the repo ships its own
+Rust/CUDA engine (`engine/`, `launch.sh`) and exposes a TypeSafe System One HTTP API. The registry entry therefore has
+`backend: systemone` and `enabled: false`; `SystemOneScorer` (models/zoo_models.py) is a plain HTTP client (mode `decision`).
+
+**Hardware.** The engine's kernels need compute capability 12.0 (sm_120a: RTX PRO 6000 Blackwell or RTX 5090). B200 / H100 / A100 are not
+supported. Building needs `cargo` and a CUDA toolkit: `(cd engine && NVCC=/usr/local/cuda/bin/nvcc cargo build --release -p dllm-server)`;
+`bash launch.sh` then serves on 0.0.0.0:8000 (`GET /health` -> `{"ok": true}`).
+
+**Self-host.** `waila-zoo prefetch --models dec_span_02` downloads the whole repo snapshot (~16 GB, no file filtering) on CPU. On a machine
+with a suitable GPU: start the server, then `uv run waila-zoo run --model dec_span_02 --base-url http://HOST:8000 [--limit 64]`.
+`slurm/zoo_span.sbatch` automates this (checks `nvidia-smi` reports compute_cap 12.0, builds the engine if needed, starts `launch.sh`, waits
+for `/health`, runs the eval, stops the server); its partition / gres lines are placeholders to point at an sm_120 partition. It is not part of
+`zoo_eval.sbatch submit`, and entries with a `backend` are not listed by `waila-zoo list --porcelain`.
+
+**Hosted API.** The vendor also offers a hosted endpoint (`POST .../v1/decisions`, body field `"model": "span-02"`, same request shape).
+That sends the evaluation images to a third party: check the mmbu-public licence and terms before using it. Set the `options` of the
+registry entry (or a copy of it): `base_url`, `endpoint`, `model: span-02`; the bearer token comes from `SPAN_API_KEY` (`.env`), and the
+`/health` check only warns on a 404.
+
+**Protocol.** One request per image: `POST {base_url}{endpoint}` (default `/v1/systemone`) with
+`{"state": {"task": "biomedical image metadata", "image": "Image 1"}, "questions": {field: {"type": "choice", "instructions": "What is the
+imaging modality of Image 1?", "criteria": {class: class}}}, "images": [base64 JPEG data URI], "reasoning": {"mode": "auto"}}`; every field
+annotated for that image is its own question (up to 679 options each, so no tournament / k_max). `answers[field].probabilities` become
+log-probs (classes the server omits get a 1e-6 floor, then renormalized) and flow through the same `score_public` path as the other
+decision backends. 529 / 429 / 5xx responses and connection errors are retried with exponential backoff; other error bodies
+(`{"error": {"type", "message"}}`) fail the run with the message.
+
+**Options** (registry `options:`): `base_url` (default `http://127.0.0.1:8000`), `endpoint`, `api_key_env` (`SPAN_API_KEY`), `model`,
+`reasoning` (`auto` | `on` | `off`), `budget_ms`, `concurrency` (thread pool, 8), `timeout` (300 s), `retries` (6), `backoff`, `health`.
+Cost note: reasoning `auto` may spend time thinking per request; `--limit 64` first.
 
 ## Adding a model
 

@@ -73,7 +73,7 @@ def test_registry_duplicate_slug(tmp_path):
 def test_cli_list_porcelain(capsys):
     assert zoo.main(["list", "--porcelain"]) == 0
     rows = [ln.split("\t") for ln in capsys.readouterr().out.splitlines()]
-    assert len(rows) == sum(e.enabled for e in zoo.load_registry()) and all(len(r) == 3 for r in rows)
+    assert len(rows) == sum(e.enabled and not e.backend for e in zoo.load_registry()) and all(len(r) == 3 for r in rows)
     zoo.main(["list"])
     assert "disabled:" in capsys.readouterr().out
 
@@ -366,3 +366,198 @@ def test_prefetch_reports_failures_and_continues(zoo_world, capsys):
     assert seen == ["g/gated", "o/base", "o/lora"] and "gated" in out and "accept the terms" in out and "2/4 ok" not in out
     assert "3/4 ok" in out and "1 FAILED" in out and "eval set: 4 rows" in out
     assert zoo.prefetch(["a"], reg, strict=True, fetch=fetch) == 1
+
+
+# ── System One backend (respanai/span-02) ────────────────────────────────────────────────────────────────────────
+import base64  # noqa: E402
+import io  # noqa: E402
+import threading  # noqa: E402
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer  # noqa: E402
+
+from PIL import Image  # noqa: E402
+
+from bio_waila.models import zoo_models  # noqa: E402
+
+
+class _FakeSystemOne:
+    """In-process System One server: answers every choice question from the image colour (as FakeDecider), records requests."""
+
+    def __init__(self, fail_first=0, bad_field=None, health=200, api_key=None):
+        self.requests, self.auth, self.fail_first, self.bad_field, self.health, self.api_key = [], [], fail_first, bad_field, health, api_key
+        outer = self
+
+        class H(BaseHTTPRequestHandler):
+            def log_message(self, *a):
+                pass
+
+            def _send(self, code, obj):
+                b = json.dumps(obj).encode()
+                self.send_response(code)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(b)))
+                self.end_headers()
+                self.wfile.write(b)
+
+            def do_GET(self):
+                self._send(outer.health, {"ok": True}) if self.path == "/health" else self._send(404, {})
+
+            def do_POST(self):
+                body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+                outer.auth.append(self.headers.get("Authorization"))
+                if self.path != "/v1/systemone":
+                    return self._send(404, {"error": {"type": "not_found", "message": "no"}})
+                outer.requests.append(body)
+                if outer.fail_first > 0:
+                    outer.fail_first -= 1
+                    return self._send(529, {"error": {"type": "overloaded", "message": "busy"}})
+                if outer.bad_field:
+                    return self._send(400, {"error": {"type": "invalid_request", "message": "bad question"}})
+                im = Image.open(io.BytesIO(base64.b64decode(body["images"][0].split(",", 1)[1])))
+                i = _idx(im)
+                mod, sub, bps, stain, dom, _ = KINDS[i % 3]
+                truth = {"modality": mod, "submodality": sub, "body_part": bps[0], "stain": stain or "h&e",
+                         "specimen": "human", "domain": dom[0]}
+                answers = {}
+                for f, q in body["questions"].items():
+                    keys = list(q["criteria"])
+                    omit = [k for k in keys if k != truth[f]][-1]       # one wrong class is omitted: must get the floor
+                    probs = {k: 0.01 for k in keys if k != omit}
+                    probs[truth[f]] = 0.9
+                    answers[f] = {"type": "choice", "choice": max(probs, key=probs.get), "confidence": 0.9, "probabilities": probs}
+                self._send(200, {"answers": answers, "usage": {}})
+
+        self.srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+        self.url = f"http://127.0.0.1:{self.srv.server_address[1]}"
+        threading.Thread(target=self.srv.serve_forever, daemon=True).start()
+
+    def close(self):
+        self.srv.shutdown()
+
+
+@pytest.fixture
+def fake_s1():
+    made = []
+
+    def make(**kw):
+        made.append(_FakeSystemOne(**kw))
+        return made[-1]
+    yield make
+    for m in made:
+        m.close()
+
+
+def _s1(srv, **kw):
+    return zoo_models.SystemOneScorer({"base_url": srv.url, "backoff": 0, "timeout": 10, **kw})
+
+
+def _img(i):
+    return Image.new("RGB", (32, 32), (60 * i, 10, 10))
+
+
+def test_systemone_request_and_logits(zoo_world, fake_s1, monkeypatch):
+    srv = fake_s1()
+    monkeypatch.setenv("SPAN_API_KEY", "secret")
+    sc = _s1(srv)
+    space = LabelSpace.load()
+    rows = sc.score_rows([_img(0)], [["modality", "body_part"]], space)
+    assert len(srv.requests) == 1                                   # one request carries both fields
+    body = srv.requests[0]
+    assert set(body["questions"]) == {"modality", "body_part"} and len(body["images"]) == 1
+    assert body["images"][0].startswith("data:image/jpeg;base64,") and body["reasoning"] == {"mode": "auto"}
+    assert body["state"] == {"task": "biomedical image metadata", "image": "Image 1"}
+    q = body["questions"]["modality"]
+    assert q["type"] == "choice" and "imaging modality of Image 1" in q["instructions"]
+    assert list(q["criteria"]) == space.classes["modality"] and len(q["criteria"]) <= 679
+    assert srv.auth == ["Bearer secret"]
+    lp = rows[0]["modality"]
+    assert lp.shape == (space.n("modality"),) and lp.exp().sum().item() == pytest.approx(1.0)
+    top = int(lp.argmax())
+    assert space.classes["modality"][top] == KINDS[0][0]
+    assert lp.min() < lp.max() - 8 and torch.isfinite(lp).all()    # the omitted class sits at the floor
+    one = sc.logprobs([_img(0), _img(1)], "domain", space)
+    assert one.shape == (2, space.n("domain"))
+
+
+def test_systemone_no_auth_header_without_key(zoo_world, fake_s1, monkeypatch):
+    monkeypatch.delenv("SPAN_API_KEY", raising=False)
+    srv = fake_s1()
+    _s1(srv).logprobs([_img(0)], "modality", LabelSpace.load())
+    assert srv.auth == [None]
+
+
+def test_systemone_retries_529_then_succeeds(zoo_world, fake_s1):
+    srv = fake_s1(fail_first=2)
+    out = _s1(srv).logprobs([_img(0)], "modality", LabelSpace.load())
+    assert len(srv.requests) == 3 and out.shape[0] == 1
+    srv = fake_s1(fail_first=99)
+    with pytest.raises(zoo_models.SystemOneError, match="529 overloaded"):
+        _s1(srv, retries=2).logprobs([_img(0)], "modality", LabelSpace.load())
+    assert len(srv.requests) == 3
+
+
+def test_systemone_error_body_is_not_retried(zoo_world, fake_s1):
+    srv = fake_s1(bad_field=True)
+    with pytest.raises(zoo_models.SystemOneError, match="bad question"):
+        _s1(srv).logprobs([_img(0)], "modality", LabelSpace.load())
+    assert len(srv.requests) == 1
+
+
+def test_systemone_health(fake_s1):
+    with pytest.raises(zoo_models.SystemOneError, match="HTTP 503"):
+        _s1(fake_s1(health=503))
+    _s1(fake_s1(health=404))                                          # hosted endpoints may not serve /health
+    with pytest.raises(zoo_models.SystemOneError, match="not reachable"):
+        zoo_models.SystemOneScorer({"base_url": "http://127.0.0.1:1", "timeout": 2})
+    with pytest.raises(ValueError, match="unknown systemone options"):
+        zoo_models.SystemOneScorer({"bogus": 1}, check=False)
+
+
+def test_systemone_registry_entry():
+    e = {x.slug: x for x in zoo.load_registry()}["dec_span_02"]
+    assert e.backend == "systemone" and not e.enabled and e.hf_id == "respanai/span-02" and "sm_120" in e.notes
+    with pytest.raises(ValueError, match="systemone"):
+        zoo.Entry(slug="a", hf_id="x/y", mode="generative", backend="systemone").validate()
+    with pytest.raises(ValueError, match="options"):
+        zoo.Entry(slug="a", hf_id="x/y", mode="decision", options={"a": 1}).validate()
+
+
+def test_run_systemone_end_to_end_via_cli(zoo_world, fake_s1, monkeypatch, capsys):
+    srv = fake_s1()
+    reg = _reg(zoo_world, {"slug": "span", "hf_id": "respanai/span-02", "mode": "decision", "backend": "systemone",
+                           "enabled": False, "reason": "needs a server", "options": {"base_url": "http://127.0.0.1:1"}})
+    monkeypatch.setattr(zoo, "RUNS", zoo_world / "runs")
+    with pytest.raises(SystemExit, match="disabled"):
+        zoo.main(["--registry", str(reg), "run", "--model", "span"])
+    plain = zoo_world / "plain.yaml"
+    plain.write_text(yaml.safe_dump({"models": [{"slug": "x", "hf_id": "a/b", "mode": "decision"}]}))
+    with pytest.raises(SystemExit, match="only applies"):
+        zoo.main(["--registry", str(plain), "run", "--model", "x", "--base-url", srv.url])
+    assert zoo.main(["--registry", str(reg), "run", "--model", "span", "--base-url", srv.url]) == 0
+    out = zoo_world / "runs" / "zoo" / "span"
+    m = json.loads((out / "public_metrics.json").read_text())
+    assert m["C"] == pytest.approx(1.0) and m["zoo"]["backend"] == "systemone" and m["zoo"]["unmapped_rate"] is None
+    assert len(srv.requests) == 4                                      # one request per image, all its annotated fields
+    assert all(1 <= len(r["questions"]) <= 6 for r in srv.requests)
+    pr = pd.read_parquet(out / "public_predictions.parquet")
+    assert (pr.modality_prob > 0.5).all()
+    assert zoo.main(["--registry", str(reg), "run", "--model", "span", "--enable", "--base-url", srv.url, "--limit", "2",
+                     "--out", str(zoo_world / "o2")]) == 0
+    capsys.readouterr()
+    zoo.main(["--registry", str(reg), "list", "--porcelain"])
+    assert capsys.readouterr().out == ""                               # backend entries are never in the Slurm loop
+
+
+def test_prefetch_systemone_downloads_whole_repo(zoo_world):
+    reg = _reg(zoo_world, {"slug": "span", "hf_id": "respanai/span-02", "mode": "decision", "backend": "systemone",
+                           "enabled": False, "reason": "x"},
+               {"slug": "g", "hf_id": "o/g", "mode": "generative"})
+    calls = {}
+
+    def fetch(repo, token, **kw):
+        calls[repo] = kw
+        return "ok", ""
+    assert zoo.prefetch(["span", "g"], reg, fetch=fetch) == 0
+    assert calls == {"respanai/span-02": {"ignore": []}, "o/g": {}}
+    calls.clear()
+    zoo.prefetch(None, reg, fetch=fetch)
+    assert list(calls) == ["o/g"]                                      # disabled: only fetched when named

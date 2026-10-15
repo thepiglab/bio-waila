@@ -3,10 +3,16 @@
   HFGenerator   any AutoModelForImageTextToText model: image + prompt → greedy-decoded text   (mode `generative`)
   LetterScorer  lettered-option readout via GemmaBackend (stock models, or a LoRA adapter on a base)   (mode `decision`)
   D1Scorer      Liquid d1 decision models (`model.system_one`, one `choice` question per field)       (mode `decision`)
+  SystemOneScorer  HTTP client for a TypeSafe System One server (respanai/span-02): one request per image, all fields  (mode `decision`)
 
 Decision scorers share `logprobs(images, field, space, k_max) -> [B, n_classes]`; classes beyond k_max options per call go
 through the two-round tournament in jev_gemma.tournament_logprobs. Every class here has `n_params` (billions).
 """
+import base64
+import io
+import time
+from concurrent.futures import ThreadPoolExecutor
+
 import torch
 
 from bio_waila.models.jev_gemma import QUESTION, GemmaBackend, field_logprobs, tournament_logprobs
@@ -109,8 +115,133 @@ class D1Scorer:
         return tournament_logprobs(run, len(images), len(names), k_max or len(names))
 
 
+class SystemOneError(RuntimeError):
+    pass
+
+
+class SystemOneScorer:
+    """Client for a TypeSafe System One compatible server (respanai/span-02: self-hosted Rust/CUDA engine on an sm_120 GPU, or a
+    hosted API). `POST {base_url}{endpoint}` with {"state", "questions": {field: choice question}, "images": [data URI],
+    "reasoning": {"mode", "budget_ms"}} → {"answers": {field: {"choice", "confidence", "probabilities"}}}. One request per image
+    carries every annotated field as its own `choice` question (the server accepts 1-679 options, so no tournament).
+    `options` (registry `options:` / CLI): base_url, endpoint, api_key_env, model, reasoning, budget_ms, concurrency, timeout,
+    retries, health. The bearer token is read from the env var `api_key_env` and only sent when it is set."""
+
+    DEFAULTS = {"base_url": "http://127.0.0.1:8000", "endpoint": "/v1/systemone", "api_key_env": "SPAN_API_KEY", "model": None,
+                "reasoning": "auto", "budget_ms": None, "concurrency": 8, "timeout": 300.0, "retries": 6, "backoff": 2.0,
+                "health": "/health"}
+    RETRY_STATUS = {408, 425, 429, 500, 502, 503, 504, 529}
+    PHRASE = {"modality": "imaging modality", "domain": "medical domain"}
+    FLOOR = 1e-6
+    n_params = 26.0  # span-02 = Gemma-4-26B-A4B fine-tune (26B total, ~4B active)
+
+    def __init__(self, options=None, session=None, check=True):
+        import os
+        import requests
+        o = {**self.DEFAULTS, **{k: v for k, v in (options or {}).items() if v is not None}}
+        unknown = set(o) - set(self.DEFAULTS)
+        if unknown:
+            raise ValueError(f"unknown systemone options {sorted(unknown)}")
+        self.o = o
+        self.url = o["base_url"].rstrip("/") + "/" + o["endpoint"].lstrip("/")
+        self.session = session or requests.Session()
+        key = os.environ.get(o["api_key_env"] or "")
+        self.headers = {"Content-Type": "application/json", **({"Authorization": f"Bearer {key}"} if key else {})}
+        if check:
+            self.health()
+
+    def health(self):
+        """GET {base_url}/health must answer 200 (a 404, as on a hosted endpoint, only warns); any other failure raises."""
+        if not self.o["health"]:
+            return
+        url = self.o["base_url"].rstrip("/") + self.o["health"]
+        try:
+            r = self.session.get(url, headers=self.headers, timeout=min(30.0, self.o["timeout"]))
+        except Exception as e:  # noqa: BLE001
+            raise SystemOneError(f"System One server not reachable at {url}: {type(e).__name__}: {e}") from e
+        if r.status_code == 404:
+            print(f"[zoo] {url} -> 404 (hosted endpoint?); skipping the health check", flush=True)
+        elif r.status_code != 200:
+            raise SystemOneError(f"System One health check {url} -> HTTP {r.status_code}: {r.text[:200]}")
+
+    @staticmethod
+    def _data_uri(im) -> str:
+        buf = io.BytesIO()
+        im.convert("RGB").save(buf, format="JPEG", quality=90)
+        return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+
+    def _body(self, image, fields, space) -> dict:
+        questions = {f: {"type": "choice", "instructions": f"What is the {self.PHRASE.get(f, f.replace('_', ' '))} of Image 1?",
+                         "criteria": {n: n for n in space.classes[f]}} for f in fields}
+        reasoning = {"mode": self.o["reasoning"], **({"budget_ms": int(self.o["budget_ms"])} if self.o["budget_ms"] else {})}
+        body = {"state": {"task": "biomedical image metadata", "image": "Image 1"}, "questions": questions,
+                "images": [self._data_uri(image)], "reasoning": reasoning}
+        if self.o["model"]:
+            body["model"] = self.o["model"]
+        return body
+
+    def _post(self, body) -> dict:
+        import requests
+        last = ""
+        for attempt in range(int(self.o["retries"]) + 1):
+            if attempt:
+                time.sleep(float(self.o["backoff"]) * 2 ** (attempt - 1) if self.o["backoff"] else 0)
+            try:
+                r = self.session.post(self.url, json=body, headers=self.headers, timeout=self.o["timeout"])
+            except (requests.ConnectionError, requests.Timeout) as e:
+                last = f"{type(e).__name__}: {e}"
+                continue
+            if r.status_code == 200:
+                try:
+                    return r.json()
+                except ValueError as e:
+                    raise SystemOneError(f"non-JSON 200 response from {self.url}: {r.text[:200]}") from e
+            try:
+                err = (r.json().get("error") or {})
+                last = f"HTTP {r.status_code} {err.get('type', '')}: {err.get('message', r.text[:200])}"
+            except (ValueError, AttributeError):
+                last = f"HTTP {r.status_code}: {r.text[:200]}"
+            if r.status_code not in self.RETRY_STATUS:
+                raise SystemOneError(f"System One request failed ({last})")
+        raise SystemOneError(f"System One request failed after {self.o['retries']} retries ({last})")
+
+    def _score_one(self, image, fields, space) -> dict:
+        res = self._post(self._body(image, fields, space))
+        answers = res.get("answers") or {}
+        out = {}
+        for f in fields:
+            ans = answers.get(f)
+            if not isinstance(ans, dict) or "error" in ans:
+                raise SystemOneError(f"no usable answer for field {f!r}: {str(ans if ans is not None else res)[:200]}")
+            out[f] = self._probs(ans, space.classes[f])
+        return out
+
+    @classmethod
+    def _probs(cls, ans, names):
+        """Log-probs over `names` from one choice answer; classes the server did not return get the floor, then renormalized."""
+        pr = ans.get("probabilities")
+        if isinstance(pr, dict):
+            p = torch.tensor([max(float(pr.get(n, 0.0)), cls.FLOOR) for n in names])
+        else:
+            p = torch.full((len(names),), cls.FLOOR)
+            if ans.get("choice") in names:
+                p[names.index(ans["choice"])] = 1.0
+        return torch.log(p / p.sum())
+
+    def score_rows(self, images, fields_per_image, space) -> list[dict]:
+        """One request per image (thread pool): [{field: log-probs [n_classes]}] with the fields asked for each image."""
+        with ThreadPoolExecutor(max_workers=max(1, int(self.o["concurrency"]))) as ex:
+            return list(ex.map(lambda a: self._score_one(a[0], a[1], space), zip(images, fields_per_image)))
+
+    def logprobs(self, images, field, space, k_max=None):
+        rows = self.score_rows(images, [[field]] * len(images), space)
+        return torch.stack([r[field] for r in rows])
+
+
 def load_backend(entry):
     """The backend for a zoo entry (eval/zoo.py Entry)."""
+    if entry.backend == "systemone":
+        return SystemOneScorer(entry.options)
     if entry.mode == "generative":
         return HFGenerator(entry.hf_id, entry.dtype, entry.trust_remote_code, entry.max_new_tokens)
     if entry.readout == "d1":

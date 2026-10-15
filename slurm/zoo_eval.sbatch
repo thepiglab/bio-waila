@@ -10,6 +10,8 @@
 #SBATCH --output=logs/zoo_%x_%j.log
 #
 # GPU stage of the model zoo (docs/experiments/zoo.md): scores ONE model on mmbu-public → $WAILA_RUNS/zoo/<slug>/.
+# Models with their own serving engine (backend: systemone, i.e. dec_span_02) are not listed by `waila-zoo list --porcelain`
+# and so are skipped here: use slurm/zoo_span.sbatch.
 # Weights must already be in $HF_HOME (slurm/zoo_prefetch.sbatch); the job runs with HF_HUB_OFFLINE=1.
 #
 #   cd $WAILA_HOME && bash slurm/zoo_eval.sbatch submit [LIMIT]

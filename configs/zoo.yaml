@@ -9,6 +9,8 @@
 #   gpus, mem_gb       Slurm resources (every entry fits one 192 GB GPU in bf16)
 #   max_new_tokens     generative: decoding budget (default 384)
 #   k_max              decision: options per chunk before a tournament is used (default 26)
+#   backend            systemone: HTTP client for a System One server (see docs/experiments/zoo.md, span-02); omit for in-process models
+#   options            backend settings (systemone: base_url, endpoint, api_key_env, model, reasoning, budget_ms, concurrency, timeout, retries)
 #   enabled, reason    enabled: false entries are skipped by prefetch / run / the Slurm submit helper; reason says why
 #   notes              licence / gating
 models:
@@ -232,3 +234,14 @@ models:
     mem_gb: 128
     enabled: false
     reason: "the safetensors repo is private; only a GGUF export is public"
+  - slug: "dec_span_02"
+    hf_id: "respanai/span-02"
+    mode: "decision"
+    backend: "systemone"
+    options:
+      base_url: "http://127.0.0.1:8000"
+    gpus: 1
+    mem_gb: 64
+    enabled: false
+    reason: "ships its own Rust/CUDA engine (not transformers/vLLM) needing an sm_120 Blackwell GPU (RTX PRO 6000 / 5090); run with `waila-zoo run --model dec_span_02 --base-url URL` or slurm/zoo_span.sbatch"
+    notes: "Apache-2.0. Gemma-4-26B-A4B fine-tune, image-capable. Self-hosting needs an sm_120 GPU (RTX PRO 6000 / RTX 5090); B200 (sm_100) is NOT supported. A hosted API exists but sends the eval images to a third party: check the mmbu-public licence first."

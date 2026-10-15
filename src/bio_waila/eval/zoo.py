@@ -2,14 +2,15 @@
 
     waila-zoo list [--porcelain]                      the registry (configs/zoo.yaml) with enabled flags
     waila-zoo prefetch [--models a,b] [--strict]      CPU: download weights into HF_HOME, build plan/eval_public.parquet
-    waila-zoo run --model SLUG [--limit N] [--batch B]    GPU: score one model → runs/zoo/<slug>/
+    waila-zoo run --model SLUG [--limit N] [--batch B] [--base-url URL] [--enable]    GPU: score one model → runs/zoo/<slug>/
     waila-zoo leaderboard                             aggregate runs/zoo/*/public_metrics.json → leaderboard.{csv,md}
 
 Two scoring modes (docs/experiments/zoo.md):
   generative  image + the official Pass-2 prompt (only the fields annotated for that image), greedy decode, parse the JSON,
               map each string onto the label space (canonical normalizer → alias table → fuzzy match; else unmapped = wrong)
   decision    per field, the class names as lettered options and the next-token letter probabilities (Jev style); more than
-              k_max options use a two-round tournament; Liquid d1 uses its own `choice` API
+              k_max options use a two-round tournament; Liquid d1 uses its own `choice` API; `backend: systemone` entries
+              (respanai/span-02) call a System One HTTP server, one request per image with every field as a choice question
 Predictions become logits (±8 one-hot for generative, log-probs for decision) so `public.score_public` computes C and the
 field metrics exactly as for trained models.
 """
@@ -31,6 +32,7 @@ from bio_waila.paths import REPO, RUNS
 REGISTRY_PATH = REPO / "configs" / "zoo.yaml"
 MODES = ("generative", "decision")
 READOUTS = ("letters", "d1")
+BACKENDS = ("", "systemone")  # "" = the in-process transformers backends; systemone = HTTP client (models/zoo_models.SystemOneScorer)
 DTYPES = ("bfloat16", "float16", "float32")
 # policy: no Chinese-origin / Qwen-based checkpoints in the zoo
 BANNED = re.compile(r"qwen|deepseek|internvl|chatglm|glm-|cogvlm|minicpm|baichuan|yi-vl|hunyuan|ernie|kimi|moonshot", re.I)
@@ -53,11 +55,13 @@ class Entry:
     enabled: bool = True
     reason: str = ""
     notes: str = ""
+    backend: str = ""
+    options: dict | None = None  # backend settings (systemone: base_url, endpoint, api_key_env, reasoning, concurrency, ...)
 
     def validate(self):
         if not re.fullmatch(r"[A-Za-z0-9_.-]+", self.slug or ""):
             raise ValueError(f"bad slug {self.slug!r} (letters, digits, _ . - only)")
-        for k, allowed in (("mode", MODES), ("readout", READOUTS), ("dtype", DTYPES)):
+        for k, allowed in (("mode", MODES), ("readout", READOUTS), ("dtype", DTYPES), ("backend", BACKENDS)):
             if getattr(self, k) not in allowed:
                 raise ValueError(f"{self.slug}: {k}={getattr(self, k)!r} not in {allowed}")
         if not self.hf_id or "/" not in self.hf_id:
@@ -66,6 +70,10 @@ class Entry:
             raise ValueError(f"{self.slug}: base/readout only apply to decision entries")
         if self.readout == "d1" and self.base:
             raise ValueError(f"{self.slug}: a d1 model has no base")
+        if self.backend == "systemone" and (self.mode != "decision" or self.base or self.k_max):
+            raise ValueError(f"{self.slug}: a systemone entry is mode=decision without base / k_max")
+        if self.options and not self.backend:
+            raise ValueError(f"{self.slug}: options only apply to entries with a backend")
         if self.gpus < 1 or self.mem_gb < 1 or self.max_new_tokens < 1 or (self.k_max is not None and self.k_max < 2):
             raise ValueError(f"{self.slug}: gpus, mem_gb, max_new_tokens must be positive and k_max >= 2")
         if self.k_max and self.k_max > 26:
@@ -452,10 +460,32 @@ def _by_row(raw, df):
     return [by.get(u, {"values": {}}) for u in df["unique_id"]]
 
 
+def _decision_rows(backend, df, root, space, modes, batch, max_side):
+    """Backends with `score_rows` (System One) answer all annotated fields of an image in one request."""
+    import torch
+    from bio_waila.train.labels import MASKED
+    N = len(df)
+    logits = {f: torch.full((N, space.n(f)), -30.0) for f in space.fields}
+    todo = [(i, [f for f in space.fields if int(modes[f][i]) != MASKED]) for i in range(N)]
+    todo = [t for t in todo if t[1]]
+    t0 = time.perf_counter()
+    for s in range(0, len(todo), batch):
+        sel = todo[s:s + batch]
+        rows = backend.score_rows([load_image(root, df["image"].iloc[i], max_side) for i, _ in sel], [fs for _, fs in sel], space)
+        for (i, _), r in zip(sel, rows):
+            for f, lp in r.items():
+                logits[f][i] = lp.float()
+        print(f"[zoo] decision rows {min(s + batch, len(todo))}/{len(todo)}", flush=True)
+    return logits, time.perf_counter() - t0
+
+
 def _decision(backend, df, root, space, modes, tgts, batch, max_side, k_max):
     import torch
     from bio_waila.train.labels import MASKED
     N = len(df)
+    if hasattr(backend, "score_rows"):
+        logits, secs = _decision_rows(backend, df, root, space, modes, batch, max_side)
+        return logits, secs, {"unmapped_rate": None}, _decision_cols(logits, modes, space), None
     logits = {f: torch.full((N, space.n(f)), -30.0) for f in space.fields}
     t0 = time.perf_counter()
     for f in space.fields:
@@ -466,9 +496,14 @@ def _decision(backend, df, root, space, modes, tgts, batch, max_side, k_max):
             logits[f][sel] = lp.float()
         print(f"[zoo] decision {f}: {len(idx)} images", flush=True)
     secs = time.perf_counter() - t0
+    return logits, secs, {"unmapped_rate": None}, _decision_cols(logits, modes, space), None
+
+
+def _decision_cols(logits, modes, space):
+    from bio_waila.train.labels import MASKED
+    N = len(next(iter(logits.values())))
     ann = {f: modes[f].numpy() != MASKED for f in space.fields}
-    cols = {f"{f}_prob": [float(logits[f][i].softmax(-1).max()) if ann[f][i] else None for i in range(N)] for f in space.fields}
-    return logits, secs, {"unmapped_rate": None}, cols, None
+    return {f"{f}_prob": [float(logits[f][i].softmax(-1).max()) if ann[f][i] else None for i in range(N)] for f in space.fields}
 
 
 def run_model(entry, limit=None, batch=None, out_root=None, backend=None, public=None, seed=0):
@@ -495,7 +530,7 @@ def run_model(entry, limit=None, batch=None, out_root=None, backend=None, public
     res["zoo"] = {"slug": entry.slug, "hf_id": entry.hf_id, "base": entry.base, "mode": entry.mode, "readout": entry.readout,
                   "params_b": float(getattr(backend, "n_params", float("nan"))), "sec_per_image": secs / max(len(df), 1),
                   "total_sec": secs, "limit": limit, "batch": bs,
-                  "max_new_tokens": entry.max_new_tokens if entry.mode == "generative" else None,
+                  "backend": entry.backend or None, "max_new_tokens": entry.max_new_tokens if entry.mode == "generative" else None,
                   "k_max": (entry.k_max or 26) if entry.mode == "decision" and entry.readout == "letters" else entry.k_max,
                   **extra}
     table = pub.predictions_table(logits, modes, tgts, df, space)
@@ -515,12 +550,12 @@ IGNORE = ["*.gguf", "*.mp4", "*.png", "*.svg", "*.jpg", "docs/*", "videos/*", "a
           "adapter_vllm/*", "patches/*", "*.tar.gz", "original/*", "consolidated*.safetensors"]
 
 
-def prefetch_one(repo, token=None):
+def prefetch_one(repo, token=None, ignore=IGNORE):
     """('ok'|'gated'|'missing'|'error', detail) for one snapshot_download."""
     from huggingface_hub import snapshot_download
     from huggingface_hub.errors import GatedRepoError, HfHubHTTPError, RepositoryNotFoundError
     try:
-        snapshot_download(repo, token=token, ignore_patterns=IGNORE)
+        snapshot_download(repo, token=token, ignore_patterns=ignore)
         return "ok", ""
     except GatedRepoError as e:
         return "gated", f"gated: accept the terms at https://huggingface.co/{repo} with the account that owns HF_TOKEN ({e})"
@@ -556,7 +591,8 @@ def prefetch(slugs=None, path=None, strict=False, fetch=prefetch_one):
         for repo in dict.fromkeys([e.base, e.hf_id] if e.base else [e.hf_id]):
             if repo not in done:
                 print(f"[prefetch] {repo} …", flush=True)
-                done[repo] = fetch(repo, token)
+                # a systemone repo is the whole engine + weights: nothing is filtered out
+                done[repo] = fetch(repo, token, ignore=[]) if e.backend == "systemone" else fetch(repo, token)
             status[(e.slug, repo)] = done[repo]
     bad = {k: v for k, v in status.items() if v[0] != "ok"}
     print("\n[prefetch] summary")
@@ -622,7 +658,7 @@ def main(argv=None):
     ap.add_argument("--registry", default=None, help=f"registry YAML (default {REGISTRY_PATH})")
     sub = ap.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("list", help="show the registry")
-    p.add_argument("--porcelain", action="store_true", help="enabled entries only, as slug<TAB>gpus<TAB>mem_gb (for Slurm scripts)")
+    p.add_argument("--porcelain", action="store_true", help="enabled in-process entries only (no backend: systemone), as slug<TAB>gpus<TAB>mem_gb (for Slurm scripts)")
     p = sub.add_parser("prefetch", help="CPU: download weights and build the eval set")
     p.add_argument("--models", default=None, help="comma-separated slugs (default: all enabled)")
     p.add_argument("--strict", action="store_true", help="exit non-zero if any download failed")
@@ -631,13 +667,15 @@ def main(argv=None):
     p.add_argument("--limit", type=int, default=None, help="random subsample of N public images (seed 0)")
     p.add_argument("--batch", type=int, default=None)
     p.add_argument("--out", default=None, help="output root (default runs/zoo)")
+    p.add_argument("--base-url", default=None, help="systemone entries: server URL (overrides options.base_url; implies --enable)")
+    p.add_argument("--enable", action="store_true", help="run an entry even though it is `enabled: false` in the registry")
     sub.add_parser("leaderboard", help="aggregate runs/zoo/*/public_metrics.json")
     a = ap.parse_args(argv)
     if a.cmd == "list":
         es = load_registry(a.registry)
         if a.porcelain:
             for e in es:
-                if e.enabled:
+                if e.enabled and not e.backend:  # backend entries (systemone) need a server, not a Slurm GPU job per model
                     print(f"{e.slug}\t{e.gpus}\t{e.mem_gb}")
             return 0
         for e in es:
@@ -649,8 +687,12 @@ def main(argv=None):
         return prefetch(a.models.split(",") if a.models else None, a.registry, a.strict)
     if a.cmd == "run":
         e = get_entry(a.model, a.registry)
-        if not e.enabled:
-            raise SystemExit(f"{e.slug} is disabled: {e.reason}")
+        if a.base_url:
+            if e.backend != "systemone":
+                raise SystemExit("--base-url only applies to backend: systemone entries")
+            e.options = {**(e.options or {}), "base_url": a.base_url}
+        if not e.enabled and not (a.enable or a.base_url):
+            raise SystemExit(f"{e.slug} is disabled: {e.reason}  (pass --enable, or --base-url for a running server, to run it anyway)")
         run_model(e, a.limit, a.batch, a.out)
         return 0
     leaderboard()
