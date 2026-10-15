@@ -28,6 +28,8 @@ Every location is in `src/bio_waila/paths.py` and can be overridden with a `WAIL
 4. **Prepare**. Extracts archives, finds media (images, DICOM, NIfTI, video, WSI, arrays; masks and macOS junk are skipped by `files.py`), samples slices/frames/tiles, writes 8-bit JPEGs with a long side of at most 512 px, drops duplicates and anything near-identical to an mmbu-public image, and attaches the labels from step 3 (falling back to header and path rules if metalabel was not run). `--merge` concatenates the per-dataset manifests and writes `stats.md`.
 5. **Validate**. The same steps one dataset at a time inside a size-capped local cache (`waila-cache status`), for checking datasets on a laptop before using the cluster. It writes a per-dataset report: columns used, label modes and sources, conflicts, sample images. The raw download is deleted afterwards.
 
+**Evaluation set (not a pipeline step).** `waila-eval-set` turns mmbu-public (`metadata.jsonl` + `images/`) into `plan/eval_public.parquet` in the training label format; fields a row leaves empty are `masked` and skipped when scoring. The split is **eval only**: nothing in the training manifest or any trainer reads it for learning. Trainers score their final model on it, and `waila-eval --run <run dir>` scores a finished run (`src/bio_waila/eval/public.py`, `run.py`): `public_metrics.json` (per-field metrics by MMBU task and pooled, plus the context score C: the mean over images of the share of annotated fields whose top-1 is in the target set), `public_predictions.parquet`, and a line in `plan/public_looks.jsonl` per look.
+
 ## Where does a fix go?
 
 Pick the narrowest place that fixes the problem.

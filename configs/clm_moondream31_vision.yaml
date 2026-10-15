@@ -22,6 +22,8 @@ sampler:                     # train/sampling.py; the sequence is fixed by train
   tau: 0.7
   power: 0.5
   cap: 20000
+eval:
+  public: true              # score the final model on mmbu-public (eval only; skipped if absent) → public_metrics.json
 train:
   global_batch: 1024         # per optimiser step, summed over GPUs (per-GPU batch = global_batch / n_gpus)
   workers: 16

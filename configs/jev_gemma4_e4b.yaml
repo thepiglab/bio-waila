@@ -20,6 +20,8 @@ sampler:                     # train/sampling.py; the sequence is fixed by train
   tau: 0.7
   power: 0.5
   cap: 20000
+eval:
+  public: true              # score the final model on mmbu-public (eval only; skipped if absent) → public_metrics.json
 train:
   formulation: F2            # F2 | F3
   context_dropout: 0.3       # F3 only

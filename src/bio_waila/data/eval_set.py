@@ -28,8 +28,10 @@ def split_vals(field, v):
     return [x for x in str(v).split("|")]
 
 
-def main():
-    df = pd.read_json(PUBLIC / "metadata.jsonl", lines=True)
+def build(public=None, plan=None, write=True) -> pd.DataFrame:
+    """metadata.jsonl under `public` → eval manifest (training label format); written to <plan>/eval_public.parquet."""
+    public, plan = Path(public or PUBLIC), Path(plan or PLAN)
+    df = pd.read_json(public / "metadata.jsonl", lines=True)
     out = []
     for _, r in df.iterrows():
         rec = {"image": str(r.file_name), "dataset_id": "mmbu-public", "split": "eval",  # image path relative to WAILA_PUBLIC
@@ -40,7 +42,14 @@ def main():
             rec[f"{f}_mode"], rec[f"{f}_values"], rec[f"{f}_source"], rec[f"{f}_conf"] = mode, vals, "mmbu", 1.0
         out.append(rec)
     ev = pd.DataFrame(out)
-    ev.to_parquet(PLAN / "eval_public.parquet", index=False)
+    if write:
+        plan.mkdir(parents=True, exist_ok=True)
+        ev.to_parquet(plan / "eval_public.parquet", index=False)
+    return ev
+
+
+def main():
+    ev = build()
     print(f"{len(ev):,} eval rows →", PLAN / "eval_public.parquet")
     print(json.dumps({f: ev[f"{f}_mode"].value_counts().to_dict() for f in FIELDS}, indent=1))
 

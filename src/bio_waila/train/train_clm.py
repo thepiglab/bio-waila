@@ -71,6 +71,23 @@ def evaluate(model, loader, df, acc, space, temps=None):
     return all_metrics(L, M, T, ds, space, temps), (L, M, T)
 
 
+def public_eval(pm, acc, space, cfg, temps, out, public=None, limit=None, bs=None):
+    """Score the final model on mmbu-public (eval only) and write the report next to the run; None if unavailable."""
+    from bio_waila.eval import public as pub
+    public = public or pub.try_load_public(cfg, limit=limit)
+    if public is None:
+        return None
+    df, root = public
+    tc, size = cfg["train"], cfg["model"].get("image_size", 384)
+    bs = bs or tc.get("batch", 64)
+    ldr = acc.prepare(torch.utils.data.DataLoader(ManifestImages(df, root, space, image_transform(size, False)), batch_size=bs,
+                                                  num_workers=tc.get("workers", 0), collate_fn=collate))
+    L, M, T, I = predict(pm, ldr, acc, space.fields)
+    if not acc.is_main_process:
+        return None
+    return pub.evaluate_public(L, M, T, df.iloc[I.numpy()].reset_index(drop=True), space, temps, out, str(out))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--config", required=True)
@@ -236,6 +253,15 @@ def main(argv=None):
     if acc.is_main_process:
         torch.save({"state": acc.unwrap_model(pm).state_dict(), "config": cfg, "temperatures": temps,
                     "wise_alpha": best[1], "fields": space.fields, "classes": space.classes}, out / "final.pt")
+    try:
+        pr = public_eval(pm, acc, space, cfg, temps, out)
+    except Exception as e:  # never lose a trained model to the public look
+        pr = None
+        log(event="public_failed", error=repr(e)[:300])
+    if pr is not None:
+        report["public"] = pr
+        log(event="eval", stage="final", set="public", C=pr["C"], mean_field_acc=pr["mean_field_acc"])
+    if acc.is_main_process:
         save_json(out / "metrics.json", report)
     return report
 

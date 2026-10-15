@@ -142,7 +142,7 @@ This answers the two questions that matter: which formulation teaches best, and 
 - **Keep the GPUs busy:** never leave one waiting on the CPU. Cache SigLIP2 features and Gemma image tokens per image once (both fit easily on cluster storage), and stream prepared JPEGs with ≥ 12 workers per GPU.
 - **Save predictions, not just metrics:** every run writes per-image prediction parquet, the config and the git hash. Pseudo-labeling and the paired bootstrap need these; re-running inference is wasted GPU time.
 - **Checkpoints:** save LoRA adapters only (tens of MB), plus the final full checkpoint for the student. Keep checkpoints under `$WAILA_RUNS/<run_id>/` (the checkout's gitignored `runs/`).
-- **Public-split looks:** log every look at mmbu-public in `public_looks.jsonl`. The public split is reporting only.
+- **Public-split looks:** log every look at mmbu-public in `plan/public_looks.jsonl`. The public split is reporting only. `eval/public.py` appends the line automatically for the trainers' final evaluation and for `waila-eval --run <dir>`.
 
 ## Day-0 checklist
 

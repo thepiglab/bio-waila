@@ -51,3 +51,6 @@ plan/dryrun_shard*.csv
 # private notes (cluster details etc.): local only, never pushed
 docs/private/
 !.env.example
+
+# log of every look at mmbu-public (per machine; see eval/public.py)
+plan/public_looks.jsonl

@@ -81,7 +81,7 @@ bio-waila/
 │   │   └── validate.py        local per-dataset pipeline validation     (waila-validate)
 │   ├── models/                clm_siglip (CLM-vision), clm_llm (CLM-LLM), jev_gemma (Jev), moondream_vision
 │   ├── train/                 labels, folds, data, losses; train_clm / train_clm_llm / train_jev   (waila-train-*)
-│   └── eval/                  metrics macro-averaged over held-out datasets, temperature fitting
+│   └── eval/                  metrics macro-averaged over held-out datasets, temperature fitting, mmbu-public scoring (public.py, run.py)
 ├── catalog/                   datasets.yaml + DATA.md: every training dataset (link, size, modality, description); built by scripts/build_catalog.py
 ├── plan/                      selection.jsonl, label_space.json, report.md (generated); registry_fixes.json, overrides.csv (hand-edited)
 ├── resources/                 taxonomy, MMBU vocabulary, alias maps, paper Fig. 3 numbers (self-contained copies)
@@ -132,6 +132,23 @@ metrics macro-averaged over held-out datasets (`eval/metrics.py`):
 On the cluster: first `sbatch slurm/train_smoke.sbatch` (every real model for a few steps), then `slurm/train.sbatch` with
 `TRAINER=clm|clm-llm-embed|clm-llm|jev` (1-4 GPUs; header has examples). Outputs land in `$WAILA_RUNS`.
 `uv run pytest tests/test_train.py` runs all three end to end on tiny random models (CPU, no downloads).
+
+## Evaluate on mmbu-public
+
+mmbu-public (`../mmbu-public`, or `WAILA_PUBLIC`) is **evaluation only** and is never trained on. Each trainer scores its final
+model on it automatically (`eval: {public: true}` in the config; skipped with a warning if the split is absent), and any finished
+run can be scored on its own:
+
+```bash
+uv run waila-eval-set                                    # once; also built on demand → plan/eval_public.parquet
+uv run waila-eval --run runs/clm_siglip2/fold0 [--limit 200] [--out DIR]
+```
+
+Both write `public_metrics.json` and `public_predictions.parquet` into the run directory and append the look to
+`plan/public_looks.jsonl`. The headline number is the context score **C**: per image, the share of its annotated fields whose
+top-1 class is in the target set (a stand-in for Pass 2), averaged over images; it is also split by modality and task type,
+next to the usual per-field metrics (macro-averaged over MMBU tasks, and pooled). `waila-eval` supports CLM-vision, CLM-LLM
+(needs the public images embedded by `embed`) and Jev (config saved as `config.json`).
 
 ## Validate locally before using the cluster
 

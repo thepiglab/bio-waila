@@ -112,6 +112,17 @@ def evaluate(backend, df, root, space, cfg, temps=None, bs=8):
     return all_metrics(L, M, T, df["dataset_id"].to_numpy(), space, temps), (L, M, T)
 
 
+def public_eval(backend, space, cfg, temps, out, public=None, limit=None, bs=8):
+    """Score the backend on mmbu-public (eval only; every row) and write the report; None if unavailable."""
+    from bio_waila.eval import public as pub
+    public = public or pub.try_load_public(cfg, limit=limit)
+    if public is None:
+        return None
+    df, root = public
+    _, (L, M, T) = evaluate(backend, df, root, space, cfg["train"], temps, bs=bs)
+    return pub.evaluate_public(L, M, T, df, space, temps, out, str(out))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--config", required=True)
@@ -138,6 +149,8 @@ def main(argv=None):
     ev = {"val": eval_subset(val, tc.get("eval_per_dataset", 20)), "heldout": eval_subset(heldout, tc.get("eval_per_dataset", 20))}
     log(event="data", train=len(train), **{k: len(v) for k, v in ev.items()})
 
+    if acc.is_main_process:
+        save_json(out / "config.json", cfg)         # lets `waila-eval --run` rebuild the model
     backend = make_backend(cfg["model"])
     trainable = [p for p in backend.parameters() if p.requires_grad]
     if tc.get("epochs", 1) and trainable:
@@ -190,6 +203,14 @@ def main(argv=None):
                 report[name] = res
                 log(event="eval", set=name, mean_acc_macro_ds=res["mean_acc_macro_ds"])
         report["temperatures"] = temps
+        try:
+            pr = public_eval(backend, space, cfg, temps, out)
+        except Exception as e:  # never lose a trained model to the public look
+            pr = None
+            log(event="public_failed", error=repr(e)[:300])
+        if pr is not None:
+            report["public"] = pr
+            log(event="eval", set="public", C=pr["C"], mean_field_acc=pr["mean_field_acc"])
         save_json(out / "metrics.json", report)
     return report
 

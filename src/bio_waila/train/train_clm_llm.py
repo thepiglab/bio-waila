@@ -99,6 +99,29 @@ def predict(heads, x, bs=8192):
     return {f: torch.cat([o[f] for o in outs]) for f in heads.space.fields} if outs else {}
 
 
+def load_public_cached(cfg, limit=None):
+    """mmbu-public eval rows (eval only) plus their root key in the embedding cache; None (with a warning) if unavailable."""
+    from bio_waila.eval import public as pub
+    ep = cfg["data"].get("eval_public")
+    got = pub.try_load_public(cfg, parquet=ep, limit=limit) if ep else pub.try_load_public(cfg, limit=limit)
+    return None if got is None else (got[0], str(cfg["data"].get("public_root") or got[1]))
+
+
+def public_eval(heads, cfg, space, X, pos, temps, out, dev="cpu", public=None, limit=None):
+    """Score the heads on the cached mmbu-public embeddings and write the report; None if unavailable or not embedded."""
+    from bio_waila.eval import public as pub
+    public = public or load_public_cached(cfg, limit)
+    if public is None:
+        return None
+    df, root = public
+    df, x, m, t = tensors(df, root, X, pos, space)
+    if not len(df):
+        print("[public] skipped: mmbu-public images were not embedded (run `embed` with the eval set present)", flush=True)
+        return None
+    L = {k: v.cpu() for k, v in predict(heads, x.to(dev)).items()}
+    return pub.evaluate_public(L, m, t, df, space, temps, out, str(out))
+
+
 def cmd_train(cfg, fold):
     tc, d = cfg["train"], cfg["data"]
     seed_all(tc.get("seed", 0))
@@ -185,6 +208,14 @@ def cmd_train(cfg, fold):
         report[name] = all_metrics(L, sm, st, sdf["dataset_id"].to_numpy(), space, temps)
         log(event="eval", stage="final", set=name, mean_acc_macro_ds=report[name]["mean_acc_macro_ds"])
     report["temperatures"] = temps
+    try:
+        pr = public_eval(heads, cfg, space, X, pos, temps, out, dev)
+    except Exception as e:  # never lose a trained model to the public look
+        pr = None
+        log(event="public_failed", error=repr(e)[:300])
+    if pr is not None:
+        report["public"] = pr
+        log(event="eval", stage="final", set="public", C=pr["C"], mean_field_acc=pr["mean_field_acc"])
     torch.save({"state": heads.state_dict(), "config": cfg, "temperatures": temps, "fields": space.fields,
                 "classes": space.classes, "dim": int(X.shape[1]), "head_cfg": heads.cfg}, out / "final.pt")
     if heads.shared_state:  # also in CLM's own format (loadable by clm.heads.HeadPair)

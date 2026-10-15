@@ -19,3 +19,15 @@ CLASSES = {
 @pytest.fixture(scope="session")
 def classes():
     return {f: set(v) for f, v in CLASSES.items()}
+
+
+@pytest.fixture(autouse=True)
+def _no_real_public(tmp_path_factory, monkeypatch):
+    """Tests must never touch the real mmbu-public or log a look in the real plan/public_looks.jsonl."""
+    try:
+        from bio_waila.eval import public
+    except ImportError:  # torch not installed
+        return
+    d = tmp_path_factory.mktemp("nopublic")
+    monkeypatch.setattr(public, "PUBLIC", d / "mmbu-public")
+    monkeypatch.setattr(public, "PLAN", d / "plan")
