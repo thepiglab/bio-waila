@@ -24,6 +24,7 @@ export HF_HOME=${HF_HOME:-$WAILA_WORK/hf_cache}                            # kee
 export UV_CACHE_DIR=${UV_CACHE_DIR:-$WAILA_WORK/uv_cache}
 export UV_PROJECT_ENVIRONMENT=${UV_PROJECT_ENVIRONMENT:-$WAILA_HOME/.venv} # repo-local venv (gitignored), off the $HOME quota
 export PATH="$HOME/.local/bin:$PATH"                                        # where the uv installer puts uv
+command -v module >/dev/null 2>&1 && module load 7zip/24.09 >/dev/null 2>&1  # RAR/7z extraction backend for rarfile (skipped off-cluster)
 
 mkdir -p "$WAILA_RAW" "$WAILA_PREP" "$WAILA_RUNS" "$WAILA_HOME/logs" "$HF_HOME"
 command -v uv >/dev/null || { echo "bio-waila env: uv not found. Install: curl -LsSf https://astral.sh/uv/install.sh | sh" >&2; return 1 2>/dev/null || exit 1; }
