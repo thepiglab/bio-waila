@@ -1,0 +1,2517 @@
+{
+ "meta": {
+  "generated_by": "pass2_dataset/research/label_design_analysis.py",
+  "public_rows": 3147,
+  "note": "public statistics are evaluation-side; do not train on mmbu-public"
+ },
+ "applicability": {
+  "requested_fields_are_given_in_prompt": true,
+  "field_presence_public": {
+   "modality": 1.0,
+   "submodality": 1.0,
+   "specimen": 1.0,
+   "domain": 1.0,
+   "body_part": 0.9018112488083889,
+   "stain": 0.1817604067365745
+  },
+  "by_modality": {
+   "optical imaging": {
+    "n": 705,
+    "body_part": 1.0,
+    "stain": 0.0,
+    "specimen_human": 0.9972
+   },
+   "light microscopy": {
+    "n": 630,
+    "body_part": 0.7238,
+    "stain": 0.6651,
+    "specimen_human": 0.9127
+   },
+   "endoscopy": {
+    "n": 577,
+    "body_part": 1.0,
+    "stain": 0.0,
+    "specimen_human": 0.9619
+   },
+   "x-ray imaging": {
+    "n": 504,
+    "body_part": 1.0,
+    "stain": 0.0,
+    "specimen_human": 0.877
+   },
+   "magnetic resonance imaging": {
+    "n": 261,
+    "body_part": 1.0,
+    "stain": 0.0,
+    "specimen_human": 1.0
+   },
+   "fluorescence microscopy": {
+    "n": 171,
+    "body_part": 0.5263,
+    "stain": 0.7135,
+    "specimen_human": 0.2515
+   },
+   "ultrasound imaging": {
+    "n": 104,
+    "body_part": 1.0,
+    "stain": 0.0,
+    "specimen_human": 0.5385
+   },
+   "computed tomography": {
+    "n": 83,
+    "body_part": 1.0,
+    "stain": 0.0,
+    "specimen_human": 1.0
+   },
+   "electron microscopy": {
+    "n": 43,
+    "body_part": 0.4651,
+    "stain": 0.5349,
+    "specimen_human": 0.3953
+   },
+   "clinical photography": {
+    "n": 31,
+    "body_part": 0.0,
+    "stain": 0.0,
+    "specimen_human": 1.0
+   },
+   "digital pathology": {
+    "n": 30,
+    "body_part": 1.0,
+    "stain": 0.2667,
+    "specimen_human": 1.0
+   },
+   "computed tomography|x-ray imaging": {
+    "n": 8,
+    "body_part": 1.0,
+    "stain": 0.0,
+    "specimen_human": 1.0
+   }
+  },
+  "by_submodality": {
+   "brightfield microscopy": {
+    "n": 523,
+    "body_part": 0.6673,
+    "stain": 0.6157
+   },
+   "fundus photography": {
+    "n": 447,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "chest x-ray": {
+    "n": 424,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "laparoscopy": {
+    "n": 405,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "structural mri": {
+    "n": 261,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "white-light endoscopy": {
+    "n": 163,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "dermoscopy": {
+    "n": 117,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "epifluorescence microscopy": {
+    "n": 108,
+    "body_part": 0.6389,
+    "stain": 0.7407
+   },
+   "whole slide imaging": {
+    "n": 98,
+    "body_part": 1.0,
+    "stain": 1.0
+   },
+   "b-mode ultrasound": {
+    "n": 93,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "clinical photography": {
+    "n": 92,
+    "body_part": 0.663,
+    "stain": 0.0
+   },
+   "conventional ct": {
+    "n": 74,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "digital radiography": {
+    "n": 45,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "confocal microscopy": {
+    "n": 38,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "synthetic fluorescence microscopy": {
+    "n": 38,
+    "body_part": 0.0,
+    "stain": 1.0
+   },
+   "scanning electron microscopy": {
+    "n": 35,
+    "body_part": 0.5714,
+    "stain": 0.4286
+   },
+   "mammography": {
+    "n": 35,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "optical coherence tomography": {
+    "n": 22,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "contrast microscopy": {
+    "n": 19,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "near-infrared imaging": {
+    "n": 14,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "phase contrast microscopy": {
+    "n": 13,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "differential fluorescent microscopy": {
+    "n": 10,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "spiral ct": {
+    "n": 9,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "optical coherence tomography angiography": {
+    "n": 8,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "chest x-ray|conventional ct": {
+    "n": 8,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "cryo-electron tomography": {
+    "n": 8,
+    "body_part": 0.0,
+    "stain": 1.0
+   },
+   "3d ultrasound": {
+    "n": 7,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "darkfield microscopy": {
+    "n": 7,
+    "body_part": 1.0,
+    "stain": 1.0
+   },
+   "colonoscopy": {
+    "n": 5,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "color doppler": {
+    "n": 4,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "colposcopy": {
+    "n": 4,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "total internal reflection fluorescence microscopy (tirf)": {
+    "n": 4,
+    "body_part": 0.0,
+    "stain": 1.0
+   },
+   "fluorescein angiography": {
+    "n": 3,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "multiphoton microscopy": {
+    "n": 2,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "specular microscopy": {
+    "n": 2,
+    "body_part": 1.0,
+    "stain": 0.0
+   },
+   "confocal laser endomicroscopy": {
+    "n": 2,
+    "body_part": 1.0,
+    "stain": 0.0
+   }
+  },
+  "field_combos_by_modality": {
+   "clinical photography": {
+    "-": 31
+   },
+   "computed tomography": {
+    "bp": 83
+   },
+   "computed tomography|x-ray imaging": {
+    "bp": 8
+   },
+   "digital pathology": {
+    "bp": 22,
+    "bp+stain": 8
+   },
+   "electron microscopy": {
+    "-+stain": 23,
+    "bp": 20
+   },
+   "endoscopy": {
+    "bp": 577
+   },
+   "fluorescence microscopy": {
+    "-+stain": 81,
+    "bp": 49,
+    "bp+stain": 41
+   },
+   "light microscopy": {
+    "-+stain": 174,
+    "bp": 211,
+    "bp+stain": 245
+   },
+   "magnetic resonance imaging": {
+    "bp": 261
+   },
+   "optical imaging": {
+    "bp": 705
+   },
+   "ultrasound imaging": {
+    "bp": 104
+   },
+   "x-ray imaging": {
+    "bp": 504
+   }
+  },
+  "stain_modalities": [
+   "light microscopy",
+   "fluorescence microscopy",
+   "electron microscopy",
+   "digital pathology"
+  ],
+  "stain_never_asked_submodalities": [
+   "confocal microscopy",
+   "contrast microscopy",
+   "differential fluorescent microscopy",
+   "phase contrast microscopy"
+  ],
+  "stain_always_asked_submodalities": [
+   "cryo-electron tomography",
+   "darkfield microscopy",
+   "synthetic fluorescence microscopy",
+   "total internal reflection fluorescence microscopy (tirf)",
+   "whole slide imaging"
+  ],
+  "body_part_never_asked": {
+   "modalities_all_rows": [
+    "clinical photography"
+   ],
+   "submodalities_all_rows": [
+    "cryo-electron tomography",
+    "synthetic fluorescence microscopy",
+    "total internal reflection fluorescence microscopy (tirf)"
+   ]
+  },
+  "rules": [
+   {
+    "id": "A1",
+    "fields": [
+     "modality",
+     "submodality",
+     "specimen",
+     "domain"
+    ],
+    "applies": "always",
+    "evidence": "3147/3147 public rows"
+   },
+   {
+    "id": "A2",
+    "field": "stain",
+    "applies": "modality in ['light microscopy', 'fluorescence microscopy', 'electron microscopy', 'digital pathology']",
+    "evidence": "572/874 microscopy rows annotated (65.4%); 0/2273 non-microscopy rows"
+   },
+   {
+    "id": "A3",
+    "field": "body_part",
+    "applies": "all non-microscopy rows except modality 'clinical photography'; microscopy rows only sometimes (see by_modality)",
+    "evidence": "non-microscopy rows without body part: 31 (all 'clinical photography' modality)"
+   },
+   {
+    "id": "A4",
+    "applies": "every microscopy row has body_part or stain or both",
+    "evidence": "both 294, body-part only 302, stain only 278, neither 0"
+   },
+   {
+    "id": "A5",
+    "field": "specimen",
+    "applies": "always asked; value 'human' for clinical modalities (see implication rules)"
+   }
+  ]
+ },
+ "implication_rules": {
+  "hard_submodality_to_modality": {
+   "contrast microscopy": [
+    "light microscopy"
+   ],
+   "darkfield microscopy": [
+    "light microscopy"
+   ],
+   "phase contrast microscopy": [
+    "light microscopy"
+   ],
+   "differential fluorescent microscopy": [
+    "fluorescence microscopy"
+   ],
+   "epifluorescence microscopy": [
+    "fluorescence microscopy"
+   ],
+   "synthetic fluorescence microscopy": [
+    "fluorescence microscopy"
+   ],
+   "total internal reflection fluorescence microscopy (tirf)": [
+    "fluorescence microscopy"
+   ],
+   "cryo-electron tomography": [
+    "electron microscopy"
+   ],
+   "scanning electron microscopy": [
+    "electron microscopy"
+   ],
+   "dermoscopy": [
+    "optical imaging"
+   ],
+   "fluorescein angiography": [
+    "optical imaging"
+   ],
+   "fundus photography": [
+    "optical imaging"
+   ],
+   "near-infrared imaging": [
+    "optical imaging"
+   ],
+   "optical coherence tomography": [
+    "optical imaging"
+   ],
+   "optical coherence tomography angiography": [
+    "optical imaging"
+   ],
+   "colonoscopy": [
+    "endoscopy"
+   ],
+   "confocal laser endomicroscopy": [
+    "endoscopy"
+   ],
+   "gastroscopy": [
+    "endoscopy"
+   ],
+   "laparoscopy": [
+    "endoscopy"
+   ],
+   "digital radiography": [
+    "x-ray imaging"
+   ],
+   "fluoroscopy": [
+    "x-ray imaging"
+   ],
+   "mammography": [
+    "x-ray imaging"
+   ],
+   "spiral ct": [
+    "computed tomography"
+   ],
+   "structural mri": [
+    "magnetic resonance imaging"
+   ],
+   "3d ultrasound": [
+    "ultrasound imaging"
+   ],
+   "b-mode ultrasound": [
+    "ultrasound imaging"
+   ],
+   "color doppler": [
+    "ultrasound imaging"
+   ]
+  },
+  "ambiguous_submodality_modalities": {
+   "brightfield microscopy": {
+    "light microscopy": 501,
+    "digital pathology": 22
+   },
+   "whole slide imaging": {
+    "light microscopy": 90,
+    "digital pathology": 8
+   },
+   "confocal microscopy": {
+    "fluorescence microscopy": 11,
+    "optical imaging": 24,
+    "endoscopy": 3
+   },
+   "clinical photography": {
+    "optical imaging": 61,
+    "clinical photography": 31
+   },
+   "white-light endoscopy": {
+    "optical imaging": 1,
+    "endoscopy": 162
+   },
+   "chest x-ray": {
+    "x-ray imaging": 432,
+    "computed tomography": 8
+   },
+   "conventional ct": {
+    "x-ray imaging": 8,
+    "computed tomography": 82
+   }
+  },
+  "strong_submodality_to_body_part": {
+   "fundus photography": "eye",
+   "dermoscopy": "skin",
+   "mammography": "breast",
+   "chest x-ray": "chest",
+   "optical coherence tomography": "eye",
+   "optical coherence tomography angiography": "eye",
+   "fluorescein angiography": "eye",
+   "colposcopy": "cervix"
+  },
+  "soft_submodality_to_body_part": {
+   "laparoscopy": "abdomen",
+   "chest x-ray": "chest|lung",
+   "white-light endoscopy": "gastrointestinal tract"
+  },
+  "submodality_to_stain": {
+   "cryo-electron tomography": "unstained",
+   "darkfield microscopy": "unstained",
+   "synthetic fluorescence microscopy": "synthetic",
+   "whole slide imaging": "h&e (82%, soft prior)"
+  },
+  "submodality_to_specimen": {
+   "synthetic fluorescence microscopy": "synthetic"
+  },
+  "modality_to_specimen_human_default": {
+   "clinical photography": 1.0,
+   "computed tomography": 1.0,
+   "computed tomography|x-ray imaging": 1.0,
+   "digital pathology": 1.0,
+   "endoscopy": 0.962,
+   "magnetic resonance imaging": 1.0,
+   "optical imaging": 0.997,
+   "ultrasound imaging": 0.538,
+   "x-ray imaging": 0.877
+  },
+  "stain_implies_modality": [
+   "light microscopy",
+   "fluorescence microscopy",
+   "electron microscopy",
+   "digital pathology"
+  ],
+  "submodality_to_domain_soft": {
+   "fundus photography": "ophthalmology",
+   "optical coherence tomography": "ophthalmology",
+   "dermoscopy": "dermatology",
+   "chest x-ray": "pulmonology",
+   "laparoscopy": "surgery",
+   "colposcopy": "obstetrics and gynecology",
+   "color doppler": "cardiology"
+  },
+  "modality_to_field_decode_order": [
+   "modality",
+   "submodality",
+   "body_part",
+   "stain",
+   "specimen",
+   "domain"
+  ],
+  "body_part_conventions_public": {
+   "3d ultrasound": [
+    [
+     "embryo",
+     1.0
+    ]
+   ],
+   "b-mode ultrasound": [
+    [
+     "pelvis",
+     0.409
+    ],
+    [
+     "abdomen",
+     0.226
+    ],
+    [
+     "breast",
+     0.183
+    ],
+    [
+     "neck",
+     0.065
+    ]
+   ],
+   "brightfield microscopy": [
+    [
+     "sperm cells",
+     0.266
+    ],
+    [
+     "lymph nodes",
+     0.155
+    ],
+    [
+     "blood",
+     0.103
+    ],
+    [
+     "colon tissue|lung tissue",
+     0.063
+    ]
+   ],
+   "chest x-ray": [
+    [
+     "chest|lung",
+     0.62
+    ],
+    [
+     "chest",
+     0.297
+    ],
+    [
+     "thorax",
+     0.047
+    ],
+    [
+     "lungs",
+     0.024
+    ]
+   ],
+   "chest x-ray|conventional ct": [
+    [
+     "chest|lung",
+     1.0
+    ]
+   ],
+   "clinical photography": [
+    [
+     "skin",
+     0.787
+    ],
+    [
+     "eye",
+     0.197
+    ],
+    [
+     "foot",
+     0.016
+    ]
+   ],
+   "colonoscopy": [
+    [
+     "colon",
+     0.8
+    ],
+    [
+     "gastrointestinal tract",
+     0.2
+    ]
+   ],
+   "confocal microscopy": [
+    [
+     "eye",
+     0.5
+    ],
+    [
+     "adipose tissue",
+     0.289
+    ],
+    [
+     "cornea",
+     0.132
+    ],
+    [
+     "gastrointestinal tract",
+     0.079
+    ]
+   ],
+   "contrast microscopy": [
+    [
+     "embryo",
+     0.895
+    ],
+    [
+     "blood",
+     0.105
+    ]
+   ],
+   "conventional ct": [
+    [
+     "abdomen",
+     0.324
+    ],
+    [
+     "lung",
+     0.27
+    ],
+    [
+     "thoracoabdominal region",
+     0.257
+    ],
+    [
+     "genitourinary system",
+     0.081
+    ]
+   ],
+   "darkfield microscopy": [
+    [
+     "blood",
+     1.0
+    ]
+   ],
+   "dermoscopy": [
+    [
+     "skin",
+     1.0
+    ]
+   ],
+   "differential fluorescent microscopy": [
+    [
+     "colon",
+     1.0
+    ]
+   ],
+   "digital radiography": [
+    [
+     "knee",
+     0.778
+    ],
+    [
+     "appendicular skeleton",
+     0.133
+    ],
+    [
+     "bone",
+     0.089
+    ]
+   ],
+   "epifluorescence microscopy": [
+    [
+     "cells",
+     0.333
+    ],
+    [
+     "epithelial cells",
+     0.304
+    ],
+    [
+     "whole body",
+     0.217
+    ],
+    [
+     "brain",
+     0.101
+    ]
+   ],
+   "fundus photography": [
+    [
+     "eye",
+     0.911
+    ],
+    [
+     "retina",
+     0.089
+    ]
+   ],
+   "laparoscopy": [
+    [
+     "abdomen",
+     0.832
+    ],
+    [
+     "abdominal organs",
+     0.064
+    ],
+    [
+     "male genitournary system",
+     0.057
+    ],
+    [
+     "retroperitoneum",
+     0.037
+    ]
+   ],
+   "mammography": [
+    [
+     "breast",
+     1.0
+    ]
+   ],
+   "near-infrared imaging": [
+    [
+     "eye",
+     1.0
+    ]
+   ],
+   "optical coherence tomography": [
+    [
+     "eye",
+     0.545
+    ],
+    [
+     "retina",
+     0.455
+    ]
+   ],
+   "optical coherence tomography angiography": [
+    [
+     "eye",
+     0.75
+    ],
+    [
+     "eye|retina",
+     0.25
+    ]
+   ],
+   "phase contrast microscopy": [
+    [
+     "retina",
+     1.0
+    ]
+   ],
+   "scanning electron microscopy": [
+    [
+     "epithelial cells",
+     0.95
+    ],
+    [
+     "cell",
+     0.05
+    ]
+   ],
+   "spiral ct": [
+    [
+     "lung",
+     1.0
+    ]
+   ],
+   "structural mri": [
+    [
+     "brain",
+     0.307
+    ],
+    [
+     "appendicular skeleton",
+     0.268
+    ],
+    [
+     "abdomen",
+     0.176
+    ],
+    [
+     "shoulder",
+     0.065
+    ]
+   ],
+   "white-light endoscopy": [
+    [
+     "head and neck",
+     0.221
+    ],
+    [
+     "esophagus|colon|rectum",
+     0.172
+    ],
+    [
+     "stomach|colon|esophagus",
+     0.141
+    ],
+    [
+     "gastrointestinal tract",
+     0.117
+    ]
+   ],
+   "whole slide imaging": [
+    [
+     "breast",
+     0.316
+    ],
+    [
+     "tissue",
+     0.133
+    ],
+    [
+     "cervix",
+     0.102
+    ],
+    [
+     "lymph nodes",
+     0.092
+    ]
+   ]
+  }
+ },
+ "domain_parsing": {
+  "steps": [
+   "ast.literal_eval the cell (it is a python-list string)",
+   "for each list item split on /\\s*,\\s*/ (packed items like 'gastroenterology, radiology')",
+   "lower-case, collapse whitespace, strip",
+   "alias map: otorhinolaryngology and 'otolaryngology (ent)' -> otolaryngology; infectious diseases -> infectious disease; gynecology -> obstetrics and gynecology",
+   "dedupe; treat as an UNORDERED set (the same pair appears in both orders)",
+   "never split on ' and ' (only 'obstetrics and gynecology' contains it)"
+  ],
+  "verified_raw_strings": 76,
+  "verified_rows": 3147,
+  "unmapped_atoms": 0,
+  "raw_to_set": {
+   "['pathology']": [
+    "pathology"
+   ],
+   "['biology']": [
+    "biology"
+   ],
+   "['cytology']": [
+    "cytology"
+   ],
+   "['Infectious Disease, Biology']": [
+    "biology",
+    "infectious disease"
+   ],
+   "['Biology']": [
+    "biology"
+   ],
+   "['Oncology']": [
+    "oncology"
+   ],
+   "['Ophthalmology']": [
+    "ophthalmology"
+   ],
+   "['Orthopedics']": [
+    "orthopedics"
+   ],
+   "['Gastroenterology']": [
+    "gastroenterology"
+   ],
+   "['Dermatology']": [
+    "dermatology"
+   ],
+   "['Cardiology']": [
+    "cardiology"
+   ],
+   "['Pulmonology']": [
+    "pulmonology"
+   ],
+   "['Rheumatology']": [
+    "rheumatology"
+   ],
+   "['Urology', 'Andrology']": [
+    "andrology",
+    "urology"
+   ],
+   "['Pathology']": [
+    "pathology"
+   ],
+   "['Infectious Disease']": [
+    "infectious disease"
+   ],
+   "['pulmonology', 'radiology']": [
+    "pulmonology",
+    "radiology"
+   ],
+   "['surgery, radiology']": [
+    "radiology",
+    "surgery"
+   ],
+   "['radiology']": [
+    "radiology"
+   ],
+   "['pathology', 'oncology']": [
+    "oncology",
+    "pathology"
+   ],
+   "['gastroenterology, radiology', 'surgery', 'radiology']": [
+    "gastroenterology",
+    "radiology",
+    "surgery"
+   ],
+   "['radiology', 'cardiology']": [
+    "cardiology",
+    "radiology"
+   ],
+   "['urology, radiology']": [
+    "radiology",
+    "urology"
+   ],
+   "['oncology']": [
+    "oncology"
+   ],
+   "['obstetrics and gynecology']": [
+    "obstetrics and gynecology"
+   ],
+   "['urology']": [
+    "urology"
+   ],
+   "['ophthalmology']": [
+    "ophthalmology"
+   ],
+   "['endocrinology', 'radiology']": [
+    "endocrinology",
+    "radiology"
+   ],
+   "['hematology']": [
+    "hematology"
+   ],
+   "['orthopedics']": [
+    "orthopedics"
+   ],
+   "['radiology', 'orthopedics']": [
+    "orthopedics",
+    "radiology"
+   ],
+   "['surgery', 'otolaryngology', 'otorhinolaryngology']": [
+    "otolaryngology",
+    "surgery"
+   ],
+   "['radiology, oncology']": [
+    "oncology",
+    "radiology"
+   ],
+   "['gastroenterology', 'radiology']": [
+    "gastroenterology",
+    "radiology"
+   ],
+   "['oncology', 'pathology']": [
+    "oncology",
+    "pathology"
+   ],
+   "['dermatology']": [
+    "dermatology"
+   ],
+   "['pathology, gastroenterology, oncology']": [
+    "gastroenterology",
+    "oncology",
+    "pathology"
+   ],
+   "['oncology, pathology']": [
+    "oncology",
+    "pathology"
+   ],
+   "['radiology', 'neurology']": [
+    "neurology",
+    "radiology"
+   ],
+   "['neurology']": [
+    "neurology"
+   ],
+   "['oncology', 'neurology', 'radiology']": [
+    "neurology",
+    "oncology",
+    "radiology"
+   ],
+   "['gastroenterology']": [
+    "gastroenterology"
+   ],
+   "['hematology, pathology']": [
+    "hematology",
+    "pathology"
+   ],
+   "['pathology', 'gynecology', 'oncology']": [
+    "obstetrics and gynecology",
+    "oncology",
+    "pathology"
+   ],
+   "['infectious diseases']": [
+    "infectious disease"
+   ],
+   "['gastroenterology, radiology']": [
+    "gastroenterology",
+    "radiology"
+   ],
+   "['surgery']": [
+    "surgery"
+   ],
+   "['pulmonology']": [
+    "pulmonology"
+   ],
+   "['orthopedics', 'radiology']": [
+    "orthopedics",
+    "radiology"
+   ],
+   "['orthopedics, radiology']": [
+    "orthopedics",
+    "radiology"
+   ],
+   "['orthopedics', 'endocrinology']": [
+    "endocrinology",
+    "orthopedics"
+   ],
+   "['infectious disease', 'hematology']": [
+    "hematology",
+    "infectious disease"
+   ],
+   "['oncology', 'radiology', 'gastroenterology']": [
+    "gastroenterology",
+    "oncology",
+    "radiology"
+   ],
+   "['nephrology', 'radiology']": [
+    "nephrology",
+    "radiology"
+   ],
+   "['oncology', 'urology', 'pathology']": [
+    "oncology",
+    "pathology",
+    "urology"
+   ],
+   "['oncology', 'gastroenterology']": [
+    "gastroenterology",
+    "oncology"
+   ],
+   "['otolaryngology (ent)', 'surgery']": [
+    "otolaryngology",
+    "surgery"
+   ],
+   "['oncology', 'radiology', 'orthopedics']": [
+    "oncology",
+    "orthopedics",
+    "radiology"
+   ],
+   "['hematology', 'pathology']": [
+    "hematology",
+    "pathology"
+   ],
+   "['endocrinology']": [
+    "endocrinology"
+   ],
+   "['Neurology']": [
+    "neurology"
+   ],
+   "['Oncology, Biology']": [
+    "biology",
+    "oncology"
+   ],
+   "['radiology, cardiology']": [
+    "cardiology",
+    "radiology"
+   ],
+   "['urology', 'surgery']": [
+    "surgery",
+    "urology"
+   ],
+   "['radiology, orthopedics']": [
+    "orthopedics",
+    "radiology"
+   ],
+   "['Hematology, Infectious Disease, Biology']": [
+    "biology",
+    "hematology",
+    "infectious disease"
+   ],
+   "['Hematology']": [
+    "hematology"
+   ],
+   "['Obstetrics and Gynecology']": [
+    "obstetrics and gynecology"
+   ],
+   "['Surgery']": [
+    "surgery"
+   ],
+   "['radiology, neurology']": [
+    "neurology",
+    "radiology"
+   ],
+   "['gastroenterology', 'oncology']": [
+    "gastroenterology",
+    "oncology"
+   ],
+   "['nephrology']": [
+    "nephrology"
+   ],
+   "['cardiology']": [
+    "cardiology"
+   ],
+   "['Hematology, Biology']": [
+    "biology",
+    "hematology"
+   ],
+   "['Surgery', 'Gastroenterology']": [
+    "gastroenterology",
+    "surgery"
+   ],
+   "['Hepatology']": [
+    "hepatology"
+   ]
+  },
+  "size_distribution": {
+   "1": 2590,
+   "2": 509,
+   "3": 48
+  },
+  "packed_raw_strings": {
+   "['Infectious Disease, Biology']": 26,
+   "['surgery, radiology']": 8,
+   "['gastroenterology, radiology', 'surgery', 'radiology']": 14,
+   "['urology, radiology']": 6,
+   "['radiology, oncology']": 5,
+   "['pathology, gastroenterology, oncology']": 4,
+   "['oncology, pathology']": 3,
+   "['hematology, pathology']": 5,
+   "['gastroenterology, radiology']": 7,
+   "['orthopedics, radiology']": 9,
+   "['Oncology, Biology']": 3,
+   "['radiology, cardiology']": 5,
+   "['radiology, orthopedics']": 2,
+   "['Hematology, Infectious Disease, Biology']": 4,
+   "['radiology, neurology']": 3,
+   "['Hematology, Biology']": 2
+  },
+  "alias_duplicate_raw_strings": {
+   "['gastroenterology, radiology', 'surgery', 'radiology']": 14,
+   "['surgery', 'otolaryngology', 'otorhinolaryngology']": 32
+  },
+  "pair_counts": {
+   "orthopedics|radiology": 110,
+   "andrology|urology": 93,
+   "oncology|pathology": 80,
+   "hematology|pathology": 62,
+   "gastroenterology|radiology": 43,
+   "otolaryngology|surgery": 36,
+   "biology|infectious disease": 30,
+   "surgery|urology": 23,
+   "radiology|surgery": 22,
+   "gastroenterology|surgery": 19,
+   "pulmonology|radiology": 15,
+   "obstetrics and gynecology|oncology": 12,
+   "obstetrics and gynecology|pathology": 12,
+   "oncology|radiology": 11,
+   "gastroenterology|oncology": 11,
+   "cardiology|radiology": 9,
+   "oncology|urology": 8,
+   "pathology|urology": 8,
+   "hematology|infectious disease": 7,
+   "radiology|urology": 6,
+   "neurology|radiology": 6,
+   "biology|hematology": 6,
+   "nephrology|radiology": 5,
+   "endocrinology|radiology": 4,
+   "gastroenterology|pathology": 4,
+   "endocrinology|orthopedics": 4,
+   "oncology|orthopedics": 3,
+   "biology|oncology": 3,
+   "neurology|oncology": 1
+  },
+  "discipline_atoms": [
+   "biology",
+   "cytology",
+   "pathology",
+   "radiology",
+   "surgery"
+  ]
+ },
+ "body_part_parsing": {
+  "split": "|",
+  "lower_and_strip": true,
+  "alias": "lungs -> lung; male genitournary system -> male genitourinary system (see vocab.py)",
+  "pipe_strings": {
+   "chest|lung": {
+    "rows": 271,
+    "type": "hierarchy"
+   },
+   "esophagus|colon|rectum": {
+    "rows": 28,
+    "type": "multi-region (dataset inventory)"
+   },
+   "stomach|colon|esophagus": {
+    "rows": 23,
+    "type": "multi-region (dataset inventory)"
+   },
+   "colon tissue|lung tissue": {
+    "rows": 22,
+    "type": "multi-region (two datasets pooled)"
+   },
+   "white blood cells|lymphocytes|neutrophils|eosinophils|monocytes": {
+    "rows": 20,
+    "type": "cell-type list"
+   },
+   "stomach|colon|gastrointestinal tract": {
+    "rows": 6,
+    "type": "multi-region (dataset inventory)"
+   },
+   "arteries|blood vessels": {
+    "rows": 3,
+    "type": "synonym"
+   },
+   "brain|cerebrum": {
+    "rows": 2,
+    "type": "hierarchy"
+   },
+   "eye|retina": {
+    "rows": 2,
+    "type": "hierarchy"
+   },
+   "lung|lung tissue": {
+    "rows": 2,
+    "type": "hierarchy"
+   }
+  },
+  "size_distribution": {
+   "0": 309,
+   "1": 2459,
+   "2": 302,
+   "3": 57,
+   "5": 20
+  },
+  "hierarchy_pairs": [
+   [
+    "chest",
+    "lung"
+   ],
+   [
+    "eye",
+    "retina"
+   ],
+   [
+    "brain",
+    "cerebrum"
+   ],
+   [
+    "lung",
+    "lung tissue"
+   ]
+  ],
+  "families": {
+   "eye": [
+    "eye",
+    "retina",
+    "optic disc",
+    "cornea",
+    "anterior segment",
+    "eyelid",
+    "macula",
+    "pupil"
+   ],
+   "head and neck": [
+    "head",
+    "head and neck",
+    "neck",
+    "face",
+    "ear",
+    "nose",
+    "larynx",
+    "oral cavity",
+    "teeth",
+    "thyroid"
+   ],
+   "brain": [
+    "brain",
+    "spinal cord",
+    "nerve",
+    "cerebrum"
+   ],
+   "chest": [
+    "chest",
+    "lung",
+    "thorax",
+    "lungs",
+    "lung tissue",
+    "lower respiratory tract"
+   ],
+   "heart and vessels": [
+    "heart",
+    "coronary arteries",
+    "arteries",
+    "carotid artery",
+    "blood vessels"
+   ],
+   "breast": [
+    "breast",
+    "breast tissue"
+   ],
+   "abdomen": [
+    "abdomen",
+    "liver",
+    "pancreas",
+    "gallbladder",
+    "kidney",
+    "spleen",
+    "abdominal organs",
+    "retroperitoneum",
+    "thoracoabdominal region"
+   ],
+   "gastrointestinal tract": [
+    "gastrointestinal tract",
+    "esophagus",
+    "stomach",
+    "small intestine",
+    "colon",
+    "rectum",
+    "appendix",
+    "colon tissue",
+    "upper gastrointestinal tract"
+   ],
+   "pelvis": [
+    "pelvis",
+    "prostate",
+    "bladder",
+    "uterus",
+    "ovary",
+    "male genitourinary system",
+    "cervix",
+    "fetus",
+    "genitourinary system",
+    "reproductive system"
+   ],
+   "skeleton and limbs": [
+    "bone",
+    "appendicular skeleton",
+    "axial skeleton",
+    "skeletal system",
+    "knee",
+    "shoulder",
+    "elbow",
+    "hip",
+    "wrist",
+    "hand",
+    "foot",
+    "upper limbs",
+    "lower limbs",
+    "spine",
+    "muscle",
+    "soft tissue",
+    "musculoskeletal system"
+   ],
+   "skin": [
+    "skin",
+    "nail",
+    "hair",
+    "wound"
+   ],
+   "blood and lymph": [
+    "blood",
+    "bone marrow",
+    "lymph nodes",
+    "blood cells",
+    "lymphatic system / bone marrow",
+    "white blood cells",
+    "lymphocytes",
+    "neutrophils",
+    "eosinophils",
+    "monocytes"
+   ],
+   "cells and tissue": [
+    "cells",
+    "epithelial cells",
+    "sperm cells",
+    "tissue",
+    "adipose tissue",
+    "embryo",
+    "cell",
+    "glandular epithelium"
+   ],
+   "whole body": [
+    "whole body"
+   ]
+  }
+ },
+ "compatibility": {
+  "modality_to_submodality_legal": {
+   "light microscopy": [
+    "brightfield microscopy",
+    "confocal microscopy",
+    "contrast microscopy",
+    "darkfield microscopy",
+    "phase contrast microscopy",
+    "specular microscopy",
+    "whole slide imaging"
+   ],
+   "fluorescence microscopy": [
+    "confocal microscopy",
+    "differential fluorescent microscopy",
+    "epifluorescence microscopy",
+    "multiphoton microscopy",
+    "synthetic fluorescence microscopy",
+    "total internal reflection fluorescence microscopy (tirf)"
+   ],
+   "electron microscopy": [
+    "cryo-electron tomography",
+    "scanning electron microscopy"
+   ],
+   "digital pathology": [
+    "brightfield microscopy",
+    "whole slide imaging"
+   ],
+   "optical imaging": [
+    "clinical photography",
+    "colposcopy",
+    "confocal microscopy",
+    "dermoscopy",
+    "fluorescein angiography",
+    "fundus photography",
+    "multiphoton microscopy",
+    "near-infrared imaging",
+    "optical coherence tomography",
+    "optical coherence tomography angiography",
+    "specular microscopy",
+    "white-light endoscopy"
+   ],
+   "clinical photography": [
+    "clinical photography"
+   ],
+   "endoscopy": [
+    "colonoscopy",
+    "colposcopy",
+    "confocal laser endomicroscopy",
+    "confocal microscopy",
+    "gastroscopy",
+    "laparoscopy",
+    "white-light endoscopy"
+   ],
+   "x-ray imaging": [
+    "chest x-ray",
+    "conventional ct",
+    "digital radiography",
+    "fluoroscopy",
+    "mammography"
+   ],
+   "computed tomography": [
+    "chest x-ray",
+    "conventional ct",
+    "spiral ct"
+   ],
+   "magnetic resonance imaging": [
+    "structural mri"
+   ],
+   "ultrasound imaging": [
+    "3d ultrasound",
+    "b-mode ultrasound",
+    "color doppler"
+   ]
+  },
+  "modality_to_submodality_public_counts": {
+   "light microscopy": {
+    "brightfield microscopy": 501,
+    "phase contrast microscopy": 13,
+    "whole slide imaging": 90,
+    "contrast microscopy": 19,
+    "darkfield microscopy": 7
+   },
+   "fluorescence microscopy": {
+    "synthetic fluorescence microscopy": 38,
+    "total internal reflection fluorescence microscopy (tirf)": 4,
+    "epifluorescence microscopy": 108,
+    "differential fluorescent microscopy": 10,
+    "confocal microscopy": 11
+   },
+   "electron microscopy": {
+    "scanning electron microscopy": 35,
+    "cryo-electron tomography": 8
+   },
+   "digital pathology": {
+    "brightfield microscopy": 22,
+    "whole slide imaging": 8
+   },
+   "optical imaging": {
+    "confocal microscopy": 24,
+    "fundus photography": 447,
+    "optical coherence tomography angiography": 8,
+    "clinical photography": 61,
+    "dermoscopy": 117,
+    "optical coherence tomography": 22,
+    "colposcopy": 4,
+    "near-infrared imaging": 14,
+    "multiphoton microscopy": 2,
+    "fluorescein angiography": 3,
+    "specular microscopy": 2,
+    "white-light endoscopy": 1
+   },
+   "clinical photography": {
+    "clinical photography": 31
+   },
+   "endoscopy": {
+    "white-light endoscopy": 162,
+    "confocal microscopy": 3,
+    "colonoscopy": 5,
+    "confocal laser endomicroscopy": 2,
+    "laparoscopy": 405
+   },
+   "x-ray imaging": {
+    "digital radiography": 45,
+    "mammography": 35,
+    "chest x-ray": 432,
+    "conventional ct": 8
+   },
+   "computed tomography": {
+    "conventional ct": 82,
+    "chest x-ray": 8,
+    "spiral ct": 9
+   },
+   "magnetic resonance imaging": {
+    "structural mri": 261
+   },
+   "ultrasound imaging": {
+    "b-mode ultrasound": 93,
+    "color doppler": 4,
+    "3d ultrasound": 7
+   }
+  },
+  "taxonomy_only": {
+   "light microscopy": [
+    "confocal microscopy",
+    "specular microscopy"
+   ],
+   "fluorescence microscopy": [
+    "multiphoton microscopy"
+   ],
+   "electron microscopy": [],
+   "digital pathology": [],
+   "optical imaging": [],
+   "clinical photography": [],
+   "endoscopy": [
+    "colposcopy",
+    "gastroscopy"
+   ],
+   "x-ray imaging": [
+    "fluoroscopy"
+   ],
+   "computed tomography": [],
+   "magnetic resonance imaging": [],
+   "ultrasound imaging": []
+  },
+  "public_only": {
+   "light microscopy": [],
+   "fluorescence microscopy": [],
+   "electron microscopy": [],
+   "digital pathology": [],
+   "optical imaging": [
+    "white-light endoscopy"
+   ],
+   "clinical photography": [],
+   "endoscopy": [
+    "confocal microscopy"
+   ],
+   "x-ray imaging": [
+    "conventional ct"
+   ],
+   "computed tomography": [
+    "chest x-ray"
+   ],
+   "magnetic resonance imaging": [],
+   "ultrasound imaging": []
+  },
+  "submodality_to_modality_public_counts": {
+   "brightfield microscopy": {
+    "light microscopy": 501,
+    "digital pathology": 22
+   },
+   "phase contrast microscopy": {
+    "light microscopy": 13
+   },
+   "whole slide imaging": {
+    "light microscopy": 90,
+    "digital pathology": 8
+   },
+   "contrast microscopy": {
+    "light microscopy": 19
+   },
+   "darkfield microscopy": {
+    "light microscopy": 7
+   },
+   "synthetic fluorescence microscopy": {
+    "fluorescence microscopy": 38
+   },
+   "total internal reflection fluorescence microscopy (tirf)": {
+    "fluorescence microscopy": 4
+   },
+   "epifluorescence microscopy": {
+    "fluorescence microscopy": 108
+   },
+   "differential fluorescent microscopy": {
+    "fluorescence microscopy": 10
+   },
+   "confocal microscopy": {
+    "fluorescence microscopy": 11,
+    "optical imaging": 24,
+    "endoscopy": 3
+   },
+   "scanning electron microscopy": {
+    "electron microscopy": 35
+   },
+   "cryo-electron tomography": {
+    "electron microscopy": 8
+   },
+   "fundus photography": {
+    "optical imaging": 447
+   },
+   "optical coherence tomography angiography": {
+    "optical imaging": 8
+   },
+   "clinical photography": {
+    "optical imaging": 61,
+    "clinical photography": 31
+   },
+   "dermoscopy": {
+    "optical imaging": 117
+   },
+   "optical coherence tomography": {
+    "optical imaging": 22
+   },
+   "colposcopy": {
+    "optical imaging": 4
+   },
+   "near-infrared imaging": {
+    "optical imaging": 14
+   },
+   "multiphoton microscopy": {
+    "optical imaging": 2
+   },
+   "fluorescein angiography": {
+    "optical imaging": 3
+   },
+   "specular microscopy": {
+    "optical imaging": 2
+   },
+   "white-light endoscopy": {
+    "optical imaging": 1,
+    "endoscopy": 162
+   },
+   "colonoscopy": {
+    "endoscopy": 5
+   },
+   "confocal laser endomicroscopy": {
+    "endoscopy": 2
+   },
+   "laparoscopy": {
+    "endoscopy": 405
+   },
+   "digital radiography": {
+    "x-ray imaging": 45
+   },
+   "mammography": {
+    "x-ray imaging": 35
+   },
+   "chest x-ray": {
+    "x-ray imaging": 432,
+    "computed tomography": 8
+   },
+   "conventional ct": {
+    "x-ray imaging": 8,
+    "computed tomography": 82
+   },
+   "spiral ct": {
+    "computed tomography": 9
+   },
+   "structural mri": {
+    "magnetic resonance imaging": 261
+   },
+   "b-mode ultrasound": {
+    "ultrasound imaging": 93
+   },
+   "color doppler": {
+    "ultrasound imaging": 4
+   },
+   "3d ultrasound": {
+    "ultrasound imaging": 7
+   }
+  },
+  "submodality_to_modality_legal": {
+   "brightfield microscopy": [
+    "digital pathology",
+    "light microscopy"
+   ],
+   "confocal microscopy": [
+    "endoscopy",
+    "fluorescence microscopy",
+    "light microscopy",
+    "optical imaging"
+   ],
+   "contrast microscopy": [
+    "light microscopy"
+   ],
+   "darkfield microscopy": [
+    "light microscopy"
+   ],
+   "phase contrast microscopy": [
+    "light microscopy"
+   ],
+   "specular microscopy": [
+    "light microscopy",
+    "optical imaging"
+   ],
+   "whole slide imaging": [
+    "digital pathology",
+    "light microscopy"
+   ],
+   "differential fluorescent microscopy": [
+    "fluorescence microscopy"
+   ],
+   "epifluorescence microscopy": [
+    "fluorescence microscopy"
+   ],
+   "multiphoton microscopy": [
+    "fluorescence microscopy",
+    "optical imaging"
+   ],
+   "synthetic fluorescence microscopy": [
+    "fluorescence microscopy"
+   ],
+   "total internal reflection fluorescence microscopy (tirf)": [
+    "fluorescence microscopy"
+   ],
+   "cryo-electron tomography": [
+    "electron microscopy"
+   ],
+   "scanning electron microscopy": [
+    "electron microscopy"
+   ],
+   "clinical photography": [
+    "clinical photography",
+    "optical imaging"
+   ],
+   "colposcopy": [
+    "endoscopy",
+    "optical imaging"
+   ],
+   "dermoscopy": [
+    "optical imaging"
+   ],
+   "fluorescein angiography": [
+    "optical imaging"
+   ],
+   "fundus photography": [
+    "optical imaging"
+   ],
+   "near-infrared imaging": [
+    "optical imaging"
+   ],
+   "optical coherence tomography": [
+    "optical imaging"
+   ],
+   "optical coherence tomography angiography": [
+    "optical imaging"
+   ],
+   "white-light endoscopy": [
+    "endoscopy",
+    "optical imaging"
+   ],
+   "colonoscopy": [
+    "endoscopy"
+   ],
+   "confocal laser endomicroscopy": [
+    "endoscopy"
+   ],
+   "gastroscopy": [
+    "endoscopy"
+   ],
+   "laparoscopy": [
+    "endoscopy"
+   ],
+   "chest x-ray": [
+    "computed tomography",
+    "x-ray imaging"
+   ],
+   "conventional ct": [
+    "computed tomography",
+    "x-ray imaging"
+   ],
+   "digital radiography": [
+    "x-ray imaging"
+   ],
+   "fluoroscopy": [
+    "x-ray imaging"
+   ],
+   "mammography": [
+    "x-ray imaging"
+   ],
+   "spiral ct": [
+    "computed tomography"
+   ],
+   "structural mri": [
+    "magnetic resonance imaging"
+   ],
+   "3d ultrasound": [
+    "ultrasound imaging"
+   ],
+   "b-mode ultrasound": [
+    "ultrasound imaging"
+   ],
+   "color doppler": [
+    "ultrasound imaging"
+   ]
+  }
+ },
+ "predictability": {
+  "pairs": [
+   {
+    "A": "modality",
+    "B": "submodality",
+    "H(B)": 3.83,
+    "H(B|A)": 1.0458,
+    "base": 0.1662,
+    "acc_loo": 0.7655,
+    "acc_group": 0.7461,
+    "det_mass": 0.0953
+   },
+   {
+    "A": "modality",
+    "B": "body_part",
+    "H(B)": 4.6161,
+    "H(B|A)": 2.2672,
+    "base": 0.1509,
+    "acc_loo": 0.5014,
+    "acc_group": 0.3222,
+    "det_mass": 0.0124
+   },
+   {
+    "A": "modality",
+    "B": "stain",
+    "H(B)": 1.2479,
+    "H(B|A)": 0.6476,
+    "base": 0.8182,
+    "acc_loo": 0.7512,
+    "acc_group": 0.7121,
+    "det_mass": 0.7223
+   },
+   {
+    "A": "modality",
+    "B": "specimen",
+    "H(B)": 0.8613,
+    "H(B|A)": 0.5064,
+    "base": 0.891,
+    "acc_loo": 0.891,
+    "acc_group": 0.8688,
+    "det_mass": 0.5386
+   },
+   {
+    "A": "modality",
+    "B": "domain",
+    "H(B)": 4.207,
+    "H(B|A)": 1.8493,
+    "base": 0.169,
+    "acc_loo": 0.5996,
+    "acc_group": 0.5631,
+    "det_mass": 0.0124
+   },
+   {
+    "A": "submodality",
+    "B": "modality",
+    "H(B)": 2.8833,
+    "H(B|A)": 0.0991,
+    "base": 0.224,
+    "acc_loo": 0.9759,
+    "acc_group": 0.9374,
+    "det_mass": 0.9276
+   },
+   {
+    "A": "submodality",
+    "B": "body_part",
+    "H(B)": 4.6161,
+    "H(B|A)": 1.6559,
+    "base": 0.1509,
+    "acc_loo": 0.5961,
+    "acc_group": 0.3829,
+    "det_mass": 0.0912
+   },
+   {
+    "A": "submodality",
+    "B": "stain",
+    "H(B)": 1.2479,
+    "H(B|A)": 0.5192,
+    "base": 0.8182,
+    "acc_loo": 0.8529,
+    "acc_group": 0.8081,
+    "det_mass": 0.7572
+   },
+   {
+    "A": "submodality",
+    "B": "specimen",
+    "H(B)": 0.8613,
+    "H(B|A)": 0.3789,
+    "base": 0.891,
+    "acc_loo": 0.9126,
+    "acc_group": 0.8554,
+    "det_mass": 0.4747
+   },
+   {
+    "A": "submodality",
+    "B": "domain",
+    "H(B)": 4.207,
+    "H(B|A)": 1.3021,
+    "base": 0.169,
+    "acc_loo": 0.7058,
+    "acc_group": 0.6225,
+    "det_mass": 0.2316
+   },
+   {
+    "A": "body_part",
+    "B": "modality",
+    "H(B)": 2.8833,
+    "H(B|A)": 0.5344,
+    "base": 0.224,
+    "acc_loo": 0.8611,
+    "acc_group": 0.6285,
+    "det_mass": 0.4989
+   },
+   {
+    "A": "body_part",
+    "B": "submodality",
+    "H(B)": 3.83,
+    "H(B|A)": 0.8698,
+    "base": 0.1662,
+    "acc_loo": 0.7896,
+    "acc_group": 0.5008,
+    "det_mass": 0.3022
+   },
+   {
+    "A": "body_part",
+    "B": "stain",
+    "H(B)": 1.2479,
+    "H(B|A)": 0.4279,
+    "base": 0.8182,
+    "acc_loo": 0.8993,
+    "acc_group": 0.7458,
+    "det_mass": 0.7855
+   },
+   {
+    "A": "body_part",
+    "B": "specimen",
+    "H(B)": 0.8613,
+    "H(B|A)": 0.3127,
+    "base": 0.891,
+    "acc_loo": 0.9295,
+    "acc_group": 0.8004,
+    "det_mass": 0.7645
+   },
+   {
+    "A": "body_part",
+    "B": "domain",
+    "H(B)": 4.207,
+    "H(B|A)": 0.646,
+    "base": 0.169,
+    "acc_loo": 0.8322,
+    "acc_group": 0.6501,
+    "det_mass": 0.462
+   },
+   {
+    "A": "stain",
+    "B": "modality",
+    "H(B)": 2.8833,
+    "H(B|A)": 2.283,
+    "base": 0.224,
+    "acc_loo": 0.3994,
+    "acc_group": 0.3308,
+    "det_mass": 0.163
+   },
+   {
+    "A": "stain",
+    "B": "submodality",
+    "H(B)": 3.83,
+    "H(B|A)": 3.1013,
+    "base": 0.1662,
+    "acc_loo": 0.2882,
+    "acc_group": 0.1344,
+    "det_mass": 0.0547
+   },
+   {
+    "A": "stain",
+    "B": "body_part",
+    "H(B)": 4.6161,
+    "H(B|A)": 3.7961,
+    "base": 0.1509,
+    "acc_loo": 0.2685,
+    "acc_group": 0.0807,
+    "det_mass": 0.0254
+   },
+   {
+    "A": "stain",
+    "B": "specimen",
+    "H(B)": 0.8613,
+    "H(B|A)": 0.5461,
+    "base": 0.891,
+    "acc_loo": 0.9212,
+    "acc_group": 0.8859,
+    "det_mass": 0.1262
+   },
+   {
+    "A": "stain",
+    "B": "domain",
+    "H(B)": 4.207,
+    "H(B|A)": 3.3705,
+    "base": 0.169,
+    "acc_loo": 0.2958,
+    "acc_group": 0.1916,
+    "det_mass": 0.028
+   },
+   {
+    "A": "specimen",
+    "B": "modality",
+    "H(B)": 2.8833,
+    "H(B|A)": 2.5284,
+    "base": 0.224,
+    "acc_loo": 0.3047,
+    "acc_group": 0.2053,
+    "det_mass": 0.0388
+   },
+   {
+    "A": "specimen",
+    "B": "submodality",
+    "H(B)": 3.83,
+    "H(B|A)": 3.3475,
+    "base": 0.1662,
+    "acc_loo": 0.2355,
+    "acc_group": 0.1395,
+    "det_mass": 0.0388
+   },
+   {
+    "A": "specimen",
+    "B": "body_part",
+    "H(B)": 4.6161,
+    "H(B|A)": 4.0675,
+    "base": 0.1509,
+    "acc_loo": 0.2316,
+    "acc_group": 0.1246,
+    "det_mass": 0.0356
+   },
+   {
+    "A": "specimen",
+    "B": "stain",
+    "H(B)": 1.2479,
+    "H(B|A)": 0.9327,
+    "base": 0.8182,
+    "acc_loo": 0.8392,
+    "acc_group": 0.7915,
+    "det_mass": 0.0299
+   },
+   {
+    "A": "specimen",
+    "B": "domain",
+    "H(B)": 4.207,
+    "H(B|A)": 3.7509,
+    "base": 0.169,
+    "acc_loo": 0.2536,
+    "acc_group": 0.19,
+    "det_mass": 0.0378
+   },
+   {
+    "A": "domain",
+    "B": "modality",
+    "H(B)": 2.8833,
+    "H(B|A)": 0.5255,
+    "base": 0.224,
+    "acc_loo": 0.8691,
+    "acc_group": 0.7614,
+    "det_mass": 0.3759
+   },
+   {
+    "A": "domain",
+    "B": "submodality",
+    "H(B)": 3.83,
+    "H(B|A)": 0.9251,
+    "base": 0.1662,
+    "acc_loo": 0.7915,
+    "acc_group": 0.6349,
+    "det_mass": 0.1103
+   },
+   {
+    "A": "domain",
+    "B": "body_part",
+    "H(B)": 4.6161,
+    "H(B|A)": 1.0551,
+    "base": 0.1509,
+    "acc_loo": 0.7452,
+    "acc_group": 0.5319,
+    "det_mass": 0.1773
+   },
+   {
+    "A": "domain",
+    "B": "stain",
+    "H(B)": 1.2479,
+    "H(B|A)": 0.4114,
+    "base": 0.8182,
+    "acc_loo": 0.8948,
+    "acc_group": 0.7877,
+    "det_mass": 0.7601
+   },
+   {
+    "A": "domain",
+    "B": "specimen",
+    "H(B)": 0.8613,
+    "H(B|A)": 0.4052,
+    "base": 0.891,
+    "acc_loo": 0.9075,
+    "acc_group": 0.8373,
+    "det_mass": 0.5624
+   }
+  ],
+  "chains": {
+   "ms->body_part": {
+    "H(B|A)": 1.5667212742802343,
+    "acc_loo": 0.6174134095964411,
+    "acc_group": 0.3883063234826819
+   },
+   "ms->stain": {
+    "H(B|A)": 0.5084100072633967,
+    "acc_loo": 0.8525579917381634,
+    "acc_group": 0.771210676835081
+   },
+   "ms->specimen": {
+    "H(B|A)": 0.3676629805104932,
+    "acc_loo": 0.9157928185573562,
+    "acc_group": 0.8347632666031141
+   },
+   "ms->domain": {
+    "H(B|A)": 1.2473885271738085,
+    "acc_loo": 0.7200508420718145,
+    "acc_group": 0.6186844613918017
+   },
+   "sb->domain": {
+    "H(B|A)": 0.25643021137501043,
+    "acc_loo": 0.9183349221480775,
+    "acc_group": 0.6174134095964411
+   },
+   "sb->specimen": {
+    "H(B|A)": 0.14556192534093224,
+    "acc_loo": 0.9488401652367334,
+    "acc_group": 0.6841436288528757
+   },
+   "sb->stain": {
+    "H(B|A)": 0.15307939149643426,
+    "acc_loo": 0.9551954242135366,
+    "acc_group": 0.7111534795042898
+   },
+   "sbf->domain": {
+    "H(B|A)": 0.5136599940222699,
+    "acc_loo": 0.8528757546870035,
+    "acc_group": 0.6460120749920559
+   }
+  },
+  "group_for_cv": "metadata_topic",
+  "n_groups": 224
+ },
+ "training_rules": [
+  {
+   "field": "modality",
+   "id": "M1",
+   "rule": "submodality hard and exactly one candidate modality is legal for it",
+   "datasets": 3,
+   "images": 5239
+  },
+  {
+   "field": "modality",
+   "id": "M2",
+   "rule": "{digital pathology, light microscopy} candidates -> light microscopy (public: 92% of WSI, 96% of brightfield rows are LM)",
+   "datasets": 8,
+   "images": 13273
+  },
+  {
+   "field": "submodality",
+   "id": "S2",
+   "rule": "{laparoscopy, white-light endoscopy} -> laparoscopy (the specific term)",
+   "datasets": 5,
+   "images": 8000
+  },
+  {
+   "field": "submodality",
+   "id": "S3",
+   "rule": "{colonoscopy|gastroscopy, white-light endoscopy} -> white-light endoscopy (public: 163 WLE vs 5 colonoscopy rows)",
+   "datasets": 10,
+   "images": 18072
+  },
+  {
+   "field": "body_part",
+   "id": "B1",
+   "rule": "strong submodality implies body part (fundus/OCT/OCTA/FA -> eye, dermoscopy -> skin, mammography -> breast, chest x-ray -> chest, colposcopy -> cervix)",
+   "datasets": 64,
+   "images": 153897
+  },
+  {
+   "field": "body_part",
+   "id": "B2",
+   "rule": "laparoscopy -> abdomen when registry says 'not applicable' or lists only abdominal organs (public: 93% abdomen family)",
+   "datasets": 8,
+   "images": 30203
+  },
+  {
+   "field": "body_part",
+   "id": "B3",
+   "rule": "prune modifiers: drop blood vessels/arteries when a region is listed; head subset of brain for MRI/CT",
+   "datasets": 31,
+   "images": 59501
+  },
+  {
+   "field": "body_part",
+   "id": "B4",
+   "rule": "remaining candidates all in one anatomical family -> train the family head hard, atom head partial-label",
+   "datasets": 60,
+   "images": 99665
+  },
+  {
+   "field": "body_part",
+   "id": "B5",
+   "rule": "UNRESOLVED: candidates span several families (true multi-region dataset; needs per-image metadata)",
+   "datasets": 64,
+   "images": 96686
+  },
+  {
+   "field": "body_part",
+   "id": "B6",
+   "rule": "UNRESOLVED: masked (registry 'not applicable'/'multiple', or >4 regions across several families)",
+   "datasets": 20,
+   "images": 46240
+  },
+  {
+   "field": "body_part",
+   "id": "B7",
+   "rule": "masked only because >4 regions were listed, all in one family (galar, rhode-island-vce: GI tract) -> family-hard",
+   "datasets": 2,
+   "images": 4000
+  },
+  {
+   "field": "stain",
+   "id": "ST1",
+   "rule": "non-microscopy modality: stain not asked -> mask (already done by select_datasets.py)",
+   "datasets": 264,
+   "images": 527853
+  },
+  {
+   "field": "stain",
+   "id": "ST2a",
+   "rule": "cryo-ET or darkfield submodality -> 'unstained' (public: 15/15 rows)",
+   "datasets": 5,
+   "images": 16673
+  },
+  {
+   "field": "stain",
+   "id": "ST2b",
+   "rule": "synthetic fluorescence -> stain 'synthetic' (public: 38/38 rows; currently dropped by canon_stain)",
+   "datasets": 8,
+   "images": 9456
+  },
+  {
+   "field": "stain",
+   "id": "ST3",
+   "rule": "submodality for which MMBU never asks stain (phase contrast, contrast, confocal, differential, multiphoton): mask confirmed",
+   "datasets": 13,
+   "images": 16455
+  },
+  {
+   "field": "stain",
+   "id": "ST4",
+   "rule": "UNRESOLVED: stained modality, registry has no stain (registry text mining finds a stain keyword in only 4/35)",
+   "datasets": 35,
+   "images": 77410
+  },
+  {
+   "field": "stain",
+   "id": "ST5",
+   "rule": "WARN: registry lists a stain for a submodality MMBU never asks stain for (harmless, but weight down)",
+   "datasets": 7,
+   "images": 11680
+  },
+  {
+   "field": "specimen",
+   "id": "SP1",
+   "rule": "drop non-species tokens (cell line, phantom, cells) when exactly one species is listed",
+   "datasets": 23,
+   "images": 39360
+  },
+  {
+   "field": "specimen",
+   "id": "SP2",
+   "rule": "clinical (non-microscopy-lab) modality and 'human' among candidates -> human (public: >=96% human)",
+   "datasets": 3,
+   "images": 4149
+  },
+  {
+   "field": "specimen",
+   "id": "SP3",
+   "rule": "submodality = synthetic fluorescence microscopy -> specimen 'synthetic' (public: 38/38)",
+   "datasets": 1,
+   "images": 1000
+  },
+  {
+   "field": "specimen",
+   "id": "SP4",
+   "rule": "{bacteria, e. coli}: nested, keep as family",
+   "datasets": 3,
+   "images": 3125
+  },
+  {
+   "field": "specimen",
+   "id": "SP5",
+   "rule": "UNRESOLVED candidates (multi-species datasets)",
+   "datasets": 18,
+   "images": 46380
+  },
+  {
+   "field": "specimen",
+   "id": "SP6",
+   "rule": "SOFT: clinical modality with registry specimen 'unknown' -> human (not applied automatically)",
+   "datasets": 2,
+   "images": 4000
+  },
+  {
+   "field": "specimen",
+   "id": "SP7",
+   "rule": "UNRESOLVED masked ('mixed', plankton, unknown)",
+   "datasets": 10,
+   "images": 17673
+  },
+  {
+   "field": "domain",
+   "id": "D1",
+   "rule": "radiologic modality: drop 'radiology' when a specialty is present (registry 95-100% vs public 10-49%); also brings the 3 four-domain datasets under the public cap of 3",
+   "datasets": 108,
+   "images": 252352
+  },
+  {
+   "field": "domain",
+   "id": "D1b",
+   "rule": "radiology is the only registry domain: keep",
+   "datasets": 6,
+   "images": 9060
+  }
+ ],
+ "training_mode_counts": {
+  "modality": {
+   "before": {
+    "hard": 377,
+    "candidates": 16
+   },
+   "after": {
+    "hard": 388,
+    "candidates": 5
+   }
+  },
+  "submodality": {
+   "before": {
+    "hard": 363,
+    "masked": 2,
+    "candidates": 28
+   },
+   "after": {
+    "hard": 378,
+    "masked": 2,
+    "candidates": 13
+   }
+  },
+  "body_part": {
+   "before": {
+    "hard": 144,
+    "candidates": 222,
+    "masked": 27
+   },
+   "after": {
+    "hard": 247,
+    "masked": 20,
+    "candidates": 64,
+    "family": 62
+   }
+  },
+  "stain": {
+   "before": {
+    "masked": 325,
+    "candidates": 16,
+    "hard": 52
+   },
+   "after": {
+    "masked": 312,
+    "candidates": 16,
+    "hard": 65
+   }
+  },
+  "specimen": {
+   "before": {
+    "hard": 333,
+    "candidates": 47,
+    "masked": 13
+   },
+   "after": {
+    "hard": 360,
+    "candidates": 21,
+    "masked": 12
+   }
+  },
+  "domain": {
+   "before": {
+    "multi": 386,
+    "masked": 7
+   },
+   "after": {
+    "multi": 386,
+    "masked": 7
+   }
+  }
+ },
+ "label_schema": {
+  "modality": {
+   "classes": "taxonomy.toml [modalities].core (11)",
+   "type": "single",
+   "head": "softmax",
+   "constraint": "none; root of the decode order",
+   "unknown": "no unknown class"
+  },
+  "submodality": {
+   "classes": "public 35 + fluoroscopy + gastroscopy = 37",
+   "type": "single",
+   "head": "softmax masked to legal(modality)",
+   "unknown": "no unknown class"
+  },
+  "body_part": {
+   "classes": "public atoms (66 after aliases) + registry atoms with >=3 datasets; plus a 14-way family head",
+   "type": "multi-label atoms (BCE) + single family; partial-label loss for candidates",
+   "applicable": "mask when dataset label is masked; at inference ask only when requested",
+   "decode": "family -> atoms p>=tau (cap 3), general first"
+  },
+  "stain": {
+   "classes": "public canonical stains + 'synthetic' + 'unstained'",
+   "type": "single",
+   "applicable": [
+    "light microscopy",
+    "fluorescence microscopy",
+    "electron microscopy",
+    "digital pathology"
+   ],
+   "mask": "all non-microscopy images and NO_STAIN submodalities",
+   "unknown": "no unknown class"
+  },
+  "specimen": {
+   "classes": "human + ~20 species/cell classes; non-answers removed",
+   "type": "single",
+   "applicable": "all images",
+   "mask": "non-answers (x-ray images, unidentified, biological specimen, mixed)"
+  },
+  "domain": {
+   "classes": "23 public domains",
+   "type": "multi-label (BCE) max 3",
+   "parse": "see domain_parsing",
+   "decode": "top-1 always, add 2nd/3rd only if p>=tau",
+   "train_fix": "drop radiology when another specialty present"
+  }
+ }
+}

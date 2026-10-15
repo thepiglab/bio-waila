@@ -1,7 +1,7 @@
 # working data: never commit images, archives or caches
-data/
-runs/
-logs/
+/data/
+/runs/
+/logs/
 *.part
 # python / uv
 .venv/
