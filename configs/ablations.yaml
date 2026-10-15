@@ -1,0 +1,19 @@
+# Named override sets for the batch-composition / target ablations (training_plan.md §2.5). Pass one set to a
+# trainer with --set, e.g.  waila-train-clm --config configs/clm_siglip2.yaml --set sampler.mode=uniform
+# or on the cluster:        sbatch --export=ALL,TRAINER=clm,CONFIG=configs/clm_siglip2.yaml,SET="sampler.mode=uniform" slurm/train.sbatch
+# Compare on held-out datasets (metrics.json → heldout.mean_acc_macro_ds); same seed, same global batch.
+sampler:
+  hierarchical: [sampler.mode=hierarchical]            # default
+  plan_mix:     [sampler.mode=uniform]                 # the manifest's own (planned) mix, no re-weighting
+  dataset_sqrt: [sampler.mode=dataset_sqrt]            # the previous default (double-balances)
+  flat_classes: [sampler.mode=hierarchical, sampler.tau=0.0]   # every submodality equally often
+targets:
+  binary_smoothing:    [train.smoothing_mode=uniform]
+  hierarchy_smoothing: [train.smoothing_mode=hierarchy]  # default
+  cross_field:         [train.cross_field_weight=0.1]
+  infonce_binary:      [train.loss=infonce, train.soft_targets=false]   # CLM-LLM only: CLM's original loss
+  infonce_graded:      [train.loss=infonce, train.soft_targets=true]
+  infonce_graded_xf:   [train.loss=infonce, train.soft_targets=true, train.cross_field_weight=0.5]
+curriculum:
+  no_ramp:   [train.cand_ramp_frac=0.0]
+  ramp_5pct: [train.cand_ramp_frac=0.05]                 # default

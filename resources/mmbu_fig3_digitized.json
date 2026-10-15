@@ -1,0 +1,242 @@
+{
+ "source": "MMBU paper Fig. 3 (full benchmark, by image count); image saved as research/_sources/mmbu_fig3_full_benchmark.png",
+ "method": "Panel (a) percentages are printed on the pie. EM, digital pathology and clinical photography slices are unlabeled; their values are estimates from taxonomy.toml paper_weights. Panels (b)-(d) were digitized from the PNG: bar ends found by colour-run detection and converted with each panel's log2 tick positions (b-left 2^4 at x=722, 34.4 px/unit; b-right 2^5 at x=1197.5, 43.75 px/unit; c 2^8 at x=231, 108 px/unit; d 2^10 at x=996, 183 px/unit). Expect about +/-5% error per bar. Check: submodality bars sum to 79,130 images (paper reports 78K items) and per-modality sums land within 2 points of the pie.",
+ "n_images_est": 79130,
+ "modality_pct": {
+  "light microscopy": 21.7,
+  "optical imaging": 17.9,
+  "endoscopy": 17.5,
+  "x-ray imaging": 16.1,
+  "magnetic resonance imaging": 13.5,
+  "computed tomography": 5.0,
+  "fluorescence microscopy": 4.2,
+  "ultrasound imaging": 2.1,
+  "electron microscopy": 0.8,
+  "digital pathology": 0.7,
+  "clinical photography": 0.5
+ },
+ "modality_pct_estimated": [
+  "electron microscopy",
+  "digital pathology",
+  "clinical photography"
+ ],
+ "submodality_images": {
+  "brightfield microscopy": 15038,
+  "whole slide imaging": 1774,
+  "confocal microscopy": 1009,
+  "darkfield microscopy": 469,
+  "phase contrast microscopy": 267,
+  "contrast microscopy": 209,
+  "specular microscopy": 59,
+  "fundus photography": 6319,
+  "dermoscopy": 3382,
+  "clinical photography": 2353,
+  "optical coherence tomography": 1259,
+  "optical coherence tomography angiography": 469,
+  "near-infrared imaging": 119,
+  "laparoscopy": 8903,
+  "white-light endoscopy": 4222,
+  "colonoscopy": 289,
+  "gastroscopy": 197,
+  "colposcopy": 90,
+  "chest x-ray": 11426,
+  "conventional ct": 3427,
+  "fluoroscopy": 877,
+  "spiral ct": 423,
+  "mammography": 211,
+  "structural mri": 10556,
+  "epifluorescence microscopy": 2660,
+  "synthetic fluorescence microscopy": 537,
+  "total internal reflection fluorescence microscopy (tirf)": 119,
+  "differential fluorescent microscopy": 119,
+  "multiphoton microscopy": 119,
+  "b-mode ultrasound": 1283,
+  "3d ultrasound": 180,
+  "color doppler": 159,
+  "scanning electron microscopy": 488,
+  "cryo-electron tomography": 119
+ },
+ "submodality_groups": [
+  [
+   "light microscopy",
+   [
+    "brightfield microscopy",
+    "whole slide imaging",
+    "confocal microscopy",
+    "darkfield microscopy",
+    "phase contrast microscopy",
+    "contrast microscopy",
+    "specular microscopy"
+   ]
+  ],
+  [
+   "optical imaging",
+   [
+    "fundus photography",
+    "dermoscopy",
+    "clinical photography",
+    "optical coherence tomography",
+    "optical coherence tomography angiography",
+    "near-infrared imaging"
+   ]
+  ],
+  [
+   "endoscopy",
+   [
+    "laparoscopy",
+    "white-light endoscopy",
+    "colonoscopy",
+    "gastroscopy",
+    "colposcopy"
+   ]
+  ],
+  [
+   "x-ray imaging & computed tomography",
+   [
+    "chest x-ray",
+    "conventional ct",
+    "fluoroscopy",
+    "spiral ct",
+    "mammography"
+   ]
+  ],
+  [
+   "magnetic resonance imaging",
+   [
+    "structural mri"
+   ]
+  ],
+  [
+   "fluorescence microscopy",
+   [
+    "epifluorescence microscopy",
+    "synthetic fluorescence microscopy",
+    "total internal reflection fluorescence microscopy (tirf)",
+    "differential fluorescent microscopy",
+    "multiphoton microscopy"
+   ]
+  ],
+  [
+   "ultrasound imaging",
+   [
+    "b-mode ultrasound",
+    "3d ultrasound",
+    "color doppler"
+   ]
+  ],
+  [
+   "electron microscopy",
+   [
+    "scanning electron microscopy",
+    "cryo-electron tomography"
+   ]
+  ]
+ ],
+ "domain_images": {
+  "oncology": 11401,
+  "surgery": 11041,
+  "pulmonology": 10900,
+  "ophthalmology": 8876,
+  "dermatology": 4410,
+  "gastroenterology": 3732,
+  "radiology": 3661,
+  "orthopedics": 3241,
+  "urology": 1559,
+  "neurology": 951,
+  "infectious disease": 881,
+  "obstetrics and gynecology": 785,
+  "rheumatology": 479,
+  "otolaryngology": 435,
+  "cardiology": 392,
+  "nephrology": 300,
+  "endocrinology": 300,
+  "pathology": 10222,
+  "biology": 5485,
+  "hematology": 3078,
+  "andrology": 775,
+  "cytology": 239
+ },
+ "domain_groups": {
+  "clinical": [
+   "oncology",
+   "surgery",
+   "pulmonology",
+   "ophthalmology",
+   "dermatology",
+   "gastroenterology",
+   "radiology",
+   "orthopedics",
+   "urology",
+   "neurology",
+   "infectious disease",
+   "obstetrics and gynecology",
+   "rheumatology",
+   "otolaryngology",
+   "cardiology",
+   "nephrology",
+   "endocrinology"
+  ],
+  "laboratory": [
+   "pathology",
+   "biology",
+   "hematology",
+   "andrology",
+   "cytology"
+  ]
+ },
+ "body_part_images": {
+  "eye": 7725,
+  "prostate": 3245,
+  "breast": 2452,
+  "brain": 1924,
+  "abdomen": 9126,
+  "lung": 7243,
+  "chest": 2853,
+  "knee": 1498,
+  "shoulder": 1058,
+  "skin": 4633,
+  "blood": 1666,
+  "lymph nodes": 1259,
+  "breast tissue": 1167,
+  "cells": 1158,
+  "appendicular skeleton": 1679
+ },
+ "body_part_groups": [
+  [
+   "major organs",
+   [
+    "eye",
+    "prostate",
+    "breast",
+    "brain"
+   ]
+  ],
+  [
+   "anatomical regions",
+   [
+    "abdomen",
+    "lung",
+    "chest",
+    "knee",
+    "shoulder"
+   ]
+  ],
+  [
+   "tissue / specimen",
+   [
+    "skin",
+    "blood",
+    "lymph nodes",
+    "breast tissue",
+    "cells"
+   ]
+  ],
+  [
+   "skeletal",
+   [
+    "appendicular skeleton"
+   ]
+  ]
+ ],
+ "body_part_note": "Figure shows the top 15 of 95 body parts only."
+}

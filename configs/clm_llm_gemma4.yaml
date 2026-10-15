@@ -1,0 +1,49 @@
+# CLM-LLM side arm: frozen Gemma-4-E4B embeddings + per-field state heads + shared action head (CLM recipe).
+# docs/models/clm_llm_vs_encoder.md: expected to trail SigLIP 2; keep it only if within ~3 points or it adds ≥1.5 when
+# combined. Run a 50k-image pilot (--limit) before embedding everything.
+out: ${WAILA_RUNS:-runs}/clm_llm_gemma4
+cache: ${WAILA_RUNS:-runs}/clm_llm_gemma4_cache
+embed_batch: 16
+data:
+  manifest: ${WAILA_PREP:-data/prepared}/manifest.parquet
+  image_root: ${WAILA_PREP:-data/prepared}
+  include_nc: false
+  folds_k: 5
+  fold: 0
+encoder:
+  kind: gemma4
+  name: google/gemma-4-E4B-it
+  layer: 0.6                 # fraction of depth (or an int index)
+  pool: image_mean+last      # state readout; label texts use label_pool
+  label_pool: last
+  max_soft_tokens: 140       # image budget {70,140,280,560,1120}; 140 ≈ 1,260 patches
+  dtype: bfloat16
+heads:                       # official CLM head (Contrastive-LM/CLM src/clm/heads.py), `choice`-task defaults
+  width: 1536
+  d_out: 512
+  depth: 3
+  layernorm: true
+  residual: false
+  shared_state: false        # true = one state head for all fields (CLM's design; also saved in CLM's ckpt format)
+sampler:                     # train/sampling.py; the sequence is fixed by train.seed, independent of the GPU count
+  mode: hierarchical         # hierarchical (submodality share^tau → dataset ∝ n^power → image) | dataset_sqrt | uniform
+  tau: 0.7
+  power: 0.5
+  cap: 20000
+train:
+  loss: softce               # softce (full-vocabulary softmax, mode-aware) | infonce (CLM's group-masked InfoNCE + 0.5 softce)
+  global_batch: 2048
+  epochs: 20
+  patience: 5                # CLM: early stopping on the selection set
+  epoch_size: 400000
+  lr: 5.0e-4                 # CLM choice-task default; OneCycle 10% warm-up, cosine
+  wd: 0.0
+  label_smoothing: 0.1
+  smoothing_mode: hierarchy
+  cand_ramp_frac: 0.05
+  soft_targets: true         # infonce: graded targets (taxonomy siblings, anatomical families, label-set overlap); false = CLM's binary
+  target_gamma: 1.0
+  cross_field_weight: 0.0    # infonce: >0 adds the image-image term with cross-field graded targets
+  cross_field_gamma: 2.0
+  gamma_neg: 2.0
+  seed: 0

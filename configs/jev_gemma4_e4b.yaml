@@ -1,0 +1,39 @@
+# Jev-style teacher prototype: Gemma-4-E4B-it, letter readout, LoRA on the language model, tower frozen.
+# docs/experiments/training_plan.md §2.2. Formulations: F2 (independent) and F3 (progressive, domain last).
+out: ${WAILA_RUNS:-runs}/jev_e4b
+data:
+  manifest: ${WAILA_PREP:-data/prepared}/manifest.parquet
+  image_root: ${WAILA_PREP:-data/prepared}
+  include_nc: false
+  folds_k: 5
+  fold: 0
+model:
+  kind: gemma
+  name: google/gemma-4-E4B-it
+  max_soft_tokens: 280       # 1120 for the microscopy/pathology run
+  dtype: bfloat16
+  train_vision: false        # second run: true (lower LR is via a separate run; tower frozen in Gemma 4 pretraining)
+  gradient_checkpointing: true
+  lora: {r: 16, alpha: 32, dropout: 0.05}
+sampler:                     # train/sampling.py; the sequence is fixed by train.seed, independent of the GPU count
+  mode: hierarchical         # hierarchical (submodality share^tau → dataset ∝ n^power → image) | dataset_sqrt | uniform
+  tau: 0.7
+  power: 0.5
+  cap: 20000
+train:
+  formulation: F2            # F2 | F3
+  context_dropout: 0.3       # F3 only
+  k_max: 20                  # options shown per prompt; larger fields are sampled (train) / tournament (eval)
+  global_batch: 8            # prompts per micro-step over all GPUs (x grad_accum per optimiser step)
+  grad_accum: 4
+  workers: 8
+  epochs: 1
+  examples_per_epoch: 200000 # (image, field) prompts
+  lr: 1.0e-4
+  warmup_frac: 0.03
+  label_smoothing: 0.05
+  grad_clip: 1.0
+  max_side: 512
+  eval_per_dataset: 20
+  log_every: 20
+  seed: 0

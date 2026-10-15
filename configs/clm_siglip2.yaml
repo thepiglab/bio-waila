@@ -1,0 +1,45 @@
+# CLM-vision teacher: SigLIP 2 So400m/16 @384 with per-field heads and text-initialised label vectors.
+# docs/experiments/training_plan.md §2.1 (recipe sources: docs/models/general_encoders.md §6.2)
+out: ${WAILA_RUNS:-runs}/clm_siglip2
+data:
+  manifest: ${WAILA_PREP:-data/prepared}/manifest.parquet
+  image_root: ${WAILA_PREP:-data/prepared}
+  include_nc: false          # licence toggle (configs/data.yaml)
+  exclude_datasets: []
+  folds_k: 5
+  fold: 0
+  train_on_all: false        # true for the final teacher (no held-out fold)
+model:
+  backbone:
+    name: google/siglip2-so400m-patch16-384
+    dtype: float32           # weights in fp32, compute in bf16 autocast
+  image_size: 384
+sampler:                     # train/sampling.py; the sequence is fixed by train.seed, independent of the GPU count
+  mode: hierarchical         # hierarchical (submodality share^tau → dataset ∝ n^power → image) | dataset_sqrt | uniform
+  tau: 0.7
+  power: 0.5
+  cap: 20000
+train:
+  global_batch: 1024         # per optimiser step, summed over GPUs (per-GPU batch = global_batch / n_gpus)
+  workers: 16
+  precision: bf16
+  epoch_size: 400000         # images per epoch (rounded down to whole global batches)
+  epochs_a: 1                # head warm-up, tower frozen
+  epochs_b: 8                # full fine-tune
+  lr: 3.0e-5                 # top trunk block; grid {1e-5, 3e-5, 1e-4}
+  head_lr: 1.0e-3
+  llrd: 0.8
+  wd: 0.05
+  warmup_frac: 0.05
+  ema: 0.9998
+  label_smoothing: 0.1
+  smoothing_mode: hierarchy  # smoothing mass to taxonomy siblings / same anatomical family (uniform: plain)
+  cand_ramp_frac: 0.05       # candidate-set rows ramp 0→1 over the first 5% of steps (clean hard labels first)
+  cross_field_weight: 0.0    # >0 adds image-image InfoNCE with cross-field graded targets (ablation)
+  cross_field_gamma: 2.0
+  gamma_neg: 2.0
+  label_pull: 0.01
+  grad_clip: 1.0
+  wise_alphas: [0.3, 0.5, 0.7, 1.0]
+  log_every: 50
+  seed: 0

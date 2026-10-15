@@ -1,0 +1,2352 @@
+{
+ "_doc": "Hand-curated corrections applied by `waila-select` (src/bio_waila/data/select.py) on top of the registry. Sources: docs/data/audits/audit_*.md (metadata-only audits, 2026-10-06). drop = never select; route = replace download method/ref; labels = override dataset-level label targets {field: {mode, values}}; exclude_paths = regex of member paths waila-prepare/waila-download must skip.",
+ "drop": {
+  "galar": "figshare record has split CSVs only; images on figshare.plus 25304616 (7z, huge)",
+  "lapgc-kvad-30": "record lists only a PDF",
+  "drosophila-wing-database-gigadb": "only a figure on figshare; data on GigaDB FTP; insect wing has no body-part class",
+  "cervical-tct-heilongjiang-2025": "only the annotation zip is public",
+  "cholec80-cvs": "annotations only; no frames",
+  "sonocorpus": "manifests only; pixels belong to upstream datasets",
+  "vertebral-bodies-ct-labels": "label NIfTIs only",
+  "crlm-ct-seg-refined-flr": "refined masks only",
+  "popsicle-cryoet-benchmark": "metadata only; pixels on the CZ cryoET portal",
+  "rodent-estrous-cytology-compendium-hf": "image_url strings only",
+  "biotisr": "code + OTFs + URL spreadsheet only",
+  "tryptag-tbrucei-localisation": "index record; images in hundreds of per-plate records",
+  "embryonet-zebrafish": "code release + 725 demo jpgs; registry size wrong",
+  "smart-om": "restricted (author approval)",
+  "liver-mets-longitudinal-ct-isfahan": "restricted (author approval)",
+  "dermlens-5k": "restricted",
+  "ptc-thyroid-fnac-elazig-2025": "embargoed",
+  "spheromix": "duplicate of spherohq (identical file names)",
+  "harris-2015-hippocampal-neuropil": "zarr-in-zip; no reader",
+  "2p-ivm-leukocyte-cell-death": "h5/ims 3D+t arrays only; no reader",
+  "dermartifactdb": "attention heatmaps only",
+  "camelyon-plus": "labels only; WSIs not redistributed",
+  "nih-cxr14-ptx-device-annotations": "manifest only",
+  "fitzpatrick17k-c": "URL CSV; only DermaMNIST npz pixels",
+  "inbreast-breast-pectoral-masks": "masks only",
+  "mini-mias-breast-pectoral-masks": "masks only",
+  "aptos-vascular-arcade-onh-masks": "masks only",
+  "montgomery-heart-clavicle-masks": "masks only",
+  "irfundusset": "catalogue CSV only",
+  "oai-tissue-segmentations": "masks only",
+  "rosmat24": "YOLO weights only",
+  "glaucoma-od-oc-boundaries-guo-2019": ".mat boundaries only",
+  "mura-shoulder-quality-labels": "labels + weights only",
+  "rat-brain-3d-ulm-chavignon": "microbubble tracks",
+  "open-3dulm-awake-mouse": "raw IQ .mat",
+  "hancock": "GitHub code zip only",
+  "dridb-blood-vessels": "extracted vessel maps",
+  "steatotic-liver-3d-mpus-rat": "MATLAB code",
+  "weiss-laparoscope-calibration": "calibration targets, no anatomy",
+  "tcga-diagnostic-slides": "IDC s5cmd manifest only",
+  "nlst-pathology": "IDC s5cmd manifest only",
+  "cgci-blgsp-slides": "IDC s5cmd manifest only",
+  "real-colon-temporal": "frame-label CSVs only (labels for real-colon)",
+  "pcle-regression-prd": "pickled frames",
+  "eye-laterality-cfp-liu-2019": "pkl/h5 only",
+  "spheroid-cell-death-calcein-pi-cnn": "pickles",
+  "zerocostdl4mic-deepstorm-data": "simulated TIFF stack",
+  "small-bowel-retraction-force": "benchtop force experiment",
+  "medmnist-ct-subsets": "repo holds all 18 MedMNIST sets (mixed modalities, 28-224 px)",
+  "enhance-pet-1k6": "PET volumes",
+  "arthrophase": "not yet released",
+  "fetal-pwd-doppler-cagliari": "spectral Doppler (no class)",
+  "ninfea-fetal-ecg-pwd": "spectral Doppler (no class)",
+  "eecp-vascular-doppler-ieee": "spectral Doppler; IEEE login",
+  "cpath-e2e-preprocessed-patches": "split zip + lmdb",
+  "rhode-island-vce": "nested zips",
+  "snubh-mdb-microcalcifications": "split zip",
+  "ieee-cervigram-sequences-yue": "IEEE DataPort login",
+  "roft-ocular-disease-ieee-2024": "IEEE DataPort login",
+  "cptac-aml-slides": "TCIA; mixed SVS + CT/US",
+  "mhh-covid19-image-repository": "unsupported host",
+  "ibn-al-haitham-glaucoma": "unsupported host",
+  "raar-imac-30": "unsupported host",
+  "flori21": "unsupported host",
+  "fundus-photo-enhancement-kangnam": "unsupported host",
+  "fus-awake-mouse-mechanical-stimulation": "unsupported host",
+  "stir-orig": "unsupported host",
+  "endo-ttapc5": "unsupported host",
+  "vessel-tracking-rarp-lnd": "unsupported host",
+  "codex-imaging-of-hcc": "unsupported host; mixed H&E + CODEX",
+  "surgen": "Zenodo record holds only UNI patch embeddings (zarr); WSIs are on BioImages S-BIAD1285 (CZI / OME-Zarr), no handler or reader",
+  "echopiv-aortoiliac-stents-4tu": "4TU.ResearchData host unsupported (API in maintenance; figshare mirror shows embargoed/confidential and no files); first listed record is manuscript+excel only",
+  "enid": "duplicate of glenda (re-organisation of the same frames, same group), 160 images, nested zips (3.3 GB incl. 2.4 GB model weights)",
+  "five-d-us-ablation-deshmukh": "5-part RAR, raw timing data, unlistable",
+  "color-doppler-twinkling-biopsy-markers": "IEEE DataPort login",
+  "biad1137-hht1-single-molecule-tracking-spombe": "BioStudies host unsupported; movie stacks",
+  "multieye": "processed compilation of other selected datasets (Kermany OCT2017, EyePACS, ODIR, FIVES)",
+  "multi-organ-abdominal-ct-reference": "Zenodo 1169361 holds reference segmentation tarballs only; the CTs are in TCIA Pancreas-CT / BTCV",
+  "airc-labden": "Zenodo 23138199 is code + weights of a secondary analysis; photographs are only on Mendeley (g8yhdvgjy2/3, xjs4bfgzj5/3), script access blocked",
+  "deepphd-two-photon": "112 GB of near-duplicate multipage TIFF movies; prepare.py reads one frame per file (about 15 usable images)",
+  "three-photon-cerebral-organoids-rett": "three multipage z-stack TIFFs (3 organoids); prepare.py reads one frame per file",
+  "empiar-10164-hiv-vlp-cryoet": "one .mrc tomogram on Zenodo (not the EMPIAR tilt series); .mrc unsupported by files.py/prepare.py",
+  "fluorescent-neuronal-cells-v1": "images are the yellow collection of fluorescent-neuronal-cells-v2 (subset); EPrints host",
+  "cryolithe-training-data": "936 GB of .mrc volumes; files.py has no .mrc kind and prepare.py no MRC reader, so nothing is fetched or read (3 other cryo-ET sets are selected)",
+  "tcga-esca-ct": "doi routes to the TCIA landing page which resolve_doi does not support; no NBIA lister exists (reinstate after adding one: 126 CT series, 10.2 GB, open)",
+  "freehand-3d-ultrafast-doppler-brain-surgery": "IEEE DataPort subscription-gated; record lists no files; one complex-IQ HDF5",
+  "biad3802-two-photon-calcium-v1-resolution": "BioStudies doi unsupported; 95 TIFF movies of 927 MB (82 GB) give about 90 images under the 20 GB budget",
+  "sdt4d-simulated-two-photon-calcium": "28 GB of 687 MB simulated TIFF movies; budget yields about 116 noisy frames vs plan 2000",
+  "acoustic-angiography-tumor-volumes": "13.9 GB zip whose pixels are .mat plus 2 npz; at most 8 images via read_array (also registry specimen should be rat)",
+  "3d-ulm-nhp-brain-xing-2025": "ULM microbubble density volumes; not MMBU-like 3D ultrasound",
+  "3d-fulm-mouse-pericyte-zenodo-2025": "ULM microbubble density volumes; not MMBU-like 3D ultrasound",
+  "fibroblast-aunp-cytoviva-darkfield-wiemann-2016": "0 images in record",
+  "ctc-darkfield-unstained-blood-ciurte-2018": "registry ref 13822151 is a figshare file id (list_figshare fails); the public S1 zip holds only 6 PNG (3 darkfield + 3 fluorescence), not 263",
+  "fus-rat-neuroinflammation-pereira-2025": "NIfTI is (1,112,128,825) = 2D power-Doppler movie; prepare.read_volume would slice the wrong axis and yield space-time maps, not frames (reinstate after reading the last axis as time)",
+  "empiar-11830-chlamydomonas-cryoet": "Zenodo record holds only an annotation xlsx; pixels are 32 TB of .mrc on EMPIAR / CZ cryoET portal",
+  "large-aperture-spine-volumetric-us-dryad-2025": "Dryad: resolve_doi unsupported and downloads need an OAuth bearer token (401/403); likely .mat beamformed volumes mixed with phantoms",
+  "cmut-rca-3d-power-doppler-fingertip-dryad": "Dryad download blocked without a token (401/403); beamformed volumes of a single volunteer, format unverified (likely .mat)",
+  "brvo-bevacizumab-fa-oct-mferg-dryad-2016": "Dryad download blocked without a token (401/403); three RAR archives of unknown contents (one is mfERG waveforms)",
+  "prostate-mri-us-biopsy": "Zenodo record = IDC s5cmd manifest + annotation zip; no pixels",
+  "czii-cryoet-object-identification-2024": "Kaggle competition (rules) with .mrc/zarr tomograms; no reader",
+  "phantom-lesion-volume-us-wijata": "split zip parts (.zip.001-.004); cannot be sampled",
+  "lymphus-cervical-ln-ptc": "Kaggle record is only 2 infographic JPGs (753 KB); the real LymphUs images are hosted at qamebi.com",
+  "nih-chestxray14-bbox": "same pool as nih-chestxray14 (full NIH CXR14 on Kaggle, random sample not the 983 bbox images); high mmbu-public overlap",
+  "cellscribe-synthetic-fluorescence": "cartoon-rendered coloured ellipses (Kaggle toy counting task), not microscopy imagery",
+  "blood-cell-images-leukemia-sumith-2025": "re-upload of PBC (Acevedo) + AML-Cytomorphology_LMU crops, both already planned; stain wright-giemsa is wrong for them (MGG)",
+  "echoxflow": "pixels are zarr v2 beamspace arrays inside per-exam tars (441 GB); no reader, B-mode not scan-converted, colour Doppler only as raw arrays",
+  "darkfield-ir-slo-choroidal-nevi": "Mendeley record fdnb2kyz4f holds only an 11.6 KB participant spreadsheet, no images",
+  "isic-2018": "redundant: Task 1 images are 100% inside isic-2019, 90% of permissive isic-2017 and in medsegmnist-derm2d; registry HF route also crashes (ArrowInvalid)",
+  "fitzpatrick17k": "redundant: 10 public rows, 16 permissive clinical-photography datasets; atlas-owned pixels, unlicensed HF VQA mirror with duplicate rows",
+  "ead2020": "redundant: same lineage as permissive edd2020/polypgen, 6 public rows, 24 permissive white-light endoscopy datasets",
+  "derma-octa": "redundant: 0 public rows, OCTA target met by permissive data, 5 filter variants of the same 331 skin scans",
+  "octa-mosaicking": "redundant: 71 images, 0 public rows, OCTA covered by 3 permissive datasets",
+  "bbbc041-p-vivax-malaria": "redundant: 7 public rows, Giemsa smears covered by 7 permissive datasets; Kaggle record lists every image twice",
+  "leukocyte-tem-yolo-zenodo-5024988": "false-colour (LUT) frames of one endothelial monolayer time-lapse; 4 zips of 43-45 near-identical frames of the same field; 'white blood cells' body part is misleading",
+  "spinal-multiple-myeloma-seg": "HF render has annotation overlays (vertebra colour maps / red lesion marks) baked into every slice",
+  "cmha-intracranial-aneurysm-cta": "only multi-GB .rar bundles (14.5 GB), not samplable",
+  "bacteria-species-mother-machine-7": "images are degenerate ~1:30 trap strips; mixed phase/fluorescence channels",
+  "egid-gastritis": "only .rar archives (3 x 5.5 GB); not samplable",
+  "exodeepfinder-lysosomal-exocytosis-tirf": "only 18 GB .rar archives; not samplable",
+  "open-h-embodiment": "robotics repo: matplotlib plots, phantom benchtop videos, wrist-camera views; no consistent medical imaging labels",
+  "rsna-pneumonia-severity-3level": "redundant re-split of RSNA 2018 pneumonia images (same source as rsna-pneumonia-2018)",
+  "irradiated-cell-foci-2026": "446 single-nucleus crops of ~3 KB, all below the minimum size; nothing survives prepare",
+  "intel-mobileodt-refined-766": "preprocessed .npy stacks (4 grey slices from 1.8 GB); use the original Intel/MobileODT images instead",
+  "tb-sputum-ufam-figshare-plus-2025": "all files are ~40x40 px bacillus patches; unusable as images at the pipeline resolution (alternatively add a min-side>=128 filter, which would remove everything)",
+  "hcfmrp-covid19-lid": "single 10.6 GB .rar archive; not range-sampleable (needs full download + unrar)",
+  "asce-enhanced-cxr": "all images are lung-segmented, false-colour enhanced renderings (ASCE), not natural chest radiographs; the same patients exist in raw CXR sets",
+  "bbbc031": "all media files in the pilot are *_CELLMASK.png label images (synthetic coloured masks), not microscopy",
+  "behsof-nafld-us": "image_Data.zip is password-protected (1650/1763 entries encrypted); no password published",
+  "cryoet-jove-dl-training-data": "HF rows are all-black images (35/35 blank)",
+  "paviaatn-hacat-4channel": "single 3.6 GB multichannel TIFF in a 2.3 GB zip (one file, <=4 usable frames)",
+  "rat-retina-fluorescein-angiography-video-plos-2014": "one short video; all frames blank or near-duplicates of mmbu-public",
+  "pan-multiplex-nimbus": "multi-channel multiplex arrays/masks in multipart zips; decoded channels are near-black/label-like (134 of 140 blank); MIBI subsets are not fluorescence",
+  "plasmodium-4species-rtdetr-france-2023": "44 GB split zip (.zip.001-.005): not sampleable and not recognised as an archive",
+  "ctpelvic1k": "every sampled slice is a near-duplicate of mmbu-public (0 training images after dedup)",
+  "curvas-2024": "Zenodo zips use a compression method Python zipfile cannot read (NotImplementedError); add a deflate64 reader to unblock",
+  "angiocad": "images only in a 4-part .rar (16 GB): cannot be sampled",
+  "han-severance-validation-a": "only montage contact sheets of ~100 thumbnails each are public (no single images)",
+  "micsim-fluocurv": "simulation renderings; 993 of 1000 are near-duplicates of mmbu-public (6 left)",
+  "rarpl6-workflow": "single 38 GB RARPL6.rar: cannot be sampled",
+  "hrf-registration-thin-features": "derived inverted vessel-feature maps, not fundus photographs",
+  "deepcytometer-klf14-mouse-wat": "images only in histology.7z (27 GB) / klf14.7z (2 GB): .7z cannot be sampled; the fetched zip is model parameters",
+  "cofilin-severing-tirf-reynolds-2022": "zenodo zip holds only trace_data .npy intensity-trace arrays (no TIRF images)",
+  "chestx6": "zenodo record 21880300/21880301 retracted and deleted by the authors (410 tombstone)",
+  "mitoem": "pytc/MitoEM zips hold only seg*.tif instance labels (no EM); duplicate of mitoem-2",
+  "murine-cell-lines-phase-xiong": "243 raw frames are 98% near-duplicates of mmbu-public; 3 usable images",
+  "cholecinstanceseg": "Synapse-only authenticated download (unsupported host), CC BY-NC-SA; not fetchable by the pipeline (re-validated R3: still state=manual)",
+  "hmu-crc-hist550k": "figshare record exposes only ADI.7z (6.3 GB, one class of the 550k tiles); not samplable, single-class (R3: still too_big)",
+  "idr0134-peters-bryophytes": "IDR-hosted (idr.openmicroscopy.org), unsupported host, no scriptable route (R3: still manual)",
+  "nsclc-radiogenomics": "HF file sample is one patient (R01-027) of coronal DERIVED/REFORMATTED whole-body CT incl. table-only slices; labels chest/lung do not describe it; 10 usable images (R3)",
+  "segthy": "HF preview PNGs are vertically flipped (anterior down) and only 14 images; pipeline cannot flip per dataset (R3)",
+  "periorbital-segmentation": "identifiable celebrity/portrait face crops (privacy), not clinical photographs",
+  "rectal-cancer-surgery-ochra": "75 surgical mp4s of 2.5-3.3 GB each (765 GB), no remote frame sampling",
+  "hspc2-brightfield-hspc": "all 421 images are near-duplicates of mmbu-public images (contamination); 0 images after the public-overlap filter",
+  "platynereis-whole-body-sbem": "Zenodo 3675220 holds only N5/HDF5 EM training volumes (raw+labels), no readable image files; full PlatyBrowser volume is 2.5 TB",
+  "renji-esd-egc": "figshare 28045295 is a 100 GB multi-disk split zip (ESD.z01-z19) of videos; cannot be range-sampled",
+  "biosr": "figshare zips hold only .mrc volumes (SIM raw/GT); files.py/prepare.py have no .mrc reader",
+  "axonem": "HF repo = zips of .h5 EM volumes + seg .h5 only; no h5 reader",
+  "transmitted-light-cellseg-aggregate-spacr": "HF imagefolder interleaves segmentation label maps with the images (3/8 samples are masks); names carry no discriminator; most files blank",
+  "bacteria-species-microtraps-4": "mother-machine trap crops 19x512 px; fluor channels mixed under phase label",
+  "totalsegmentator-ct-idc-segmentations": "radiomics feature tables + s5cmd manifests only; no CT pixels",
+  "gomez-embryo-updated-labels-auckland": "labels CSV only (figshare 27610557, 32 MB); images are in gomez-human-embryo-timelapse",
+  "emneuron": "HF yanchaoz/EMNeuron: the sampled archive yields no readable media (EM volumes; labelled data only in a 2.2 GB RAR); verification run 2026-10-07",
+  "u2os-fibsem-organelle-gt": "zenodo 10043461: 2.1 GB of archives sampled, no readable 2D media (EM volumes in unsupported formats); verification run 2026-10-08",
+  "bvem": "HF repo lists no media files or archives; streaming needs an unavailable module (volume format); verification run 2026-10-08",
+  "hela-nuclear-envelope-sbfsem-gt": "record lists no media files or archives (volumes only); verification run 2026-10-08",
+  "isoorg-1k": "HF yanchaoz/* (EMNeuron/OrgMIM): data only in multi-GB RAR archives of EM volumes; nothing readable in sampled archives (verification 2026-10-08)",
+  "denspine-em": "HF pytc/DenSpineEM: volumes only (streaming needs an unavailable module); no 2D images (verification 2026-10-08)"
+ },
+ "route": {
+  "mitoem-2": {
+   "method": "zenodo",
+   "ref": "20417683"
+  },
+  "gbm-multi-institutional-ds007045": {
+   "method": "openneuro",
+   "ref": "ds007045"
+  },
+  "fracatlas": {
+   "method": "figshare",
+   "ref": "22363012"
+  },
+  "figshare-brain-tumor-cheng": {
+   "method": "hf",
+   "ref": "MedOtter/Figshare_Brain_Tumor"
+  },
+  "dmid": {
+   "method": "figshare",
+   "ref": "24522883"
+  },
+  "grazpedwri-dx": {
+   "method": "figshare",
+   "ref": "14825193"
+  },
+  "bbbc039": {
+   "method": "direct",
+   "ref": "https://data.broadinstitute.org/bbbc/BBBC039/images.zip"
+  },
+  "visem-tracking": {
+   "method": "zenodo",
+   "ref": "7293726"
+  },
+  "see-ai": {
+   "method": "kaggle",
+   "ref": "capsuleyolo/kyucapsule"
+  },
+  "tn5000": {
+   "method": "figshare",
+   "ref": "28455641"
+  },
+  "octdl": {
+   "method": "zenodo",
+   "ref": "10839556"
+  },
+  "hvsmr-2-0": {
+   "method": "figshare",
+   "ref": "25226360"
+  },
+  "medfmc-chestdr": {
+   "method": "figshare",
+   "ref": "22302775"
+  },
+  "drac-2022": {
+   "method": "zenodo",
+   "ref": "10280358"
+  },
+  "fetal-planes-db": {
+   "method": "zenodo",
+   "ref": "3904280"
+  },
+  "glenda": {
+   "method": "direct",
+   "ref": "http://ftp.itec.aau.at/datasets/GLENDA/downloads/GLENDA_v1.5_no_pathology.zip"
+  },
+  "crc-ihc-cish-he-epithelium": {
+   "method": "dataverse",
+   "ref": "https://dataverse.no/dataset.xhtml?persistentId=doi:10.18710/DIGQGQ"
+  },
+  "rsna-pneumonia-2018": {
+   "method": "direct",
+   "ref": "https://s3.amazonaws.com/east1.public.rsna.org/AI/2018/pneumonia-challenge-dataset-adjudicated-kaggle_2018.zip"
+  },
+  "fluorescent-neuronal-cells-v2": {
+   "method": "direct",
+   "ref": "https://amsacta.unibo.it/7347/17/raw_data.zip"
+  },
+  "spc-darkfield-plankton-training-images-kenitz-2022": {
+   "method": "direct",
+   "ref": "https://library.ucsd.edu/dc/object/bb3387869t/_1_1.zip"
+  },
+  "rsua-cxr-airlangga": {
+   "method": "kaggle",
+   "ref": "mahdiopra/rsua-chest-x-ray-dataset"
+  },
+  "skin-hair-mask-dataset": {
+   "method": "kaggle",
+   "ref": "ahmedfouadlagha/a-skin-lesion-hair-mask-dataset"
+  },
+  "asraf-covid-pneumonia-normal-pa": {
+   "method": "kaggle",
+   "ref": "amanullahasraf/covid19-pneumonia-normal-chest-xray-pa-dataset"
+  },
+  "bbbc010": {
+   "method": "direct",
+   "ref": "https://data.broadinstitute.org/bbbc/BBBC010/BBBC010_v2_images.zip"
+  },
+  "isic-2019": {
+   "method": "direct",
+   "ref": "https://isic-archive.s3.amazonaws.com/challenges/2019/ISIC_2019_Training_Input.zip"
+  },
+  "pitvis-2023": {
+   "method": "figshare",
+   "ref": "26531686"
+  },
+  "bccd": {
+   "method": "direct",
+   "ref": "https://huggingface.co/datasets/keremberke/blood-cell-object-detection/resolve/main/data/train.zip"
+  },
+  "hyperkvasir": {
+   "method": "direct",
+   "ref": "https://huggingface.co/datasets/SimulaMet-HOST/HyperKvasir/resolve/main/hyper-kvasir-labeled-images.zip"
+  },
+  "polypgen": {
+   "method": "kaggle",
+   "ref": "kokoroou/polypgen2021"
+  },
+  "mpox-hsam-6class": {
+   "method": "kaggle",
+   "ref": "egwusam/mpox-data"
+  },
+  "rat-lung-stereology-lm-tem-zenodo-3738928": {
+   "method": "direct",
+   "ref": "https://zenodo.org/records/3738928/files/Light%20microscopy.zip"
+  },
+  "isic-2017": {
+   "method": "direct",
+   "ref": "https://isic-challenge-data.s3.amazonaws.com/2017/ISIC-2017_Validation_Data.zip"
+  },
+  "harvard-fairfedmed-oph": {
+   "method": "direct",
+   "ref": "https://huggingface.co/datasets/harvardairobotics/FairFedMed/resolve/main/FairFedMed-Oph/Dataset/dataset.zip"
+  },
+  "nih-chestxray14": {
+   "method": "kaggle",
+   "ref": "nih-chest-xrays/data"
+  },
+  "deepcell-brightfield-single-cells": {
+   "method": "direct",
+   "ref": "https://huggingface.co/datasets/Deepcell/brightfield-immune-cells/resolve/main/images_bf_ic.zip"
+  },
+  "appendix300": {
+   "method": "direct",
+   "ref": "https://opara.zih.tu-dresden.de/bitstream/handle/123456789/2223/Appendix300_Video_Snippets.zip"
+  },
+  "d4d-dresden-4d-reconstruction": {
+   "method": "direct",
+   "ref": "https://opara.zih.tu-dresden.de/bitstream/handle/123456789/1882/specimen_0_ambiguous.tar.gz"
+  },
+  "gomez-human-embryo-timelapse": {
+   "method": "zenodo",
+   "ref": "7912264"
+  }
+ },
+ "labels": {
+  "cystods": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "mcoa-corneal-opacity": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   },
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "eye",
+     "cornea"
+    ]
+   }
+  },
+  "woives-uwf-octa": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "pan-multiplex-nimbus": {
+   "modality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "synthstrip-dataset": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "soop-stroke": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "senora-mri": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "isles-2015": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "nsclc-radiogenomics": {
+   "modality": {
+    "mode": "masked",
+    "values": []
+   },
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   },
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "chest",
+     "lung"
+    ]
+   }
+  },
+  "sechenov-cystoscopy-bladder-cancer-videos": {
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "white-light endoscopy"
+    ]
+   }
+  },
+  "mitoem": {
+   "specimen": {
+    "mode": "candidates",
+    "values": [
+     "human",
+     "rat"
+    ]
+   }
+  },
+  "international-tmtv-benchmark": {
+   "modality": {
+    "mode": "masked",
+    "values": []
+   },
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "segthy": {
+   "modality": {
+    "mode": "masked",
+    "values": []
+   },
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "structural mri"
+    ]
+   },
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "thyroid",
+     "neck",
+     "carotid artery"
+    ]
+   }
+  },
+  "pix2pix-huvec-turku-virtual-staining": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   },
+   "modality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "drends": {
+   "body_part": {
+    "mode": "masked",
+    "values": []
+   },
+   "specimen": {
+    "mode": "candidates",
+    "values": [
+     "phantom",
+     "pig"
+    ]
+   }
+  },
+  "actinic-keratosis-hfus": {
+   "modality": {
+    "mode": "masked",
+    "values": []
+   },
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "nachos-kidney-oct-cxr-partitioning": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "chest"
+    ]
+   },
+   "specimen": {
+    "mode": "hard",
+    "values": [
+     "human"
+    ]
+   },
+   "domain": {
+    "mode": "multi",
+    "values": [
+     "cardiology",
+     "pulmonology"
+    ]
+   }
+  },
+  "lctsc": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "chest",
+     "lung"
+    ]
+   }
+  },
+  "fracatlas": {
+   "body_part": {
+    "mode": "candidates",
+    "values": [
+     "hand",
+     "hip",
+     "lower limbs",
+     "shoulder"
+    ]
+   }
+  },
+  "btxrd": {
+   "body_part": {
+    "mode": "candidates",
+    "values": [
+     "lower limbs",
+     "pelvis",
+     "upper limbs"
+    ]
+   }
+  },
+  "cellfmcount": {
+   "specimen": {
+    "mode": "candidates",
+    "values": [
+     "cell line",
+     "neuronal cells",
+     "rat"
+    ]
+   },
+   "stain": {
+    "mode": "candidates",
+    "values": [
+     "dapi",
+     "immunofluorescence",
+     "propidium iodide"
+    ]
+   }
+  },
+  "brain-organoid-1400-heidelberg": {
+   "specimen": {
+    "mode": "hard",
+    "values": [
+     "organoid"
+    ]
+   }
+  },
+  "freehand-us-forearm-v1": {
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "b-mode ultrasound"
+    ]
+   }
+  },
+  "deepbacs-saureus-widefield-seg": {
+   "domain": {
+    "mode": "multi",
+    "values": [
+     "biology"
+    ]
+   },
+   "modality": {
+    "mode": "masked",
+    "values": []
+   },
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "ptx-498": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "chest",
+     "lung"
+    ]
+   }
+  },
+  "rsna-pneumonia-severity-3level": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "chest",
+     "lung"
+    ]
+   }
+  },
+  "covid-qu-ex": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "chest",
+     "lung"
+    ]
+   }
+  },
+  "grazpedwri-dx": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "wrist"
+    ]
+   }
+  },
+  "hushem": {
+   "domain": {
+    "mode": "multi",
+    "values": [
+     "andrology",
+     "urology"
+    ]
+   }
+  },
+  "biomeditech-rpe-maturation": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "retina"
+    ]
+   },
+   "domain": {
+    "mode": "multi",
+    "values": [
+     "biology"
+    ]
+   },
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "brightfield microscopy"
+    ]
+   }
+  },
+  "crossmoda-2021": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "brain"
+    ]
+   }
+  },
+  "msd-task08-hepatic-vessel": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "abdomen"
+    ]
+   }
+  },
+  "msd-task10-colon": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "abdomen",
+     "colon"
+    ]
+   }
+  },
+  "knee-xray-osteoporosis-wani": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "knee"
+    ]
+   }
+  },
+  "alphadent": {
+   "modality": {
+    "mode": "hard",
+    "values": [
+     "clinical photography"
+    ]
+   },
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "oral cavity",
+     "teeth"
+    ]
+   }
+  },
+  "intraoral-caries-ahmed-2025": {
+   "modality": {
+    "mode": "hard",
+    "values": [
+     "clinical photography"
+    ]
+   },
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "oral cavity",
+     "teeth"
+    ]
+   }
+  },
+  "microvision-fluorescence-cell-detection": {
+   "specimen": {
+    "mode": "candidates",
+    "values": [
+     "human",
+     "mouse",
+     "non-human primate"
+    ]
+   },
+   "stain": {
+    "mode": "candidates",
+    "values": [
+     "dapi",
+     "phalloidin",
+     "immunofluorescence"
+    ]
+   }
+  },
+  "oocytor-oocyte-segmentation": {
+   "specimen": {
+    "mode": "masked",
+    "values": []
+   },
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "cells"
+    ]
+   },
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "contrast microscopy"
+    ]
+   }
+  },
+  "kvasir-capsule": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "gastrointestinal tract"
+    ]
+   }
+  },
+  "weighted-ensemble-bio-em-ulm": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "endoscopic-bladder-tissue-classification": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "tn5000": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "neck",
+     "thyroid"
+    ]
+   }
+  },
+  "chestx-det": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "chest",
+     "lung"
+    ]
+   }
+  },
+  "gastrohun": {
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "gastroscopy"
+    ]
+   }
+  },
+  "virtual-staining-caco2-viability": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "colon"
+    ]
+   },
+   "modality": {
+    "mode": "hard",
+    "values": [
+     "fluorescence microscopy"
+    ]
+   },
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "epifluorescence microscopy"
+    ]
+   }
+  },
+  "knee-oa-severity-chen-2018": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "knee"
+    ]
+   }
+  },
+  "arcade": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "coronary arteries"
+    ]
+   }
+  },
+  "cardiosyntax": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "coronary arteries"
+    ]
+   }
+  },
+  "hvsmr-2-0": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "heart"
+    ]
+   }
+  },
+  "msd-task07-pancreas": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "abdomen",
+     "pancreas"
+    ]
+   }
+  },
+  "carotid-us-color-doppler-kaggle": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "carotid artery"
+    ]
+   },
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "color doppler"
+    ]
+   }
+  },
+  "hepg2-dic-unstained-instance": {
+   "modality": {
+    "mode": "hard",
+    "values": [
+     "light microscopy"
+    ]
+   },
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "contrast microscopy"
+    ]
+   },
+   "stain": {
+    "mode": "hard",
+    "values": [
+     "unstained"
+    ]
+   },
+   "specimen": {
+    "mode": "hard",
+    "values": [
+     "human",
+     "cell line"
+    ]
+   },
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "cells"
+    ]
+   }
+  },
+  "fetal-planes-db": {
+   "body_part": {
+    "mode": "candidates",
+    "values": [
+     "abdomen",
+     "brain",
+     "cervix",
+     "fetus",
+     "thorax"
+    ]
+   }
+  },
+  "flare22": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "abdomen"
+    ]
+   }
+  },
+  "laparoscopic-gastrectomy-annotated-images": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "abdomen"
+    ]
+   }
+  },
+  "bass-2017-axonal-synapses-2p": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "brain"
+    ]
+   }
+  },
+  "glenda": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "abdomen",
+     "pelvis",
+     "uterus",
+     "ovary"
+    ]
+   }
+  },
+  "medfmc-chestdr": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "chest",
+     "lung"
+    ]
+   }
+  },
+  "rsna-pneumonia-2018": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "chest",
+     "lung"
+    ]
+   }
+  },
+  "asraf-covid-pneumonia-normal-pa": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "chest",
+     "lung"
+    ]
+   }
+  },
+  "fluorescent-neuronal-cells-v2": {
+   "stain": {
+    "mode": "candidates",
+    "values": [
+     "cfos",
+     "immunofluorescence",
+     "orexin"
+    ]
+   }
+  },
+  "totalsegmentator-v2": {
+   "submodality": {
+    "mode": "candidates",
+    "values": [
+     "conventional ct",
+     "spiral ct"
+    ]
+   }
+  },
+  "mll23-peripheral-blood": {
+   "stain": {
+    "mode": "hard",
+    "values": [
+     "may-gr\u00fcnwald-giemsa"
+    ]
+   }
+  },
+  "mm-mcd-myeloma-2026": {
+   "stain": {
+    "mode": "candidates",
+    "values": [
+     "giemsa",
+     "may-gr\u00fcnwald-giemsa",
+     "wright-giemsa"
+    ]
+   }
+  },
+  "neojaundice-xuzhou": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "skin"
+    ]
+   }
+  },
+  "shoulder-implant-manufacturer-uci": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "shoulder"
+    ]
+   }
+  },
+  "lfa1-immune-synapse-tirf-protocol": {
+   "stain": {
+    "mode": "candidates",
+    "values": [
+     "immunofluorescence",
+     "phalloidin"
+    ]
+   }
+  },
+  "fus-rat-neuroinflammation-pereira-2025": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "cmut-rca-3d-power-doppler-fingertip-dryad": {
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "3d ultrasound"
+    ]
+   }
+  },
+  "biad2215-crc-3d-collagen-calcein-screen": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "biad3648-intestinal-organoid-photopatterning": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "biad1043-hitips-hct116-high-throughput-imaging": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "biad3207-hct116-hidro-two-colour-fish": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "gut-on-chip-caco2-ht29mtx-zenodo-2025": {
+   "submodality": {
+    "mode": "candidates",
+    "values": [
+     "brightfield microscopy",
+     "confocal microscopy"
+    ]
+   },
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "cells",
+     "colon"
+    ]
+   },
+   "stain": {
+    "mode": "candidates",
+    "values": [
+     "dapi",
+     "immunofluorescence",
+     "mucin-specific stain",
+     "phalloidin",
+     "unstained"
+    ]
+   }
+  },
+  "arabidopsis-ruthenium-red-darkfield-rrquant": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "hypocotyl"
+    ]
+   },
+   "stain": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "nuinsseg": {
+   "submodality": {
+    "mode": "candidates",
+    "values": [
+     "brightfield microscopy",
+     "whole slide imaging"
+    ]
+   }
+  },
+  "mouse-rvo-ffa-slo-oct-sichuan-2024": {
+   "submodality": {
+    "mode": "candidates",
+    "values": [
+     "fluorescein angiography",
+     "fundus photography",
+     "near-infrared imaging",
+     "optical coherence tomography"
+    ]
+   },
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "eye",
+     "retina"
+    ]
+   }
+  },
+  "trusted-3dus-ct-kidney": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "kidney"
+    ]
+   },
+   "modality": {
+    "mode": "masked",
+    "values": []
+   },
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "gb-wce-bleeding": {
+   "body_part": {
+    "mode": "candidates",
+    "values": [
+     "gastrointestinal tract",
+     "stomach",
+     "esophagus",
+     "upper gastrointestinal tract"
+    ]
+   },
+   "submodality": {
+    "mode": "candidates",
+    "values": [
+     "white-light endoscopy",
+     "gastroscopy"
+    ]
+   }
+  },
+  "mcellseg-dic-hek293t-huvec": {
+   "modality": {
+    "mode": "hard",
+    "values": [
+     "light microscopy"
+    ]
+   },
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "contrast microscopy"
+    ]
+   }
+  },
+  "pitvis-2023": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "head and neck",
+     "nose",
+     "pituitary gland"
+    ]
+   },
+   "domain": {
+    "mode": "multi",
+    "values": [
+     "endocrinology",
+     "neurology",
+     "otolaryngology",
+     "surgery"
+    ]
+   }
+  },
+  "lc25000-zenodo-cc-by": {
+   "body_part": {
+    "mode": "candidates",
+    "values": [
+     "lung",
+     "lung tissue"
+    ]
+   }
+  },
+  "kather-crc-texture-2016": {
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "brightfield microscopy"
+    ]
+   },
+   "body_part": {
+    "mode": "masked",
+    "values": []
+   },
+   "domain": {
+    "mode": "multi",
+    "values": [
+     "pathology"
+    ]
+   }
+  },
+  "nct-crc-he-100k": {
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "brightfield microscopy"
+    ]
+   },
+   "body_part": {
+    "mode": "masked",
+    "values": []
+   },
+   "domain": {
+    "mode": "multi",
+    "values": [
+     "pathology"
+    ]
+   }
+  },
+  "mpox-hsam-6class": {
+   "modality": {
+    "mode": "candidates",
+    "values": [
+     "optical imaging",
+     "clinical photography"
+    ]
+   }
+  },
+  "oro-syzygium-atherosclerosis-plos-2026": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "cells"
+    ]
+   }
+  },
+  "bm-broncholc": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "lung",
+     "lower respiratory tract"
+    ]
+   },
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "cardiag": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "coronary arteries",
+     "heart"
+    ]
+   }
+  },
+  "code-oral-mucosa": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "oral cavity"
+    ]
+   }
+  },
+  "tom500-thyroid-eye-orbital-mri": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "eye"
+    ]
+   }
+  },
+  "celegans-l1-nuclei-3d": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "whole body"
+    ]
+   }
+  },
+  "s3d-spine-detection-2p": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "brain"
+    ]
+   }
+  },
+  "spinedl-mouse-spinal-cord": {
+   "stain": {
+    "mode": "candidates",
+    "values": [
+     "dapi"
+    ]
+   }
+  },
+  "bbbc026": {
+   "specimen": {
+    "mode": "hard",
+    "values": [
+     "human",
+     "mouse"
+    ]
+   },
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "cells"
+    ]
+   }
+  },
+  "viralskin-4": {
+   "body_part": {
+    "mode": "candidates",
+    "values": [
+     "face",
+     "foot",
+     "hand",
+     "skin",
+     "oral cavity",
+     "upper limbs",
+     "lower limbs",
+     "thoracoabdominal region"
+    ]
+   }
+  },
+  "recist-ct-hcuch": {
+   "body_part": {
+    "mode": "candidates",
+    "values": [
+     "abdomen",
+     "chest",
+     "thorax",
+     "lymph nodes"
+    ]
+   }
+  },
+  "delta-ecoli-mother-machine-fluor": {
+   "specimen": {
+    "mode": "hard",
+    "values": [
+     "e. coli",
+     "bacteria"
+    ]
+   }
+  },
+  "drosophila-embryo-wound-healing": {
+   "specimen": {
+    "mode": "hard",
+    "values": [
+     "drosophila"
+    ]
+   },
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "embryo"
+    ]
+   }
+  },
+  "leishmania-canine-node-smears": {
+   "specimen": {
+    "mode": "hard",
+    "values": [
+     "dog",
+     "leishmania"
+    ]
+   },
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "cells",
+     "lymph nodes"
+    ]
+   }
+  },
+  "polyp-size": {
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "colonoscopy"
+    ]
+   },
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "colon"
+    ]
+   }
+  },
+  "real-colon": {
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "colonoscopy"
+    ]
+   }
+  },
+  "endowli-nbi": {
+   "submodality": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "qpi-labelfree-segmentation-review-vicar": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "cells"
+    ]
+   }
+  },
+  "murine-cell-lines-phase-xiong": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "cells"
+    ]
+   }
+  },
+  "mitoem-2": {
+   "specimen": {
+    "mode": "candidates",
+    "values": [
+     "cell line",
+     "human",
+     "mouse"
+    ]
+   },
+   "body_part": {
+    "mode": "candidates",
+    "values": [
+     "brain",
+     "cells",
+     "kidney",
+     "pancreas",
+     "sperm cells",
+     "bone marrow"
+    ]
+   }
+  },
+  "oriented-instrument-hysterectomy": {
+   "specimen": {
+    "mode": "candidates",
+    "values": [
+     "human",
+     "phantom"
+    ]
+   }
+  },
+  "tracking-one-in-a-million": {
+   "domain": {
+    "mode": "multi",
+    "values": [
+     "biology"
+    ]
+   }
+  },
+  "lidc-idri": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "chest",
+     "lung"
+    ]
+   }
+  },
+  "miqr-cc-ercp-fluoroscopy": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "abdomen",
+     "gallbladder",
+     "pancreas"
+    ]
+   }
+  },
+  "clinical-bacteria-gram-mrose-2024": {
+   "specimen": {
+    "mode": "hard",
+    "values": [
+     "human"
+    ]
+   }
+  },
+  "ccm-seg-2026": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "cornea",
+     "eye",
+     "nerve"
+    ]
+   }
+  },
+  "crcd": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "abdomen",
+     "gallbladder",
+     "liver"
+    ]
+   }
+  },
+  "hardwood-populus-stomata": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "cells"
+    ]
+   }
+  },
+  "biliary-atresia-cholestasis": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "gallbladder",
+     "liver"
+    ]
+   }
+  },
+  "qin-prostate-repeatability": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "pelvis",
+     "prostate"
+    ]
+   }
+  },
+  "deep-fish-bone-zebrafish": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "bone",
+     "head",
+     "skeletal system"
+    ]
+   }
+  },
+  "lask": {
+   "body_part": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "cisd-urine-cytology-2022": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "bladder",
+     "epithelial cells"
+    ]
+   }
+  },
+  "ir-pupil-spectral-exposure": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "eye",
+     "pupil"
+    ]
+   }
+  },
+  "celegans-embryo-tracking-confocal": {
+   "specimen": {
+    "mode": "hard",
+    "values": [
+     "c. elegans"
+    ]
+   }
+  },
+  "her2-tqi-valparaiso": {
+   "stain": {
+    "mode": "hard",
+    "values": [
+     "ihc"
+    ]
+   }
+  },
+  "msd-task03-liver": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "abdomen",
+     "liver"
+    ]
+   }
+  },
+  "camelyon17": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "lymph nodes",
+     "breast"
+    ]
+   }
+  },
+  "cusi-mouse-4d-brain-hemodynamics": {
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "color doppler"
+    ]
+   }
+  },
+  "retinal-avm-case-fa-ghent": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "eye",
+     "retina"
+    ]
+   }
+  },
+  "periorbital-segmentation": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "eye",
+     "eyelid",
+     "face"
+    ]
+   }
+  },
+  "humanembryo2-simula": {
+   "specimen": {
+    "mode": "hard",
+    "values": [
+     "human"
+    ]
+   }
+  },
+  "breast-cyto-histo-ukraine-2023": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "breast",
+     "breast tissue"
+    ]
+   },
+   "stain": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "capsule-vision-2024": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "gastrointestinal tract",
+     "small intestine"
+    ]
+   }
+  },
+  "openswisshcc-2026": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "abdomen",
+     "liver"
+    ]
+   }
+  },
+  "vestibular-schwannoma-seg": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "brain",
+     "ear"
+    ]
+   }
+  },
+  "openmind": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "brain"
+    ]
+   }
+  },
+  "kromp-human-blastocyst-gardner": {
+   "specimen": {
+    "mode": "hard",
+    "values": [
+     "embryo"
+    ]
+   },
+   "stain": {
+    "mode": "hard",
+    "values": [
+     "unstained"
+    ]
+   }
+  },
+  "verse-2019": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "spine",
+     "axial skeleton"
+    ]
+   }
+  },
+  "deepcell-brightfield-single-cells": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "blood",
+     "cells"
+    ]
+   }
+  },
+  "magic-ct": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "abdomen",
+     "pelvis"
+    ]
+   }
+  },
+  "lnq2023": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "chest",
+     "lymph nodes"
+    ]
+   }
+  },
+  "pediashf-dx": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "elbow",
+     "upper limbs"
+    ]
+   }
+  },
+  "camg-meibomian": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "eyelid"
+    ]
+   }
+  },
+  "ht1080-3d-collagen-phase-tracking": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "cells"
+    ]
+   }
+  },
+  "skin-lesion-yolo-seg-4class": {
+   "submodality": {
+    "mode": "candidates",
+    "values": [
+     "dermoscopy",
+     "clinical photography"
+    ]
+   },
+   "modality": {
+    "mode": "candidates",
+    "values": [
+     "optical imaging",
+     "clinical photography"
+    ]
+   }
+  },
+  "diabetic-foot-early-markers-kem": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "foot",
+     "skin"
+    ]
+   }
+  },
+  "wcebleedgen": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "gastrointestinal tract",
+     "small intestine"
+    ]
+   }
+  },
+  "capsule-gastroscopy-2026": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "stomach"
+    ]
+   }
+  },
+  "wl-me-gastric-paired-videos-2026": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "stomach"
+    ]
+   }
+  },
+  "topcon-mm-fddm": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "retina",
+     "eye"
+    ]
+   }
+  },
+  "protlocnet-2026": {
+   "stain": {
+    "mode": "hard",
+    "values": [
+     "immunofluorescence"
+    ]
+   }
+  },
+  "mogambo-gynaecological-brachytherapy-mri": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "pelvis"
+    ]
+   }
+  },
+  "hcc-tace-seg": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "abdomen",
+     "liver"
+    ]
+   }
+  },
+  "murinecyto-det": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "cells",
+     "lung"
+    ]
+   }
+  },
+  "cross-choleact": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "abdomen",
+     "gallbladder",
+     "liver"
+    ]
+   }
+  },
+  "bicervi-2026": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "cervix"
+    ]
+   }
+  },
+  "uaal-upper-airway-landmarks": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "head and neck",
+     "larynx"
+    ]
+   }
+  },
+  "apl-aml-sidhom-2021": {
+   "stain": {
+    "mode": "hard",
+    "values": [
+     "wright-giemsa"
+    ]
+   }
+  },
+  "bsubtilis-spore-germination-tracking": {
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "phase contrast microscopy"
+    ]
+   },
+   "domain": {
+    "mode": "multi",
+    "values": [
+     "biology"
+    ]
+   }
+  },
+  "hvm-hepatic-vessel-map": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "abdomen",
+     "liver"
+    ]
+   }
+  },
+  "fucci-rpe1-cellcycle-naef-2025": {
+   "modality": {
+    "mode": "hard",
+    "values": [
+     "light microscopy"
+    ]
+   },
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "brightfield microscopy"
+    ]
+   }
+  },
+  "spcyclegan-synthetic-nuclei-3d-purdue": {
+   "body_part": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "colorectal-polyps-gaze": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "colon"
+    ]
+   }
+  },
+  "leg-3d-us": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "lower limbs",
+     "muscle"
+    ]
+   }
+  },
+  "vce-anomalynet": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "gastrointestinal tract",
+     "small intestine"
+    ]
+   }
+  },
+  "rosma": {
+   "body_part": {
+    "mode": "masked",
+    "values": []
+   }
+  },
+  "olives": {
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "optical coherence tomography"
+    ]
+   },
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "eye",
+     "retina"
+    ]
+   }
+  },
+  "far-polyp-seg": {
+   "submodality": {
+    "mode": "hard",
+    "values": [
+     "colonoscopy"
+    ]
+   },
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "colon",
+     "rectum"
+    ]
+   }
+  },
+  "shoulder-3d-us-mosaicking": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "shoulder",
+     "bone"
+    ]
+   }
+  },
+  "phlf-gd-eob-liver-mri-2026": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "abdomen",
+     "liver"
+    ]
+   }
+  },
+  "pediurf": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "upper limbs",
+     "wrist",
+     "elbow"
+    ]
+   }
+  },
+  "captiv8": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "colon"
+    ]
+   }
+  },
+  "hep2-cell-cycle-2026": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "epithelial cells"
+    ]
+   }
+  },
+  "appendix300": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "abdomen"
+    ]
+   }
+  },
+  "csxa-cervical-spine-xray-atlas": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "neck",
+     "spine"
+    ]
+   }
+  },
+  "fedstenonet-xca": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "coronary arteries",
+     "heart"
+    ]
+   }
+  },
+  "lacuna-malaria-2024": {
+   "specimen": {
+    "mode": "multi",
+    "values": [
+     "human",
+     "plasmodium"
+    ]
+   }
+  },
+  "d4d-dresden-4d-reconstruction": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "abdomen"
+    ]
+   }
+  },
+  "prostate-ppat-healthy-longitudinal-2026": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "prostate",
+     "pelvis"
+    ]
+   }
+  },
+  "rat-lung-stereology-lm-tem-zenodo-3738928": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "lung",
+     "lung tissue"
+    ]
+   }
+  },
+  "ct-lymph-nodes": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "abdomen",
+     "chest",
+     "lymph nodes",
+     "pelvis"
+    ]
+   }
+  },
+  "head-cta-intracranial-aneurysm-dicom-2025": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "head and neck"
+    ]
+   }
+  },
+  "partaker-ecoli-phase-benchmark": {
+   "specimen": {
+    "mode": "hard",
+    "values": [
+     "e. coli",
+     "bacteria"
+    ]
+   }
+  },
+  "verse-2020": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "axial skeleton",
+     "bone",
+     "spine"
+    ]
+   }
+  },
+  "gomez-human-embryo-timelapse": {
+   "specimen": {
+    "mode": "hard",
+    "values": [
+     "human"
+    ]
+   }
+  },
+  "crc-ihc-cish-he-epithelium": {
+   "stain": {
+    "mode": "hard",
+    "values": [
+     "h&e"
+    ]
+   }
+  },
+  "neonatal-anthropometric-images": {
+   "body_part": {
+    "mode": "hard",
+    "values": [
+     "whole body"
+    ]
+   }
+  },
+  "wbc-hr-bodzas-2023": {
+   "stain": {
+    "mode": "candidates",
+    "values": [
+     "giemsa",
+     "may-gr\u00fcnwald-giemsa",
+     "wright-giemsa"
+    ]
+   }
+  },
+  "ct-org": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "abdomen",
+     "chest",
+     "pelvis"
+    ]
+   }
+  },
+  "piur-thyroid-segmentation": {
+   "submodality": {
+    "mode": "multi",
+    "values": [
+     "b-mode ultrasound",
+     "3d ultrasound"
+    ]
+   },
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "thyroid",
+     "neck"
+    ]
+   }
+  },
+  "afb-sputum-imelda-2026": {
+   "stain": {
+    "mode": "hard",
+    "values": [
+     "ziehl-neelsen"
+    ]
+   }
+  },
+  "rki-sbfsem-adherent-cells-giardia-hela": {
+   "specimen": {
+    "mode": "masked",
+    "values": []
+   }
+  }
+ },
+ "exclude_paths": {
+  "wormswin-celegans": "synthetic_images_dataset",
+  "deepspot-smfish-simulated": "wound_healing_assay|data\\.zip",
+  "plasmodium-4species-rtdetr-france-2023": "models?\\.zip",
+  "cardiag": "\\.ckpt|models?\\.zip|(^|/)(binary|background)\\.png$",
+  "nachos-kidney-oct-cxr-partitioning": "OCT_data",
+  "pcle-pto": "(^|/)lens",
+  "optical-microscopy-simulator-2026": "Fig3_Degradations-examples|/crop(100|200)?/|stripes",
+  "quadrant-darkfield-qdf-zangle": "/pos\\d/frame\\d+/",
+  "isles-2022": "/derivatives/",
+  "lctsc": "\\.simplified",
+  "dmid": "Pixel-level|ROI Masks|DICOM Images|Reports",
+  "ptx-498": "\\.merge\\.png$|\\.nii\\.gz$",
+  "capsule-vision-2024": "/KVASIR/|~\\$",
+  "btxrd": "~\\$",
+  "uci-digital-colposcopy-quality": "/images/(artifacts|cervix|os|speculum|vaginal walls)/",
+  "cbis-ddsm": "/(Calc|Mass)-(Training|Test)_P_\\d+_(LEFT|RIGHT)_(CC|MLO)_\\d+/|/P_\\d+_(LEFT|RIGHT)_(CC|MLO)_\\d+\\.dcm/",
+  "intraoral-caries-ahmed-2025": "^Benchmarking Dataset\\.zip$",
+  "biomeditech-rpe-maturation": "RPE_dataset/Images/",
+  "weighted-ensemble-bio-em-ulm": "Pretrained|Codes\\.zip",
+  "vce-anomalynet": "Anomalies\\(Combined\\)|Source_Dataset",
+  "qpi-labelfree-segmentation-review-vicar": "(^|/)reconstructions/",
+  "visem-tracking": "visem-extracted-30s",
+  "tn5000": "benchmark methods",
+  "dsad": "(^|/)(multilabel|merged|anno_\\d+)/|(^|/)mask\\d+[^/]*$",
+  "hepg2-dic-unstained-instance": "visualization",
+  "crc-ihc-cish-he-epithelium": "^(?!HE\\.zip$).*\\.zip$|SPSS_databases|\\.png$",
+  "drac-2022": "A\\. Segmentation|C\\. Diabetic Retinopathy|Groundtruths",
+  "lfa1-immune-synapse-tirf-protocol": "analysis_output|_dic[_.]",
+  "bracs": "assets/|distribution",
+  "murine-tumor-bmode-us-uj": "(^|/)(micro-CT|Ultrasound)/|(^|/)(training_dataset|ultrasound_datasets_varia|segmentation codes)\\.zip$",
+  "nuinsseg": "(^|/)(distance maps|nuclei border|weighted_maps(_erode)?|label masks( modify)?|mask binary[^/]*|overlay_save_path|stacked mask|vague areas|Imagj_zips)/",
+  "trusted-3dus-ct-kidney": "landmarks|meshes|Initial_Transforms",
+  "vip20k": "/Merge/",
+  "see-ai": "detected_samplevideo",
+  "tbx11k": "teaser\\.jpg",
+  "shseg-sperm-head-2026": "/mark/",
+  "drimdb": "(?i)outlier|iwebalbumfiles",
+  "malhari-cervical-dataset": "/pap/",
+  "carotid-us-color-doppler-kaggle": "/UL/",
+  "rsua-cxr-airlangga": "merge_images|npy_images",
+  "mhsma": "/(x_64|y_[a-z]+)_(train|valid|test)\\.npy$",
+  "edd2020": "masksPerClass",
+  "hcc1143-paclitaxel-cellmask-dapi-zenodo-11237850": "TL-Brightfield",
+  "tnbc-sirna-paclitaxel-cellmask-zenodo-11238552": "TL-Brightfield|(^|/)thumbs/",
+  "isic-2017": "superpixels|_segmentation|ground.?truth",
+  "tracking-one-in-a-million": "_GT/|man_track|man_seg",
+  "m4raw-abdomen": "(^|/)assets/",
+  "mitoem-2": "OMEZarr|\\.zarr",
+  "arabidopsis-ruthenium-red-darkfield-rrquant": "--img\\.png$|RRQuant-analysis",
+  "care-restoration-datasets": "small_crops",
+  "murine-cell-lines-phase-xiong": "single_cell_patches|\\.npy$|source_arrays|instance_masks|evaluation_tables|annotations_labelme",
+  "drends": "intensity\\.mp4$",
+  "fcd-bonn-ds004199": "_roi\\.nii",
+  "cisd-urine-cytology-2022": "/stack/",
+  "ir-pupil-spectral-exposure": "_PLsettings\\.png",
+  "her2-tqi-valparaiso": "Nueva Carpeta",
+  "fovea-intraoperative-fundus": "_(ve|raw)_\\d+\\.png|_od\\.png",
+  "cystoscopy-nerf-frames": "_render\\d+",
+  "phagostat-microglia-phase-contrast": "aggregate|labeled_|semantic_maps",
+  "cecleanliness-wce": "corrupted Kvasir",
+  "skin-lesion-yolo-det-10class": "/images/(train|test|valid)/\\d+\\.(jpg|png)$|/A\\d+_ISIC",
+  "cusi-mouse-4d-brain-hemodynamics": "Power_Doppler",
+  "retinal-avm-case-fa-ghent": "OCT_O[DS]\\.png",
+  "knee-xray-osteoporosis-wani": "_aug_\\d+",
+  "breast-cyto-histo-ukraine-2023": "melanoma",
+  "openmind": "dwi__Data/|_T2map\\.|(^|/)[^/]*adc\\.nii|_dwi\\.nii|_swi\\.nii|_swi\\.",
+  "pediashf-dx": "04\\.yolov11|/runs/",
+  "aroma-octa-artifacts": "_20(Perf|Perfusion|Vessel)_20|FAZ_20|_20Slab_20|StructuralEnface",
+  "woives-uwf-octa": "/assets/",
+  "camg-meibomian": "/roi/",
+  "chlamydomonas-axoneme-darkfield-geyer-2024": "^(0[1245679]_)",
+  "soul-octa-brvo": "/label/",
+  "hrf-seg-plus": "Folder_[1-5]_",
+  "capsule-gastroscopy-2026": "JsonImages",
+  "colon-capsule-images-ntnu": "Proposed|\\[[12]\\]",
+  "bsubtilis-spore-germination-tracking": "_OP/|_GT/|_ST/|res_seg|man_seg|man_track",
+  "pix2pix-huvec-turku-virtual-staining": "Quality Control|Checkpoint|real_A|fake_B|RSE_",
+  "reta-benchmark": "(mats|models|codes|software|supports)\\.rar",
+  "spcyclegan-synthetic-nuclei-3d-purdue": "^(?!.*/synthetic/syn/)",
+  "d4d-dresden-4d-reconstruction": "depth_images|snr_images",
+  "prostate-ppat-healthy-longitudinal-2026": "Dataset 3",
+  "mito-live-cell-segmentation": "/ratio\\.tif$",
+  "virtual-staining-caco2-viability": "\\d+\\.0\\.jpg$",
+  "smids": "Non-Sperm",
+  "cca-intima-media-cyprus": "\\.imt\\.TIF$",
+  "sperm-dna-fragmentation-scd-2025": "Non-sperm",
+  "sbfsem-h446-tumoursphere-nuclei": "hf_images/"
+ },
+ "reaudit": {
+  "grape": "figshare id was truncated by the old _figshare_id regex; re-audit with the corrected id",
+  "laparoscopic-gastrectomy-annotated-images": "figshare id was truncated by the old _figshare_id regex; re-audit with the corrected id",
+  "multi-disease-fundus-structseg": "figshare id was truncated by the old _figshare_id regex; re-audit with the corrected id",
+  "iscrc-immunoscore": "figshare id was truncated by the old _figshare_id regex; re-audit with the corrected id",
+  "cystoscopy-atlas-stanford": "figshare id was truncated by the old _figshare_id regex; re-audit with the corrected id"
+ },
+ "force_include": {
+  "hyperkvasir": "Likely source of 34 public rows (Kvasir-v2 style GI classes: z-line, pylorus, cecum, dyed lifted polyps, esophagitis, UC); CC-BY-4.0, HF mirror; not yet selected (only kvasir-capsule is). Also helps under-filled gastroscopy/colonoscopy.",
+  "edd2020": "Likely source of 43 public rows (BE / suspicious / HGD / cancer / polyp, boxes+masks); CC-BY-4.0, Kaggle mirror route; not selected.",
+  "nct-crc-he-100k": "Source of ~81 public rows (9-class colorectal texture, 224x224, 0.5 mpp, H&E); CC-BY-4.0; not selected.",
+  "crc-val-he-7k": "Companion validation set of NCT-CRC-HE (shares the Zenodo 1214456 route; pool dedup keeps whichever scores higher).",
+  "kather-crc-texture-2016": "Source of 34 public rows (8 classes, 0.495 mpp, 150px tiles); CC-BY-4.0; not selected.",
+  "mendeley-lbc-hussain-2019": "Source of 23 public rows (LBC Pap smear NILM/LSIL/HSIL/SCC, 2048x1536 -> 512x384, Papanicolaou); CC-BY-4.0; not selected.",
+  "mias": "Source of 35 public rows (7 MIAS classes exactly: calcification, circumscribed, spiculated, ill-defined, architectural distortion, asymmetry, normal); CC-BY-2.0; mammography has only 5 selected sets.",
+  "itobos-2024": "Likely source of 10 public rows (total-body-photography lesion boxes: mole/lesion/scar/hair/specular highlight); CC-BY-4.0, figshare.",
+  "sbfsem-vero-sars-cov-2-mitochondria": "Likely source of 5 public rows (SBF-SEM Vero cell, SARS-CoV-2 organelles); MIT; HF; adds rare SEM class data (label 'Vero cells').",
+  "kaggle-brain-tumor-mri-nickparvar": "Plausible source of 4 public rows (glioma/meningioma/pituitary); CC-BY-4.0.",
+  "bccd": "Plausible source of ~23 public rows (RBC/WBC/platelet boxes, 416x416 YOLO-style; Giemsa); MIT; not selected. Low-medium confidence.",
+  "octid": "Plausible source of 4 public rows (OCT with macular hole / DR / AMD classes); CC0; not selected.",
+  "sicapv2": "Plausible source of 8 public rows (Gleason level 1-5 patches, 512x512); CC-BY-4.0; not selected.",
+  "polypgen": "Colonoscopy is badly under-filled (645 of 8,000 planned images); MMBU polyp segmentation rows (10) come from a Kvasir-SEG/CVC/PolypGen-type set; PolypGen is the only tier-A one; CC-BY-4.0, registration route.",
+  "mpox-hsam-6class": "Plausible source of 5 public rows (monkeypox/cowpox/chickenpox/measles/smallpox/healthy skin photos); CC-BY-4.0; low weight."
+ }
+}

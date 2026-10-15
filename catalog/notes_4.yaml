@@ -1,0 +1,275 @@
+afb-sputum-imelda-2026:
+  description: "1,029 Ziehl-Neelsen-stained sputum smear micrographs (1280x960, 100x objective) from 208 patients at Rumah Sakit Imelda Pekerja, Medan, Indonesia, with expert annotations for acid-fast bacilli detection."
+ai-tb-zn-uganda-2026:
+  description: "512 Ziehl-Neelsen sputum smear fields (256 AFB-positive, 256 AFB-negative) from archived routine slides in Southwestern Uganda, imaged at 100x with a microscope camera and a smartphone; image-level labels."
+ankyrin-g-axon-initial-segment-cryoet-2026:
+  description: "Cryo-ET tomograms (.mrc, 1.3 nm/px) and 2D cryo-EM micrographs of the AnkyrinG-associated complex in neuronal axon initial segments (Aarhus), with IMOD gold-particle coordinates; 80 files in total."
+  samples_note: "80 files (tomograms plus micrographs); image count unverified"
+arabidopsis-ruthenium-red-darkfield-rrquant:
+  description: "Darkfield light-microscopy images of ruthenium-red-stained, dark-grown Arabidopsis thaliana hypocotyls (wild type and RG-II dimerisation mutants) with segmentation masks, from the RRQuant workflow; about 5.7 GB."
+  samples_note: "count unverified"
+asraf-covid-pneumonia-normal-pa:
+  description: "Posteroanterior chest X-rays in three classes (COVID-19, pneumonia, normal) compiled from public COVID repositories, Radiopaedia, TCIA, SIRM and NIH; the Kaggle mirror used holds 6,902 images versus 4,575 on Mendeley, some augmented."
+  num_images: 6902
+bass-axon-segmentation-2p-labels:
+  description: "20 two-photon 3D stacks of axons in live mouse cortex (40x, 512x512, 0.147 um/px) from Bass et al. 2017, with manual binary segmentation masks and centerline tracings (SWC); 2D max-projections also provided."
+  samples_note: "20 3D stacks; we sample slices and max-projections"
+bbbc014:
+  description: "192 epifluorescence images (DAPI and FITC channels of 96 wells, 1360x1024) of MCF7 and A549 cells showing NF-kB nuclear translocation across 12 TNF-alpha doses; ground truth is the plate map."
+  samples_note: "96 wells x 2 channels"
+bc-multiset:
+  description: "5,586 H&E patches (256x256, 40x) from whole-slide images of 50 invasive breast carcinoma patients, with per-nucleus polygon annotations (109,180 nuclei; tumor, fibroblast, inflammatory) and patient-level receptor status."
+bcss:
+  description: "Crowdsourced tissue-region segmentation masks (tumor, stroma, lymphocytic infiltrate, necrosis and others) over ROIs from 151 TCGA breast cancer H&E whole-slide images; 20,000+ annotated regions."
+  samples_note: "151 TCGA slides with ROI masks; RGB image count unverified"
+bicervi-2026:
+  description: "3,000 Pap smear microscopy images labelled into eight Bethesda categories (NILM, ASC-US, ASC-H, LSIL, HSIL, AGC, SCC, adenocarcinoma) from NM-AIST with the Ocean Road Cancer Institute, Tanzania."
+bm-broncholc:
+  description: "2,623 white-light bronchoscopy frames (1 fps) from 208 videos of 208 patients at Bach Mai Hospital, Hanoi, annotated with boxes/segments for 11 anatomical landmarks and 7 lesion types; source PNGs have swapped red/blue channels."
+  samples_note: "208 videos; frames sampled at 1 fps"
+brachiolab-chestx:
+  description: "28,868 chest X-rays resized to 224x224 with 14 NIH ChestX-ray14 pathology labels and 14 anatomical-structure segmentation masks (lungs, heart, clavicles, spine and others); derived from ChestX-ray14."
+brats-africa:
+  description: "Preoperative 1.5T brain MRI (T1, T1-CE, T2, T2-FLAIR) of 146 glioma patients from six centers in Nigeria, BraTS-preprocessed (SRI24, skull-stripped) with tumor sub-region labels; BraTS 2023 Sub-Saharan Africa challenge."
+  samples_note: "146 patients, 730 volumes (4 modalities + segmentation); we sample slices"
+brisc-2025:
+  description: "6,000 T1-weighted brain MRI slices (axial, coronal, sagittal) balanced across glioma, meningioma, pituitary tumor and no tumor, with expert-reviewed pixel-level tumor masks; Scientific Data 2026."
+bus-uclm:
+  description: "683 breast ultrasound images from 38 patients (174 benign, 90 malignant, 419 normal) acquired with a Siemens ACUSON S2000 in Ciudad Real, Spain, with expert RGB lesion segmentation masks."
+camelyon17:
+  description: "Sentinel lymph node H&E from the CAMELYON17 challenge (200 breast cancer patients, five Dutch centers); the Hugging Face source used is a 96x96 patch version (about 1.06M patches, tumor/normal labels, WILDS-style splits)."
+  num_images: 1055984
+  samples_note: "1,000 WSIs in the original challenge; HF patch version used"
+captiv8:
+  description: "Colon capsule endoscopy (PillCam Colon 2) frames and ~150-frame video snippets from 10 ulcerative colitis patients at Innlandet Hospital Trust, Norway, with normal/abnormal labels, free-text descriptions and histopathology reports."
+  samples_note: "10 patients; image count unverified"
+carotid-us-color-doppler-kaggle:
+  description: "B-mode ultrasound and color Doppler images of left, right and external carotid arteries from 18 patients at Apollo Sage Hospital, Bhopal, with a CSV of clinical history and plaque presence."
+  samples_note: "18 patients; image count unverified"
+ccm-seg-2026:
+  description: "410 corneal confocal microscopy images of the subbasal nerve plexus (healthy and diabetic participants) with pixel-level nerve masks, 20 re-annotated for inter-rater analysis, and clinical data; Scientific Data 2026."
+cellfmcount:
+  description: "3,023 immunofluorescence images of rat neural progenitor cells (various markers and stains) with over 430,000 manually annotated cell-center points, from Iowa State University, for cell counting."
+check-cohort-hip-knee:
+  description: "Baseline hip and knee radiographs plus clinical data and Kellgren-Lawrence grades from the CHECK cohort, a Dutch multicenter cohort of 1,002 people with early symptomatic osteoarthritis followed for 10 years."
+  samples_note: "1,002 participants; radiograph count unverified"
+cholecseg8k:
+  description: "8,080 laparoscopic cholecystectomy frames from 17 Cholec80 videos (80 frames per clip folder), each with pixel masks for 13 classes (anatomy, tissue, blood, two instrument classes)."
+  samples_note: "17 video clips; frames"
+code-oral-mucosa:
+  description: "Smartphone intraoral photographs from 704 participants (eight standard oral sites, Chennai hub-and-spoke screening network) with VIA polygon lesion annotations and four diagnostic groups from normal to oral cancer."
+  samples_note: "704 participants; image count unverified"
+corneal-curvature-fundus-yoo:
+  description: "Posterior-pole fundus photographs (Topcon 3D OCT-1 Maestro) of healthy refractive-surgery candidates at B&VIIT Eye Center, paired with Pentacam keratometry; steep, regular and flat corneal-curvature groups."
+  samples_note: "count unverified"
+  manual_download: true
+crc-ihc-cish-he-epithelium:
+  description: "Colorectal TMA cores (normal mucosa and cancer; 100 patients, 40x) scanned as H&E, 13 IHC markers and chromogenic ISH, with pathologist-validated epithelium masks; only the H&E subset is used for training."
+  samples_note: "13,179 image/mask pairs across all stains; we use the H&E zip only"
+csxa-cervical-spine-xray-atlas:
+  description: "4,963 lateral cervical spine radiographs from Dongzhimen Hospital, Beijing, with 23-keypoint annotations by four spine surgeons, asymptomatic/symptomatic labels, curvature category and 118 quantitative parameters."
+curvas-pdacvi:
+  description: "Contrast-enhanced abdominal CT scans from the MICCAI 2025 CURVAS-PDACVI challenge, with the PANORAMA reference pancreatic cancer mask plus four extra manual annotations per case for inter-rater variability."
+  samples_note: "CT volumes; count unverified"
+cystoscopy-atlas-stanford:
+  description: "Cystoscopic frames from the Stanford cystoscopy atlas development set (Eminaga, J Biomed Inform 2023), shared as one classification zip; the pilot found 604 images in it."
+  num_images: 604
+deepspot-smfish-simulated:
+  description: "Simulated single-molecule FISH fluorescence images with ground-truth spot positions, used to train and evaluate DeepSpot spot enhancement and detection (Zenodo, 2021)."
+  num_images: 1999
+  samples_note: "synthetic images; count from pilot file listing"
+dermocc-gan-dataset:
+  description: "Dermatological images used to develop DermoCC-GAN, a GAN for illumination color constancy, evaluated on seven-class skin lesion classification and segmentation; requires manual Mendeley download."
+  samples_note: "count unverified"
+  manual_download: true
+drac-2022:
+  description: "1,103 ultra-wide swept-source OCTA en-face images (12x12 mm) from Shanghai Sixth People's Hospital for the DRAC 2022 challenge: lesion segmentation, image quality grading and diabetic retinopathy grading."
+dsad:
+  description: "13,195 laparoscopic images from 32 robot-assisted abdominal surgeries (da Vinci) with pixel-wise masks for eight abdominal organs, the abdominal wall and two vessel structures, plus organ-presence labels."
+endowli-nbi:
+  description: "11,971 white-light and magnifying narrow-band imaging gastroscopy images from 868 patients at Peking Union Medical College Hospital, mapped to biopsy-confirmed diagnoses in four classes along the Correa cascade."
+far-polyp-seg:
+  description: "8,181 colonoscopy frames from 455 patients at Farhikhtegan Hospital, Tehran (Olympus 190), with 432 polyp frames carrying expert pixel masks and 7,749 normal-mucosa frames; per-patient metadata."
+fedstenonet-xca:
+  description: "1,565 diastolic X-ray coronary angiography frames from 244 patients with significant left-coronary stenosis at Ospedali Riuniti, Ancona, Italy, with manual stenosis annotations by three clinicians."
+figshare-clinical-brain-mri-motion-artifacts:
+  description: "Clinical brain MRI (T1w, T1ce, T2w, FLAIR) with natural motion artifacts: 5,143 paired 2D slices (731 patients) and 147 paired 3D volumes (146 patients), each pair with an artifact-free reference and a 3-level motion grade."
+fucci-rpe1-cellcycle-naef-2025:
+  description: "72-h, 5-min widefield time-lapse of human FUCCI RPE1 cells (brightfield, H2B, Cdt1, Geminin channels) as 64x64 nucleus-centred crops of cell-cycle tracks with FUCCI-derived state labels; the pilot decodes the brightfield channel."
+  samples_note: "5,619 cell tracks (5,188 train, 431 test), each a crop sequence"
+gauze-mis-segmentation:
+  description: "Surgical gauze detection in porcine laparoscopic video (720x576): 42 videos (30 with gauze), gauze/no-gauze fragments, and hand-traced frame/mask pairs (4,003 labelled frames in the paper) for the animal-00 videos."
+  samples_note: "42 videos; masks only for animal-00 videos"
+glenda:
+  description: "Gynecologic laparoscopy frames from 27 clips of the GLENDA endometriosis dataset; the package used is the no-pathology set (13,438 frames), without endometriosis region annotations."
+  num_images: 13438
+  samples_note: "frames from 27 clips (no-pathology package)"
+gut-on-chip-caco2-ht29mtx-zenodo-2025:
+  description: "189 microscopy images from gut-on-chip development: brightfield of Caco-2/HT29-MTX-E12 co-cultures (days 1-8), confocal immunofluorescence (DAPI, ZO-1, Muc5AC, villin) and mucin-stained brightfield."
+hardwood-populus-stomata:
+  description: "About 11,000 brightfield leaf-surface images of stomata from 17 temperate hardwood species and 55 Populus genotypes, with YOLO boxes for stomata and inner guard-cell walls (Zenodo, 2023)."
+heel-bone-xray-kirkuk:
+  description: "3,956 lateral foot X-rays from Kirkuk General Hospital labelled normal (1,842), heel spur (1,316) and severe heel-spur complications (798) by an orthopedic specialist, cross-checked by a radiologist."
+hrf-seg-plus:
+  description: "The 45 High-Resolution Fundus (HRF) photographs (healthy, diabetic retinopathy, glaucoma) with manual masks for optic disc, optic cup, vessels, peripapillary alpha and beta zones."
+  num_images: 45
+hvdropdb:
+  description: "Preterm-infant retinal fundus images from RetCam and Neo cameras at H.V. Desai Eye Hospital, Pune, with segmentation sub-datasets (optic disc, vessels, demarcation line/ridge) and ROP vs normal classification sub-datasets."
+  samples_note: "count unverified"
+hyperkvasir:
+  description: "110,079 gastroscopy/colonoscopy images from Bærum Hospital, Norway: 10,662 labelled into 23 classes, 1,000 polyp images with masks, 99,417 unlabelled, plus 374 videos; the pilot samples the labelled-images zip."
+  samples_note: "374 videos; pilot samples the 10,662 labelled images"
+intelkamat-colposcopy:
+  description: "934 colposcopy JPEGs (1280x960) from 30 women at the Medical University Hospital of Pleven, Bulgaria, with per-patient transformation-zone type, findings and view modifiers; no histology or HPV data."
+isic-2016:
+  description: "1,279 dermoscopic skin lesion images (900 train, 379 test) from the ISBI 2016 challenge, with lesion segmentation masks, dermoscopic feature labels and benign vs malignant (melanoma) classification."
+isles-2015:
+  description: "MICCAI 2015 ISLES stroke MRI: SISS (sub-acute lesion segmentation; FLAIR, T2, T1, DWI; Lubeck and Munich) and SPES (acute perfusion; DWI, CBF, CBV, TTP, Tmax; Bern) with expert lesion masks."
+  samples_note: "114 multi-sequence cases (SISS 64, SPES 50); we sample slices"
+ivygap-radiomics:
+  description: "Pre-operative multi-parametric brain MRI (T1, T1-Gd, T2, FLAIR; skull-stripped, atlas co-registered) of 37 glioblastoma patients from Ivy GAP with two paired expert tumor sub-region segmentations and radiomic features."
+  samples_note: "37 subjects, 4 sequences each; we sample slices"
+kather-gi-tumor-detection-tiles:
+  description: "11,977 H&E patches (512x512, 0.5 um/px) regrouped from NCT-CRC-HE-100K into three classes for tumor detection in colorectal and stomach cancer: adipose/mucus, stroma/muscle and tumor epithelium."
+kromp-human-blastocyst-gardner:
+  description: "2,344 day-5 human blastocyst images from 837 patients with Gardner grading (expansion, inner cell mass, trophectoderm): 2,044 silver-standard training and 300 consensus gold-standard test images, plus clinical outcomes."
+laparoscopic-gastrectomy-annotated-images:
+  description: "6,832 frames sampled every 5 s from 18 white-light laparoscopic gastrectomy videos at four Chinese hospitals, with COCO segmentation labels for 18 classes (11 instruments, 7 organs) by two surgeons."
+  samples_note: "18 videos; frames sampled every 5 s"
+leishmania-canine-node-smears:
+  description: "201 Giemsa-stained canine lymph node smear images (1000x oil) from the University of Thessaly veterinary diagnostic laboratory, with bounding boxes for Leishmania amastigotes."
+lnq2023:
+  description: "Chest CT scans of 513 patients from oncology trials (MGH, Dana-Farber, Brigham and Women's) for the MICCAI 2023 LNQ challenge, with partial (training) or fuller (evaluation) mediastinal lymph node masks."
+  samples_note: "513 CT volumes; we sample slices"
+malhari-cervical-dataset:
+  description: "452 cervical cancer screening images from Pimpri Chinchwad College of Engineering, Pune; validators found about 70% are Pap-smear microscopy and 30% colposcopy, despite the colposcopy label on Kaggle; classes undocumented."
+mcr-sl:
+  description: "779 clinical and 1,352 dermoscopic images of 240 skin lesions from 60 subjects at the University Hospital of North Norway, with dermatologist-panel labels in nine lesion types and histopathology for 29 excised lesions."
+mendeley-lbc-hussain-2019:
+  description: "963 liquid-based cytology Pap smear images (40x, Leica ICC50 HD) from 460 patients in four Bethesda classes (NILM, LSIL, HSIL, SCC), collected in a hospital setting."
+midog-2022:
+  description: "H&E tumor regions (2 mm2 each) from 405 cases across six human and canine tumor types and several scanners, with 9,501 mitotic figures and 11,051 hard negatives annotated; pilot used only 32 downsampled regions."
+  samples_note: "405 case regions; 30 GB record, only a small subset is used"
+mitoem-2:
+  description: "Eight volume-EM sub-datasets (FIB-SEM, ssSEM, SBF-SEM; mouse, human cell lines, Drosophila) with expert mitochondria instance labels emphasising dense packing and thin connections; train/val/test volumes."
+  samples_note: "49 volumes; we sample slices"
+mm-odir-129:
+  description: "129 fundus photographs (60 normal, 69 glaucoma/pathological) with ophthalmologist text transcriptions, glaucoma-sign scores, and optic cup and disc masks for the pathological images; apparently ODIR-5K images."
+mpox-hsam-6class:
+  description: "3,000 skin photographs, 500 per class (monkeypox, chickenpox, normal skin, acne levels 1-3), curated for Mpox-HSAM; the Kaggle mirror used has mostly augmented files with four class folders."
+msd-task07-pancreas:
+  description: "Medical Segmentation Decathlon Task07: portal-venous-phase abdominal CT from Memorial Sloan Kettering with pancreas and pancreatic tumor masks; 420 volumes, of which about 280 are labelled training cases."
+  samples_note: "420 CT volumes; we sample slices"
+mstt-199:
+  description: "T1 and T2 MRI volumes of 199 musculoskeletal soft-tissue tumors from 199 patients at Vanderbilt University Medical Center, with binary tumor masks; the Kaggle release holds resized isotropic NIfTI volumes."
+  samples_note: "199 patients, 398 volumes (T1 and T2); we sample slices"
+murinecyto-det:
+  description: "333 1024x1024 cytology images of mouse bronchoalveolar lavage fluid with five cell classes (macrophage/monocyte, neutrophil, eosinophil, lymphocyte, unknown/debris), segmentation masks and bounding boxes."
+neojaundice-xuzhou:
+  description: "2,235 skin photographs of 745 newborns from Xuzhou Central Hospital, China, with binary jaundice labels from total serum bilirubin (12.9 mg/dL cutoff) confirmed by a pediatrician; a MedFMC sub-dataset."
+nih-chestxray14:
+  description: "112,120 frontal chest X-rays (1024x1024) from 30,805 patients at the NIH Clinical Center with 14 text-mined disease labels plus No Finding, and a small hand-drawn bounding-box subset."
+octdl:
+  description: "2,064 macular OCT B-scans (Optovue Avanti RTVue XR) from Ural State Medical University labelled AMD, DME, ERM, RAO, RVO, VID or normal, with patient and eye metadata."
+oocytor-oocyte-segmentation:
+  description: "Transmitted-light images of mouse and human oocytes and sea urchin eggs, acquired with varied settings, with ground-truth masks of the oocyte membrane (cortex) and zona pellucida; released with Oocytor."
+  samples_note: "count unverified"
+oraltrid:
+  description: "808 clinical intraoral photographs of oral lichen planus, oral leukoplakia and benign oral ulcers, annotated by dental specialists with diagnostic class and pixel-level lesion masks."
+palm:
+  description: "1,200 color fundus images from the ISBI 2019 PALM challenge (400 train, 400 validation, 400 test) with pathologic-myopia labels, optic disc, atrophy and detachment lesion masks, and fovea locations."
+paraguay-dr:
+  description: "1,437 color fundus images (Zeiss Visucam 500) from Hospital de Clinicas, Universidad Nacional de Asuncion, Paraguay, graded by ophthalmologists into seven diabetic retinopathy categories from no DR to advanced PDR."
+pcle-pto:
+  description: "11,767 frames from 287 Cellvizio pCLE videos of lens paper (255 videos) and ex-vivo cow heart tissue (32) recorded while a robot rotated the probe from -10 to +10 degrees."
+  samples_note: "287 videos; frames"
+phagostat-microglia-phase-contrast:
+  description: "Phase-contrast time-lapse microscopy of wild-type and FTD-mutant microglial cells during phagocytosis, released as 36,496 normalized images with cell and aggregate instance masks and 226 manually annotated images (~94 GB)."
+  samples_note: "derived from time-lapse videos"
+piur-thyroid-segmentation:
+  description: "Tracked freehand thyroid ultrasound exams as DICOM: raw 2D B-mode sweeps, compounded 3D volume and 3D segmentation per case; about 14 cases. Validators saw 2D neck cross-section frames, no visible masks."
+  samples_note: "14 cases (sweep, volume, segmentation); we sample frames"
+polimi-stereo-rarp:
+  description: "Stereo da Vinci Xi endoscopic frames from a robot-assisted radical prostatectomy with lymphadenectomy at the European Institute of Oncology, Milan, organised by surgical step and phase, with Anvil step/phase/instrument annotations."
+  samples_note: "frames from one procedure; count unverified"
+pressure-injury-iran:
+  description: "267 mobile-phone photographs of pressure injuries from hospitalized patients in southeastern Iran (2023-2024), staged 1-4 per NPIAP guidelines by three wound-care specialists, with train/val/test subsets."
+puma-2024:
+  description: "206 H&E melanoma ROIs (1024x1024, 40x) from primary and metastatic specimens at UMC Utrecht, with nuclei annotations in 10 classes and tissue masks in 6 classes; PUMA challenge training set."
+rajbari-multiclass-fundus-2026:
+  description: "1,222 original fundus images from Rajbari Eye Clinic, Bangladesh, in 11 classes (diabetic retinopathy, AMD and glaucoma grades), plus 5,500 augmented images; requires a manual Mendeley download."
+  manual_download: true
+rav-rotterdam-artery-vein:
+  description: "Rotterdam Study color fundus images (1024x1024, varied ages, devices and quality) with semi-manual artery, vein and unknown-vessel segmentations by the EyeNED Reading Center, in RGB, enhanced and mask renditions."
+  samples_note: "public set size unclear (page says 53 images, file list suggests ~206)"
+recist-ct-hcuch:
+  description: "58 abdomen/thorax CT series from 22 cancer patients at Hospital Clinico Universidad de Chile with 1,246 manually segmented lesions (tumors, lymph nodes) and RECIST 1.1 diameters for 82 target lesions."
+  samples_note: "58 CT series; we sample slices"
+retinal-avm-case-fa-ghent:
+  description: "76 TIFF clinical and figure images from a single case report (15-year-old with retinal arteriovenous malformation) including fundus photographs and fluorescein angiography, from Ghent."
+  num_images: 76
+rki-sbfsem-adherent-cells-giardia-hela:
+  description: "Ten serial block-face SEM series (Robert Koch Institute) of adherent Giardia and HeLa cells embedded in situ on plastic culture substrate, with protocol variants, raw and filtered series (~108 GB)."
+  samples_note: "10 volumes; we sample slices"
+rsua-cxr-airlangga:
+  description: "Chest X-rays from Rumah Sakit Universitas Airlangga, Indonesia (DICOM to BMP) with ground-truth masks; radiologist-validated subset has 207 COVID, 32 non-COVID, 53 pneumonia cases."
+  samples_note: "count unverified; Kaggle mirror also holds masks, triptychs and npy copies"
+sbfsem-h446-tumoursphere-nuclei:
+  description: "One SBF-SEM volume (100 slices of 1005x1003 px, 90 nm voxels) of an H446 cell-line tumorsphere with all nuclei manually instance-segmented; split into train and test halves."
+  samples_note: "1 volume of 100 slices"
+see-ai:
+  description: "18,481 small-bowel capsule endoscopy images (PillCam SB3, 523 procedures, Kyushu University Hospital): 12,320 with 23,033 bounding boxes in 12 lesion labels by seven specialists and 6,161 normal images."
+shoulder-3d-us-mosaicking:
+  description: "Robot-tracked shoulder ultrasound from 5 healthy volunteers (7 trials): 321 3D volumes, 62 humerus label maps and MRI bone segmentations, for ultrasound mosaicking (QUT, 2026)."
+  samples_note: "321 3D ultrasound volumes; we sample 2D slices"
+sicapv2:
+  description: "Prostate biopsy H&E patches (512x512) with Gleason grade labels and masks derived from Valencia whole-slide images (about 182 annotated WSIs), distributed as one 2.16 GB zip."
+  samples_note: "patch count unverified (secondary sources suggest ~10,300 labelled patches)"
+skin-hair-mask-dataset:
+  description: "500 hand-picked ISIC 2018 dermoscopic images with diverse hair patterns, each with a fine-grained binary hair segmentation mask and an overlay; includes U-Net code used to bootstrap masks."
+smids:
+  description: "3,000 stained sperm images from a smartphone-based microscope setup (Yildiz Technical University) labelled normal (1,021), abnormal (1,005) or non-sperm (974); the non-sperm class is excluded from training."
+spacr-cross-channel-toxoplasma-from-cellmask:
+  description: "3,030 paired high-content fluorescence fields from the spaCR toolkit: CellMask channel input with instance-labelled Toxoplasma parasitophorous-vacuole masks, split by well; used to train a Cellpose-SAM model."
+spider-lumbar-mri:
+  description: "447 sagittal T1 and T2 lumbar spine MRI series from 218 low back pain patients at four Dutch hospitals, with segmentations of vertebrae, discs and spinal canal and radiological degeneration gradings."
+  samples_note: "447 MRI series; we sample slices"
+sted-microtubules-diffusion-restoration:
+  description: "STED microscopy images of alpha-tubulin (Star635P) in fixed U2OS cells, training and test sets from a diffusion-model restoration study (146 MB archive)."
+  samples_note: "pilot extracted only 4 image files; count unverified"
+surgpose:
+  description: "Stereo robotic surgery sequences (dVRK) with per-instrument keypoint and pose labels and instrument opening angles, for articulated surgical instrument pose estimation and tracking (ICRA 2025)."
+  samples_note: "34 video sequences; frame count unverified"
+taix-ray:
+  description: "215,381 bedside ICU chest radiographs (AP) from 47,724 patients at University Hospital Aachen, with radiologist ordinal grades for eight findings (heart size, congestion, effusion, opacities, atelectasis); 512 px version used."
+tevg-microvascular-histology-seg:
+  description: "1,401 annotated 3,000x3,000 px H&E patches from 104 whole-slide images of tissue-engineered vascular grafts in sheep carotid arteries, with binary masks for nine microvascular features by two pathologists."
+  samples_note: "1,401 patches from 104 WSIs"
+tom500-thyroid-eye-orbital-mri:
+  description: "Coronal T2-weighted orbital MRI (3T, 512x512x20) of 500 thyroid eye disease patients at Shanghai Ninth People's Hospital with expert-reviewed masks of nine orbital structures and clinical metadata."
+  samples_note: "500 volumes; we sample slices"
+totalsegmentator-v1:
+  description: "1,204 CT examinations from routine clinical studies at University Hospital Basel (varied scanners, phases, body regions) with manually reviewed segmentations of 104 anatomical structures (organs, bones, muscles, vessels)."
+  samples_note: "1,204 CT volumes; we sample slices"
+tracking-one-in-a-million:
+  description: "Phase-contrast time-lapse movies of Corynebacterium glutamicum in five monolayer growth chambers (1-min interval) with corrected segmentation and tracking labels: over 1.4 million cell observations, 29k tracks."
+  samples_note: "5 time-lapse movies; frame count unverified"
+tvus-ovarian-carcinoma-meir-2026:
+  description: "1,082 B-mode transvaginal ultrasound images from 260 postmenopausal women at Meir Medical Center (normal, benign, malignant), with histopathology ground truth and YOLO cyst boxes for 553 pathological images."
+ultracortex-9t4:
+  description: "86 T1-weighted MP-RAGE/MP2RAGE brain MRI scans (0.6-0.8 mm) of 78 healthy adults at 9.4 T, with manual gray/white matter segmentations for 12 brains validated by two neuroradiologists."
+  samples_note: "86 volumes; we sample slices"
+verse-2019:
+  description: "Spine CT scans from the MICCAI 2019 VerSe challenge with voxel-level vertebra masks and vertebra centroid labels, including fractures and transitional vertebrae; train/validation/test splits."
+  samples_note: "~160 CT scans per VerSe papers (registry says 150); we sample slices"
+vip20k:
+  description: "19,003 annotated laparoscopic pancreatic surgery frames (1 fps) from 23 videos at Peking Union Medical College Hospital, with contours of the superior mesenteric, portal and splenic veins."
+  samples_note: "23 videos; frames at 1 fps"
+wbcatt-plus-2026:
+  description: "10,298 peripheral blood white blood cell images (May-Grunwald-Giemsa) with pixel-level segmentation maps of five cell components and 113k morphological attribute labels; extends WBCAtt."
+wl-me-gastric-paired-videos-2026:
+  description: "200 endoscopy videos from 100 patients: matched white-light and magnifying gastroscopy pairs, histopathology-confirmed (46 gastric cancer, 54 non-cancer)."
+  samples_note: "200 videos (100 pairs); we sample frames"
+zebrafish-pronephros-cystic:
+  description: "Widefield high-content images (ACQUIFER) of EGFP-labelled pronephroi in Tg(wt1b:EGFP) zebrafish larvae, control vs ift172-morpholino, with normal vs cystic class labels and a trained CNN."
+  samples_note: "count unverified"

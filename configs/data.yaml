@@ -1,0 +1,5 @@
+# Data selection shared by every training run (read by the trainers via bio_waila.data.manifest.load_manifest).
+manifest: ${WAILA_PREP}/manifest.parquet
+splits: [train]            # validation uses [val]; mmbu-public is evaluated separately (plan/eval_public.parquet)
+include_nc: false          # true adds the non-commercial (tier B) layer: 14 datasets / ~71k planned images (plan/report.md)
+exclude_datasets: []       # ids to leave out for an ablation

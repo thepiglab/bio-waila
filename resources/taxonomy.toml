@@ -1,0 +1,87 @@
+# Controlled vocabularies for dataset configs (datasets/**/<id>.toml).
+# Names follow the MMBU benchmark's own metadata vocabulary (lower-case), so every dataset in the
+# registry can be turned directly into MMBU "Pass 2" (biomedical-context) training targets.
+# validate.py ERRORS on values outside the `*_core`/enum lists, and WARNS on values outside the suggested lists.
+
+[modalities]
+core = [
+  "light microscopy", "fluorescence microscopy", "electron microscopy", "digital pathology",
+  "optical imaging", "clinical photography", "endoscopy",
+  "x-ray imaging", "computed tomography", "magnetic resonance imaging", "ultrasound imaging",
+]
+# Allowed but outside MMBU's 11 (still useful, lower relevance)
+extra = ["nuclear medicine imaging", "other"]
+# Share of MMBU public dev set (used for relevance weighting in build_registry.py)
+weights = { "optical imaging" = 0.224, "light microscopy" = 0.200, "endoscopy" = 0.183, "x-ray imaging" = 0.160, "magnetic resonance imaging" = 0.083, "fluorescence microscopy" = 0.054, "ultrasound imaging" = 0.033, "computed tomography" = 0.029, "electron microscopy" = 0.014, "clinical photography" = 0.010, "digital pathology" = 0.010 }
+# Share in the full MMBU benchmark (paper Fig. 3a, by image count)
+paper_weights = { "light microscopy" = 0.217, "optical imaging" = 0.179, "endoscopy" = 0.175, "x-ray imaging" = 0.161, "magnetic resonance imaging" = 0.135, "computed tomography" = 0.050, "fluorescence microscopy" = 0.042, "ultrasound imaging" = 0.021, "electron microscopy" = 0.008, "digital pathology" = 0.007, "clinical photography" = 0.005 }
+
+[submodalities]
+# MMBU submodality vocabulary, grouped by the modality they usually belong to.
+"light microscopy" = ["brightfield microscopy", "whole slide imaging", "confocal microscopy", "darkfield microscopy", "phase contrast microscopy", "contrast microscopy", "specular microscopy"]
+"fluorescence microscopy" = ["epifluorescence microscopy", "synthetic fluorescence microscopy", "total internal reflection fluorescence microscopy (tirf)", "differential fluorescent microscopy", "multiphoton microscopy", "confocal microscopy"]
+"electron microscopy" = ["scanning electron microscopy", "cryo-electron tomography"]
+"digital pathology" = ["whole slide imaging", "brightfield microscopy"]
+"optical imaging" = ["fundus photography", "dermoscopy", "clinical photography", "optical coherence tomography", "optical coherence tomography angiography", "near-infrared imaging", "fluorescein angiography", "confocal microscopy", "specular microscopy", "colposcopy", "multiphoton microscopy"]
+"clinical photography" = ["clinical photography"]
+"endoscopy" = ["laparoscopy", "white-light endoscopy", "colonoscopy", "gastroscopy", "colposcopy", "confocal laser endomicroscopy"]
+"x-ray imaging" = ["chest x-ray", "digital radiography", "fluoroscopy", "mammography"]
+"computed tomography" = ["conventional ct", "spiral ct"]
+"magnetic resonance imaging" = ["structural mri"]
+"ultrasound imaging" = ["b-mode ultrasound", "3d ultrasound", "color doppler"]
+"nuclear medicine imaging" = []
+"other" = []
+# Use "other" in `submodalities` (and describe it in `other_submodalities`) when nothing above fits,
+# e.g. "transmission electron microscopy", "light-sheet microscopy", "capsule endoscopy", "pet", "diffusion mri", "functional mri",
+# "digital breast tomosynthesis", "dental panoramic radiography", "x-ray angiography", "cone-beam ct", "slit-lamp photography",
+# "ultra-widefield fundus", "narrow-band imaging", "super-resolution microscopy", "dic microscopy", "quantitative phase imaging",
+# "reflectance confocal microscopy", "cryo-em single particle", "serial-section em", "fib-sem", "micro-ct", "photoacoustic", "thermography".
+
+[medical_domains]
+clinical = ["oncology", "surgery", "pulmonology", "ophthalmology", "dermatology", "gastroenterology", "radiology", "orthopedics", "urology", "neurology", "infectious disease", "obstetrics and gynecology", "rheumatology", "otolaryngology", "cardiology", "nephrology", "endocrinology"]
+laboratory = ["pathology", "biology", "hematology", "andrology", "cytology"]
+# allowed extras (warn only)
+extra = ["dentistry", "pediatrics", "emergency medicine", "hepatology", "neuroscience", "immunology", "microbiology", "parasitology", "genetics", "veterinary", "general medicine", "psychiatry", "anesthesiology", "vascular medicine", "public health"]
+
+[specimens]
+suggested = ["human", "mouse", "rat", "zebrafish", "c. elegans", "drosophila", "yeast", "bacteria", "e. coli", "plasmodium", "leishmania", "plant", "dog", "cat", "pig", "cow", "non-human primate", "vero cells", "cell line", "organoid", "embryo", "phantom", "synthetic", "mixed", "unknown"]
+
+[body_parts]
+# Suggested lower-case region names (MMBU uses ~95). Free text is allowed; validate.py warns on unknowns.
+suggested = [
+  "eye", "retina", "cornea", "optic disc", "anterior segment", "eyelid",
+  "brain", "head", "head and neck", "spine", "spinal cord", "neck", "thyroid", "oral cavity", "teeth", "ear", "nose", "larynx", "face",
+  "chest", "lung", "thorax", "heart", "breast", "breast tissue", "arteries", "blood vessels", "carotid artery", "aorta", "coronary arteries",
+  "abdomen", "liver", "kidney", "pancreas", "spleen", "gallbladder", "stomach", "esophagus", "small intestine", "colon", "rectum",
+  "gastrointestinal tract", "retroperitoneum", "pelvis", "prostate", "bladder", "male genitourinary system", "cervix", "uterus", "ovary", "placenta", "fetus",
+  "skin", "nail", "hair", "wound", "foot", "hand", "wrist", "elbow", "shoulder", "hip", "knee", "ankle", "lower limbs", "upper limbs",
+  "appendicular skeleton", "axial skeleton", "skeletal system", "bone", "muscle", "soft tissue", "adipose tissue", "nerve",
+  "blood", "bone marrow", "lymph nodes", "cells", "tissue", "epithelial cells", "sperm cells", "embryo", "whole body", "multiple",
+  "not applicable",
+]
+# Groups used by MMBU Fig. 3d (for site filters)
+groups = { "major organs" = ["eye", "prostate", "breast", "brain", "heart", "liver", "kidney"], "anatomical regions" = ["abdomen", "lung", "chest", "knee", "shoulder", "pelvis", "head and neck"], "tissue / specimen" = ["skin", "blood", "lymph nodes", "breast tissue", "cells", "bone marrow", "tissue"], "skeletal" = ["appendicular skeleton", "axial skeleton", "skeletal system", "bone"] }
+
+[enums]
+access_type = ["open", "registration", "dua", "credentialed", "request", "challenge-only", "restricted", "paid", "unavailable", "unknown"]
+license_tier = ["A", "B", "C", "D"]
+yes_no_unclear = ["yes", "no", "unclear"]
+dimensionality = ["2d", "2d+t", "3d", "3d+t", "4d", "wsi", "multichannel-2d", "multichannel-3d", "k-space", "text-only"]
+color = ["rgb", "grayscale", "multichannel", "mixed", "unknown"]
+annotation_types = ["class_label", "multi_label", "ordinal_grade", "bounding_box", "rotated_box", "segmentation_mask", "instance_mask", "polygon", "keypoints", "points", "count", "caption", "report", "vqa", "instruction", "reasoning_trace", "attributes", "measurements", "tracking", "phase_label", "action_label", "triplet", "depth", "survival", "clinical_metadata", "text_description", "weak_label", "none"]
+tasks = ["classification", "multilabel_classification", "grading", "detection", "segmentation", "instance_segmentation", "counting", "point_localization", "keypoint_detection", "captioning", "report_generation", "vqa", "visual_grounding", "referring_segmentation", "tracking", "phase_recognition", "action_recognition", "registration", "reconstruction", "super_resolution", "denoising", "virtual_staining", "regression", "retrieval", "ssl_pretraining", "survival_prediction", "image_generation", "depth_estimation", "quality_assessment", "other"]
+label_granularity = ["image", "region", "pixel", "instance", "slide", "patient", "study", "video", "frame", "none"]
+annotator = ["expert", "multi-expert", "crowd", "semi-automatic", "model-generated", "report-derived", "llm-generated", "mixed", "none", "unknown"]
+text_pairs = ["none", "labels_only", "captions", "reports", "qa", "instructions", "reasoning", "interleaved", "mixed"]
+data_format = ["unlabeled", "paired_label", "paired_dense", "image_text", "vqa", "instruction", "reasoning", "mixed"]
+mmbu_task_fit = ["ungrounded_cls", "grounded_cls_seg", "grounded_cls_det", "object_detection", "counting", "metadata_context"]
+approach_fit = ["jepa_pretrain", "native_vlm_pretrain", "mid_training", "sft_perception", "sft_metadata", "grounding_rl", "reasoning_flywheel", "progressive_reveal", "multi_teacher_distill", "eval_only"]
+mmbu_overlap_risk = ["high", "medium", "low", "unknown"]
+verification = ["verified", "partial", "unverified"]
+priority = ["core", "high", "medium", "low"]
+
+[license_tiers]
+A = "Permissive incl. share-alike: CC0, PDDL, CC-BY, CC-BY-SA, ODC-By, ODbL, CDLA-Permissive/Sharing, Apache-2.0, MIT, BSD, public-domain/US-gov. Our default training-eligible set."
+B = "Non-commercial: CC-BY-NC, CC-BY-NC-SA (research use OK; outside our CC-BY-SA training policy)."
+C = "No-derivatives, research-only / custom DUA / credentialed (PhysioNet, Stanford AIMI, TCIA restricted, Kaggle competition rules)."
+D = "Unknown / unstated / conflicting."

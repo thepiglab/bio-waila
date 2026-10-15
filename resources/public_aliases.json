@@ -1,0 +1,41 @@
+{
+ "domain": {
+  "otorhinolaryngology": "otolaryngology",
+  "otolaryngology (ent)": "otolaryngology",
+  "infectious diseases": "infectious disease",
+  "gynecology": "obstetrics and gynecology"
+ },
+ "body_part": {
+  "lungs": "lung",
+  "male genitournary system": "male genitourinary system"
+ },
+ "submodality": {
+  "oct angiography (octa)": "optical coherence tomography angiography"
+ },
+ "specimen": {
+  "homo sapiens": "human",
+  "danio rerio": "zebrafish",
+  "mus musculus": "mouse",
+  "escherichia coli": "e. coli",
+  "chlorocebus aethiops": "vero cells (chlorocebus aethiops)",
+  "cavia porcellus": "guinea pig",
+  "nicotiana tabacum": "tobacco"
+ },
+ "stain": {
+  "h&e": "h&e",
+  "hematoxylin and eosin": "h&e",
+  "hematoxylin and eosin (h&e)": "h&e",
+  "immunohistochemistry": "ihc",
+  "ihc(hdab)": "ihc",
+  "ihc(dab)": "ihc",
+  "ihc(red)": "ihc",
+  "immunohistochemical stain with hematoxylin counterstain": "ihc",
+  "estrogen receptor immunohistochemestry": "ihc",
+  "wright-giemsa": "wright-giemsa",
+  "wright–giemsa": "wright-giemsa",
+  "giemsa stain": "giemsa",
+  "papanicolaou stain": "papanicolaou",
+  "no stain": "unstained",
+  "n/a (not specified)": "unstained"
+ }
+}

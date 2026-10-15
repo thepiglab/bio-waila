@@ -1,0 +1,321 @@
+dataset_id,column,value,field,class
+trusted-3dus-ct-kidney,*,us_data,modality,ultrasound imaging
+trusted-3dus-ct-kidney,*,us_data,submodality,3d ultrasound
+trusted-3dus-ct-kidney,*,ct_data,modality,computed tomography
+trusted-3dus-ct-kidney,*,ct_data,submodality,conventional ct
+carotid-us-color-doppler-kaggle,*,UL,submodality,b-mode ultrasound
+carotid-us-color-doppler-kaggle,*,CD,submodality,color doppler
+pannuke,hf:tissue,2,body_part,bladder
+pannuke,hf:tissue,3,body_part,breast
+pannuke,hf:tissue,4,body_part,cervix
+pannuke,hf:tissue,5,body_part,colon
+pannuke,hf:tissue,6,body_part,esophagus
+pannuke,hf:tissue,7,body_part,head and neck
+pannuke,hf:tissue,8,body_part,kidney
+pannuke,hf:tissue,9,body_part,liver
+pannuke,hf:tissue,10,body_part,lung
+pannuke,hf:tissue,11,body_part,ovary
+pannuke,hf:tissue,12,body_part,pancreas
+pannuke,hf:tissue,13,body_part,prostate
+pannuke,hf:tissue,14,body_part,skin
+pannuke,hf:tissue,15,body_part,stomach
+pannuke,hf:tissue,17,body_part,thyroid
+pannuke,hf:tissue,18,body_part,uterus
+hyperkvasir,*,cecum,body_part,colon
+hyperkvasir,*,ileum,body_part,small intestine
+hyperkvasir,*,pylorus,body_part,stomach
+hyperkvasir,*,retroflex-rectum,body_part,rectum
+hyperkvasir,*,retroflex-stomach,body_part,stomach
+hyperkvasir,*,z-line,body_part,esophagus
+hyperkvasir,*,barretts,body_part,esophagus
+hyperkvasir,*,barretts-short-segment,body_part,esophagus
+hyperkvasir,*,esophagitis-a,body_part,esophagus
+hyperkvasir,*,esophagitis-b-d,body_part,esophagus
+hyperkvasir,*,hemorrhoids,body_part,rectum
+hyperkvasir,*,polyps,body_part,colon
+hyperkvasir,*,ulcerative-colitis-grade-0-1,body_part,colon
+hyperkvasir,*,ulcerative-colitis-grade-1,body_part,colon
+hyperkvasir,*,ulcerative-colitis-grade-1-2,body_part,colon
+hyperkvasir,*,ulcerative-colitis-grade-2,body_part,colon
+hyperkvasir,*,ulcerative-colitis-grade-2-3,body_part,colon
+hyperkvasir,*,ulcerative-colitis-grade-3,body_part,colon
+hyperkvasir,*,bbps-0-1,body_part,colon
+hyperkvasir,*,bbps-2-3,body_part,colon
+hyperkvasir,*,impacted-stool,body_part,colon
+hyperkvasir,*,dyed-lifted-polyps,body_part,colon
+hyperkvasir,*,dyed-resection-margins,body_part,colon
+oriented-instrument-hysterectomy,*,dataset_phantom,specimen,phantom
+oriented-instrument-hysterectomy,*,dataset_inhouse,specimen,human
+viralskin-4,*,"Torso (Chest, back, or abdomen)",body_part,thoracoabdominal region
+viralskin-4,*,"Legs (Thighs, knees, or calves)",body_part,lower limbs
+viralskin-4,*,Face or head,body_part,face
+head-cta-intracranial-aneurysm-dicom-2025,dicom:BodyPartExamined,NECK,body_part,brain
+head-cta-intracranial-aneurysm-dicom-2025,dicom:BodyPartExamined,HEAD,body_part,brain
+polimi-stereo-rarp,path:d2,3 - Lymphadenectomy,body_part,lymph nodes
+polimi-stereo-rarp,path:d2,2 - Prostate removal,body_part,prostate
+polimi-stereo-rarp,path:d2,1 - Collapse of the peritoneum,body_part,pelvis
+polimi-stereo-rarp,path:d2,4 - Anastomosis,body_part,pelvis
+puma-2024,hf:cohort,primary,body_part,skin
+qpi-labelfree-segmentation-review-vicar,path:d2,PC microscopy,submodality,phase contrast microscopy
+qpi-labelfree-segmentation-review-vicar,path:d2,QPI microscopy,submodality,phase contrast microscopy
+qpi-labelfree-segmentation-review-vicar,path:d2,DIC microscopy,submodality,contrast microscopy
+qpi-labelfree-segmentation-review-vicar,path:d2,HMC microscopy,submodality,contrast microscopy
+recist-ct-hcuch,path:d2,thorax,body_part,chest
+mcr-sl,path:d2,clinical,modality,clinical photography
+mcr-sl,path:d2,clinical,submodality,clinical photography
+mcr-sl,path:d2,dermoscopic,modality,optical imaging
+mcr-sl,path:d2,dermoscopic,submodality,dermoscopy
+prostate-ppat-healthy-longitudinal-2026,*,Peripheral zone; transition zone; central zone; anterior fibromuscular stroma,body_part,prostate
+mitoem-2,*,Dataset001_ME2-Beta,specimen,mouse
+mitoem-2,*,Dataset001_ME2-Beta,body_part,pancreas
+mitoem-2,*,Dataset002_ME2-Jurkat,specimen,cell line
+mitoem-2,*,Dataset002_ME2-Jurkat,body_part,cells
+mitoem-2,*,Dataset003_ME2-Macro,specimen,cell line
+mitoem-2,*,Dataset003_ME2-Macro,body_part,cells
+mitoem-2,*,Dataset004_ME2-Mossy,specimen,mouse
+mitoem-2,*,Dataset004_ME2-Mossy,body_part,brain
+mitoem-2,*,Dataset005_ME2-Podo,specimen,mouse
+mitoem-2,*,Dataset005_ME2-Podo,body_part,kidney
+mitoem-2,*,Dataset006_ME2-Pyra,specimen,human
+mitoem-2,*,Dataset006_ME2-Pyra,body_part,brain
+mitoem-2,*,Dataset007_ME2-Sperm,specimen,human
+mitoem-2,*,Dataset007_ME2-Sperm,body_part,sperm cells
+mitoem-2,*,Dataset008_ME2-Stem,specimen,human
+mitoem-2,*,Dataset008_ME2-Stem,body_part,bone marrow
+tissue-fold-teaching-slides,path:d1,Testis,body_part,male genitourinary system
+synthstrip-dataset,hf:modality,t1,submodality,structural mri
+synthstrip-dataset,hf:modality,t2,submodality,structural mri
+synthstrip-dataset,hf:modality,pd,submodality,structural mri
+synthstrip-dataset,hf:modality,flair,submodality,structural mri
+synthstrip-dataset,hf:modality,qt1,submodality,structural mri
+fetal-planes-db,csv:extracted/FETAL_PLANES_ZENODO/FETAL_PLANES_DB_data.csv:Plane,Other,body_part,fetus
+fetal-planes-db,csv:extracted/FETAL_PLANES_ZENODO/FETAL_PLANES_DB_data.csv:Plane,Fetal femur,body_part,fetus
+fetal-planes-db,csv:extracted/FETAL_PLANES_ZENODO/FETAL_PLANES_DB_data.xlsx:Plane,Other,body_part,fetus
+fetal-planes-db,csv:extracted/FETAL_PLANES_ZENODO/FETAL_PLANES_DB_data.xlsx:Plane,Fetal femur,body_part,fetus
+oocytor-oocyte-segmentation,path:d2,human,specimen,human
+oocytor-oocyte-segmentation,path:d2,mouse,specimen,mouse
+cellfmcount,*,PI,stain,propidium iodide
+cellfmcount,*,Cy3,stain,immunofluorescence
+cellfmcount,*,AF488,stain,immunofluorescence
+cellfmcount,*,MAP2ab,stain,immunofluorescence
+cellfmcount,*,RIP,stain,immunofluorescence
+cellfmcount,*,TuJ1,stain,immunofluorescence
+cellfmcount,*,GFAP,stain,immunofluorescence
+cellfmcount,*,MAP2ab + RIP,stain,immunofluorescence
+cellfmcount,*,AHPC,specimen,rat
+cellfmcount,*,RPC,specimen,rat
+breast-cyto-histo-ukraine-2023,path:d3,KI67,stain,ihc
+breast-cyto-histo-ukraine-2023,path:d3,HER2NEU,stain,ihc
+breast-cyto-histo-ukraine-2023,path:d3,ER,stain,ihc
+breast-cyto-histo-ukraine-2023,path:d3,PR,stain,ihc
+gut-on-chip-caco2-ht29mtx-zenodo-2025,path:d2,Mucin staining,submodality,brightfield microscopy
+gut-on-chip-caco2-ht29mtx-zenodo-2025,path:d2,Mucin staining,modality,light microscopy
+gut-on-chip-caco2-ht29mtx-zenodo-2025,path:d2,Mucin staining,stain,mucin-specific stain
+gut-on-chip-caco2-ht29mtx-zenodo-2025,path:d2,Confocal microscopy,modality,fluorescence microscopy
+gut-on-chip-caco2-ht29mtx-zenodo-2025,path:d4,DAPI,stain,dapi
+gut-on-chip-caco2-ht29mtx-zenodo-2025,path:d4,ZO1,stain,immunofluorescence
+gut-on-chip-caco2-ht29mtx-zenodo-2025,path:d4,Muc5AC,stain,immunofluorescence
+gut-on-chip-caco2-ht29mtx-zenodo-2025,path:d4,VIL1,stain,immunofluorescence
+gut-on-chip-caco2-ht29mtx-zenodo-2025,path:d4,Day1,stain,unstained
+gut-on-chip-caco2-ht29mtx-zenodo-2025,path:d4,Day2,stain,unstained
+gut-on-chip-caco2-ht29mtx-zenodo-2025,path:d4,Day4,stain,unstained
+gut-on-chip-caco2-ht29mtx-zenodo-2025,path:d4,Day6,stain,unstained
+gut-on-chip-caco2-ht29mtx-zenodo-2025,path:d4,Day8,stain,unstained
+cystods,*,WLC,modality,endoscopy
+cystods,*,BLC,modality,endoscopy
+magic-ct,path:d1,kidney_cyst_scans3,body_part,abdomen
+magic-ct,path:d1,kidney_cyst_scans4,body_part,abdomen
+spine-endoscopic-atlas,path:d1,cervical,body_part,spine
+woives-uwf-octa,path:d2,SLO,submodality,fundus photography
+woives-uwf-octa,path:d3,Enface_choriocapillaris,submodality,optical coherence tomography angiography
+woives-uwf-octa,path:d3,Enface_choroid,submodality,optical coherence tomography angiography
+woives-uwf-octa,path:d3,Enface_choroidal medium and large vessels,submodality,optical coherence tomography angiography
+woives-uwf-octa,path:d3,OCTA_superficial retina,submodality,optical coherence tomography angiography
+woives-uwf-octa,path:d3,OCTA_full retina,submodality,optical coherence tomography angiography
+woives-uwf-octa,path:d3,OCTA_deep retina,submodality,optical coherence tomography angiography
+btxrd,csv:extracted/BTXRD/BTXRD/dataset.xlsx:hand,1,body_part,upper limbs
+btxrd,csv:extracted/BTXRD/BTXRD/dataset.xlsx:foot,1,body_part,lower limbs
+btxrd,csv:extracted/BTXRD/BTXRD/dataset.xlsx:humerus,1,body_part,upper limbs
+btxrd,csv:extracted/BTXRD/BTXRD/dataset.xlsx:radius,1,body_part,upper limbs
+btxrd,csv:extracted/BTXRD/BTXRD/dataset.xlsx:ulna,1,body_part,upper limbs
+btxrd,csv:extracted/BTXRD/BTXRD/dataset.xlsx:tibia,1,body_part,lower limbs
+btxrd,csv:extracted/BTXRD/BTXRD/dataset.xlsx:fibula,1,body_part,lower limbs
+btxrd,csv:extracted/BTXRD/BTXRD/dataset.xlsx:femur,1,body_part,lower limbs
+btxrd,csv:extracted/BTXRD/BTXRD/dataset.xlsx:hip bone,1,body_part,pelvis
+btxrd,csv:extracted/BTXRD/BTXRD/dataset.xlsx:ankle-joint,1,body_part,lower limbs
+btxrd,csv:extracted/BTXRD/BTXRD/dataset.xlsx:knee-joint,1,body_part,lower limbs
+btxrd,csv:extracted/BTXRD/BTXRD/dataset.xlsx:hip-joint,1,body_part,lower limbs
+btxrd,csv:extracted/BTXRD/BTXRD/dataset.xlsx:elbow-joint,1,body_part,upper limbs
+btxrd,csv:extracted/BTXRD/BTXRD/dataset.xlsx:shoulder-joint,1,body_part,upper limbs
+btxrd,csv:extracted/BTXRD/BTXRD/dataset.xlsx:wrist-joint,1,body_part,upper limbs
+cti-tongren-fa-icga-us,path:d2,FA,modality,optical imaging
+cti-tongren-fa-icga-us,path:d2,FA,submodality,fluorescein angiography
+cti-tongren-fa-icga-us,path:d2,FA,body_part,retina
+cti-tongren-fa-icga-us,path:d2,ICGA,modality,optical imaging
+cti-tongren-fa-icga-us,path:d2,ICGA,submodality,fluorescein angiography
+cti-tongren-fa-icga-us,path:d2,ICGA,body_part,retina
+cti-tongren-fa-icga-us,path:d2,US,modality,ultrasound imaging
+cti-tongren-fa-icga-us,path:d2,US,submodality,b-mode ultrasound
+cti-tongren-fa-icga-us,path:d2,US,body_part,eye
+virtual-staining-caco2-viability,path:d1,Set_2_Cam_Dio_PI_19_02_16,stain,dioc6
+virtual-staining-caco2-viability,path:d1,Set_2_Ctrl_Dio_PI_19_02_16,stain,dioc6
+virtual-staining-caco2-viability,path:d1,Set_4_Cam_DIO_PI_19_11_15,stain,dioc6
+virtual-staining-caco2-viability,path:d1,Set_4_Ctrl_DIO_PI_19_11_15,stain,dioc6
+virtual-staining-caco2-viability,path:d1,Set_1_Cam_AO_PI_19_02_16,stain,acridine orange
+virtual-staining-caco2-viability,path:d1,Set_1_Ctrl_AO_PI_19_02_16,stain,acridine orange
+virtual-staining-caco2-viability,path:d1,Set_3_Cam_AO_PI_19_11_15,stain,acridine orange
+virtual-staining-caco2-viability,path:d1,Set_3_Ctrl_AO_PI_19_11_15,stain,acridine orange
+pix2pix-huvec-turku-virtual-staining,path:d3,230412_cc_BF,modality,light microscopy
+pix2pix-huvec-turku-virtual-staining,path:d3,230412_cc_BF,submodality,brightfield microscopy
+pix2pix-huvec-turku-virtual-staining,path:d3,230412_QC_cc_BF,modality,light microscopy
+pix2pix-huvec-turku-virtual-staining,path:d3,230412_QC_cc_BF,submodality,brightfield microscopy
+pix2pix-huvec-turku-virtual-staining,path:d3,230412_cc_nuclei,modality,fluorescence microscopy
+pix2pix-huvec-turku-virtual-staining,path:d3,230412_cc_nuclei,submodality,epifluorescence microscopy
+pix2pix-huvec-turku-virtual-staining,path:d3,230412_QC_cc_nuclei,modality,fluorescence microscopy
+pix2pix-huvec-turku-virtual-staining,path:d3,230412_QC_cc_nuclei,submodality,epifluorescence microscopy
+microvision-fluorescence-cell-detection,path:d2,neuroblastoma_phal_class,stain,phalloidin
+microvision-fluorescence-cell-detection,path:d2,erythroblast_dapi_class,stain,dapi
+microvision-fluorescence-cell-detection,path:d2,erythroid_dapi_class,stain,dapi
+microvision-fluorescence-cell-detection,path:d2,erythroid_dapi_all_class,stain,dapi
+microvision-fluorescence-cell-detection,path:d2,eukaryote_dapi_class,stain,dapi
+microvision-fluorescence-cell-detection,path:d2,c127_dapi_class,stain,dapi
+microvision-fluorescence-cell-detection,path:d2,c127_dapi_class,specimen,mouse
+microvision-fluorescence-cell-detection,path:d2,cos7_nucleopore_class,specimen,non-human primate
+microvision-fluorescence-cell-detection,path:d2,cos7_nucleopore_scale_10x_class,specimen,non-human primate
+microvision-fluorescence-cell-detection,path:d2,cos7_nucleopore_scale_40x_class,specimen,non-human primate
+microvision-fluorescence-cell-detection,path:d2,hek_peroxisome_class,specimen,human
+microvision-fluorescence-cell-detection,path:d2,hek_peroxisome_all_class,specimen,human
+deepbacs-saureus-widefield-seg,path:d3,fluorescence,modality,fluorescence microscopy
+deepbacs-saureus-widefield-seg,path:d3,fluorescence,submodality,epifluorescence microscopy
+deepbacs-saureus-widefield-seg,path:d3,brightfield,modality,light microscopy
+deepbacs-saureus-widefield-seg,path:d3,brightfield,submodality,brightfield microscopy
+deepbacs-saureus-widefield-seg,path:d2,fluorescence,modality,fluorescence microscopy
+deepbacs-saureus-widefield-seg,path:d2,fluorescence,submodality,epifluorescence microscopy
+deepbacs-saureus-widefield-seg,path:d2,brightfield,modality,light microscopy
+deepbacs-saureus-widefield-seg,path:d2,brightfield,submodality,brightfield microscopy
+deepbacs-saureus-widefield-seg,path:d1,fluorescence_dataset,modality,fluorescence microscopy
+deepbacs-saureus-widefield-seg,path:d1,fluorescence_dataset,submodality,epifluorescence microscopy
+deepbacs-saureus-widefield-seg,path:d1,brightfield_dataset,modality,light microscopy
+deepbacs-saureus-widefield-seg,path:d1,brightfield_dataset,submodality,brightfield microscopy
+shoulder-3d-us-mosaicking,*,humerus,body_part,bone
+hcc1143-paclitaxel-cellmask-dapi-zenodo-11237850,path:name,G - (fld wv UV - DAPI),stain,dapi
+hcc1143-paclitaxel-cellmask-dapi-zenodo-11237850,path:name,G - (fld wv Green - dsRed),stain,cellmask
+mcoa-corneal-opacity,path:d3,AS-OCT,submodality,optical coherence tomography
+mcoa-corneal-opacity,path:d3,ASP,submodality,clinical photography
+senora-mri,bids:suffix,T2star,submodality,structural mri
+lfa1-immune-synapse-tirf-protocol,path:name,min__cd3,stain,immunofluorescence
+lfa1-immune-synapse-tirf-protocol,path:name,min__lfa1,stain,immunofluorescence
+lfa1-immune-synapse-tirf-protocol,path:name,min__factin,stain,phalloidin
+viralskin-4,path:d3,Hands,body_part,hand
+viralskin-4,path:d3,Feet,body_part,foot
+viralskin-4,path:d3,Mouth,body_part,oral cavity
+viralskin-4,path:d3,Face,body_part,face
+viralskin-4,path:d3,Arms,body_part,upper limbs
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D0 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D0 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D0 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D0 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D1 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D1 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D1 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D1 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D2 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D2 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D2 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D2 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D3 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D3 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D3 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D3 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D5 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D5 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D5 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D5 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D7 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D7 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D7 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,mW _D7 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D0 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D0 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D0 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D0 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D1 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D1 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D1 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D1 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D2 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D2 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D2 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D2 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D3 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D3 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D3 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D3 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D5 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D5 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D5 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D5 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D7 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D7 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D7 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Laser_ D7 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D0 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D0 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D0 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D0 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D1 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D1 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D1 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D1 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D2 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D2 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D2 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D2 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D3 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D3 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D3 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D3 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D5 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D5 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D5 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D5 OCT,submodality,optical coherence tomography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D7 IR,submodality,near-infrared imaging
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D7 FFA,submodality,fluorescein angiography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D7 Mcolor,submodality,fundus photography
+mouse-rvo-ffa-slo-oct-sichuan-2024,path:name,Chronic _D7 OCT,submodality,optical coherence tomography
+breast-cyto-histo-ukraine-2023,path:name,histology,stain,h&e
+gut-on-chip-caco2-ht29mtx-zenodo-2025,path:d4,F-actin,stain,phalloidin
+gut-on-chip-caco2-ht29mtx-zenodo-2025,path:d4,Villin,stain,immunofluorescence
+openorganelle,hf:volume_name,jrc_hum-airway-14953vc,specimen,human
+openorganelle,hf:volume_name,jrc_fly-acc-calyx-1,specimen,drosophila
+cystods,*,WLC,submodality,white-light endoscopy
+drends,path:d1,Seq03_Intestine_Ext,body_part,small intestine
+drends,path:d1,Seq04_Intestine_Med,body_part,small intestine
+drends,path:d1,Seq05_Intestine_High,body_part,small intestine
+tnbc-sirna-paclitaxel-cellmask-zenodo-11238552,path:name,B - (fld wv UV - DAPI),stain,dapi
+tnbc-sirna-paclitaxel-cellmask-zenodo-11238552,path:name,B - (fld wv Blue - FITC),stain,cellmask
+tnbc-sirna-paclitaxel-cellmask-zenodo-11238552,path:name,C - (fld wv UV - DAPI),stain,dapi
+tnbc-sirna-paclitaxel-cellmask-zenodo-11238552,path:name,C - (fld wv Blue - FITC),stain,cellmask
+tnbc-sirna-paclitaxel-cellmask-zenodo-11238552,path:name,D - (fld wv UV - DAPI),stain,dapi
+tnbc-sirna-paclitaxel-cellmask-zenodo-11238552,path:name,D - (fld wv Blue - FITC),stain,cellmask
+tnbc-sirna-paclitaxel-cellmask-zenodo-11238552,path:name,E - (fld wv UV - DAPI),stain,dapi
+tnbc-sirna-paclitaxel-cellmask-zenodo-11238552,path:name,E - (fld wv Blue - FITC),stain,cellmask
+tnbc-sirna-paclitaxel-cellmask-zenodo-11238552,path:name,F - (fld wv UV - DAPI),stain,dapi
+tnbc-sirna-paclitaxel-cellmask-zenodo-11238552,path:name,F - (fld wv Blue - FITC),stain,cellmask
+tnbc-sirna-paclitaxel-cellmask-zenodo-11238552,path:name,G - (fld wv UV - DAPI),stain,dapi
+tnbc-sirna-paclitaxel-cellmask-zenodo-11238552,path:name,G - (fld wv Blue - FITC),stain,cellmask
+wbc-hr-bodzas-2023,path:d2,Neutrophile Band,body_part,neutrophils
+wbc-hr-bodzas-2023,path:d2,Neutrophile Segment,body_part,neutrophils
+wbc-hr-bodzas-2023,path:d2,Eosinophile,body_part,eosinophils
+wbc-hr-bodzas-2023,path:d2,Monocyte,body_part,monocytes
+wbc-hr-bodzas-2023,path:d2,Lymphocyte,body_part,lymphocytes
+wbc-hr-bodzas-2023,path:d2,Basophile,body_part,white blood cells
+wbc-hr-bodzas-2023,path:d2,Lymphoblast,body_part,white blood cells
+wbc-hr-bodzas-2023,path:d2,Myeloblast,body_part,white blood cells
+wbc-hr-bodzas-2023,path:d2,Normoblast,body_part,blood cells
+drends,path:d1,Vid04_Intestine_Med,body_part,small intestine
+drends,path:d1,Vid05_Intestine_High,body_part,small intestine
+piur-thyroid-segmentation,dicom:ImageType,DERIVED\PRIMARY,modality,ultrasound imaging
+piur-thyroid-segmentation,dicom:ImageType,DERIVED\PRIMARY\VOLUME\RESAMPLED,modality,ultrasound imaging
+btxrd,csv:BTXRD/dataset.xlsx:upper limb,1,body_part,upper limbs
+btxrd,csv:BTXRD/dataset.xlsx:lower limb,1,body_part,lower limbs

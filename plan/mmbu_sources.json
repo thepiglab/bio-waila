@@ -1,0 +1,869 @@
+{
+ "chestx-det": {
+  "public_rows": 295,
+  "clusters": [
+   "X1"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "ChestX-Det (13 thoracic findings; masks+boxes)"
+ },
+ "radimagenet": {
+  "public_rows": 255,
+  "clusters": [
+   "R1",
+   "R2",
+   "R3"
+  ],
+  "conf": "H",
+  "tier": "C",
+  "source": "RadImageNet MRI (224x224 slices; 'ankle or foot ...', 'shoulder ...' labels)"
+ },
+ "heichole": {
+  "public_rows": 184,
+  "clusters": [
+   "L1"
+  ],
+  "conf": "M",
+  "tier": "C",
+  "source": "HeiChole-family cholecystectomy instrument-type/part masks (960x540 frames; 7 in"
+ },
+ "jsiec-1000": {
+  "public_rows": 182,
+  "clusters": [
+   "O1"
+  ],
+  "conf": "H",
+  "tier": "D",
+  "source": "JSIEC 1000 fundus (39 classes)"
+ },
+ "isic-2019": {
+  "public_rows": 91,
+  "clusters": [
+   "D1"
+  ],
+  "conf": "H",
+  "tier": "B",
+  "source": "ISIC 2019 (8-class dermoscopy)"
+ },
+ "cholecinstanceseg": {
+  "public_rows": 89,
+  "clusters": [
+   "L2"
+  ],
+  "conf": "M",
+  "tier": "B",
+  "source": "CholecInstanceSeg / Cholec80-derived instrument masks (854x480 frames)"
+ },
+ "nct-crc-he-100k": {
+  "public_rows": 81,
+  "clusters": [
+   "P1"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "NCT-CRC-HE-100K / CRC-VAL-HE-7K"
+ },
+ "bbbc005": {
+  "public_rows": 81,
+  "clusters": [
+   "F6"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "synthetic + calibration-bead/organelle fluorescence 'what structure' set"
+ },
+ "idrid": {
+  "public_rows": 80,
+  "clusters": [
+   "O2"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "IDRiD"
+ },
+ "mhsma": {
+  "public_rows": 68,
+  "clusters": [
+   "H2"
+  ],
+  "conf": "H",
+  "tier": "B",
+  "source": "MHSMA (128x128 sperm acrosome/head/vacuole/tail)"
+ },
+ "deepdrid": {
+  "public_rows": 55,
+  "clusters": [
+   "O3"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "DR grading level 0-4 fundus (DeepDRiD/EyePACS/APTOS-like)"
+ },
+ "lysto": {
+  "public_rows": 54,
+  "clusters": [
+   "P3"
+  ],
+  "conf": "H",
+  "tier": "D",
+  "source": "LYSTO lymphocyte counts (IHC, 299x299)"
+ },
+ "nih-chestxray14-bbox": {
+  "public_rows": 52,
+  "clusters": [
+   "X2"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "NIH ChestX-ray8 bbox subset"
+ },
+ "endovis-2018-rss": {
+  "public_rows": 46,
+  "clusters": [
+   "L4"
+  ],
+  "conf": "H",
+  "tier": "D",
+  "source": "EndoVis 2018 robotic scene segmentation (+2017 kidney boundary)"
+ },
+ "refuge": {
+  "public_rows": 44,
+  "clusters": [
+   "O6",
+   "O9"
+  ],
+  "conf": "L",
+  "tier": "D",
+  "source": "glaucoma fundus sets"
+ },
+ "edd2020": {
+  "public_rows": 43,
+  "clusters": [
+   "G2"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "EDD2020 (BE, suspicious, HGD, cancer, polyp; boxes+masks)"
+ },
+ "pkdarabi-brain-tumor-detection": {
+  "public_rows": 42,
+  "clusters": [
+   "M4"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "axial brain MRI lesion/tumor boxes (positive/negative)"
+ },
+ "hushem": {
+  "public_rows": 40,
+  "clusters": [
+   "H1"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "HuSHeM"
+ },
+ "eye-diseases-classification-gunavenkat": {
+  "public_rows": 40,
+  "clusters": [
+   "O4"
+  ],
+  "conf": "M",
+  "tier": "D",
+  "source": "cataract/glaucoma/retina-disease/normal fundus (Kaggle)"
+ },
+ "pitvis-2023": {
+  "public_rows": 36,
+  "clusters": [
+   "L8"
+  ],
+  "conf": "H",
+  "tier": "B",
+  "source": "PitVis 2023 (endoscopic pituitary surgery phases)"
+ },
+ "knee-oa-severity-chen-2018": {
+  "public_rows": 35,
+  "clusters": [
+   "K1"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "Knee OA KL grading (Chen 2018, 224x224)"
+ },
+ "mias": {
+  "public_rows": 35,
+  "clusters": [
+   "K2"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "MIAS mammography (7 classes)"
+ },
+ "psi-ava": {
+  "public_rows": 34,
+  "clusters": [
+   "L7"
+  ],
+  "conf": "M",
+  "tier": "D",
+  "source": "PSI-AVA / GraSP (robotic prostatectomy atomic actions, boxes)"
+ },
+ "hyperkvasir": {
+  "public_rows": 34,
+  "clusters": [
+   "G1"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "Kvasir v2 / HyperKvasir labelled images (8 anatomical/pathological classes)"
+ },
+ "kather-crc-texture-2016": {
+  "public_rows": 34,
+  "clusters": [
+   "P2"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "Kather 2016 colorectal texture (8 classes, 0.495 mpp)"
+ },
+ "surgical-instruments-labelme-383": {
+  "public_rows": 31,
+  "clusters": [
+   "L9"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "surgical-instrument tray photos with boxes (scalpel, Mayo scissors, clamps)"
+ },
+ "kermany-pediatric-pneumonia-cxr": {
+  "public_rows": 30,
+  "clusters": [
+   "X3"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "Kermany pediatric pneumonia CXR"
+ },
+ "lc25000": {
+  "public_rows": 27,
+  "clusters": [
+   "P19"
+  ],
+  "conf": "H",
+  "tier": "D",
+  "source": "LC25000"
+ },
+ "bccd": {
+  "public_rows": 27,
+  "clusters": [
+   "H3"
+  ],
+  "conf": "M",
+  "tier": "A",
+  "source": "BCCD / blood-cell detection (RBC/WBC/platelet)"
+ },
+ "dsad": {
+  "public_rows": 26,
+  "clusters": [
+   "L5"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "Dresden Surgical Anatomy Dataset (DSAD)"
+ },
+ "pbc-acevedo-2020": {
+  "public_rows": 25,
+  "clusters": [
+   "P4"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "PBC (Acevedo) peripheral blood cells"
+ },
+ "corn-3": {
+  "public_rows": 24,
+  "clusters": [
+   "O14"
+  ],
+  "conf": "M",
+  "tier": "C",
+  "source": "corneal confocal nerve (CORN)"
+ },
+ "mendeley-lbc-hussain-2019": {
+  "public_rows": 23,
+  "clusters": [
+   "P14"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "Mendeley LBC Pap smear (NILM/LSIL/HSIL/SCC)"
+ },
+ "bbbc007": {
+  "public_rows": 23,
+  "clusters": [
+   "F2"
+  ],
+  "conf": "M",
+  "tier": "A",
+  "source": "BBBC002 (Kc167 counts) / BBBC007 (Kc167 outlines)"
+ },
+ "fiqs": {
+  "public_rows": 23,
+  "clusters": [
+   "O8"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "fundus laterality / quality (DeepDRiD / EyeQ-like)"
+ },
+ "sims-2023": {
+  "public_rows": 22,
+  "clusters": [
+   "L6"
+  ],
+  "conf": "L",
+  "tier": "C",
+  "source": "synthetic domain-randomised dVRK suturing masks (Potts scissors, Cadiere forceps"
+ },
+ "hep2-icip2013-i3a": {
+  "public_rows": 21,
+  "clusters": [
+   "F7"
+  ],
+  "conf": "H",
+  "tier": "D",
+  "source": "HEp-2 I3A / ICPR cell patterns"
+ },
+ "luna16": {
+  "public_rows": 20,
+  "clusters": [
+   "C1"
+  ],
+  "conf": "M",
+  "tier": "A",
+  "source": "lung nodule CT (LUNA16/LIDC)"
+ },
+ "tb-wellgen-mscan-2024": {
+  "public_rows": 20,
+  "clusters": [
+   "H6"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "TB bacilli (ZN sputum) boxes"
+ },
+ "cholecseg8k": {
+  "public_rows": 18,
+  "clusters": [
+   "L3"
+  ],
+  "conf": "M",
+  "tier": "B",
+  "source": "CholecSeg8k (organ/tissue masks on Cholec80 frames)"
+ },
+ "pad-ufes-20": {
+  "public_rows": 18,
+  "clusters": [
+   "D3"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "PAD-UFES-20"
+ },
+ "bone-marrow-cytomorphology": {
+  "public_rows": 18,
+  "clusters": [
+   "P5"
+  ],
+  "conf": "M",
+  "tier": "A",
+  "source": "Matek bone-marrow cytomorphology"
+ },
+ "bach-iciar2018": {
+  "public_rows": 18,
+  "clusters": [
+   "P6"
+  ],
+  "conf": "M",
+  "tier": "C",
+  "source": "BACH / BreakHis breast histology"
+ },
+ "busi": {
+  "public_rows": 17,
+  "clusters": [
+   "U1"
+  ],
+  "conf": "M",
+  "tier": "A",
+  "source": "breast ultrasound (BUSI and others)"
+ },
+ "biomeditech-rpe-maturation": {
+  "public_rows": 17,
+  "clusters": [
+   "P15"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "BioMediTech hPSC-RPE phase contrast"
+ },
+ "bbbc003-mouse-embryos-dic": {
+  "public_rows": 17,
+  "clusters": [
+   "F4"
+  ],
+  "conf": "H",
+  "tier": "D",
+  "source": "BBBC003 mouse embryo DIC"
+ },
+ "kaggle-brain-mri-yes-no-navoneel": {
+  "public_rows": 16,
+  "clusters": [
+   "M2"
+  ],
+  "conf": "M",
+  "tier": "D",
+  "source": "Brain MRI tumor yes/no (Navoneel / Br35H style)"
+ },
+ "clinical-bacteria-gram-mrose-2024": {
+  "public_rows": 15,
+  "clusters": [
+   "H7"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "Gram-stained clinical bacteria (cocci/bacilli)"
+ },
+ "bbbc010-celegans-live-dead": {
+  "public_rows": 15,
+  "clusters": [
+   "F1"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "BBBC010 C. elegans live/dead"
+ },
+ "isic-2018": {
+  "public_rows": 13,
+  "clusters": [
+   "D2"
+  ],
+  "conf": "H",
+  "tier": "B",
+  "source": "ISIC 2018 task 2 dermoscopic attributes"
+ },
+ "carotid-us-color-doppler-kaggle": {
+  "public_rows": 13,
+  "clusters": [
+   "U3"
+  ],
+  "conf": "M",
+  "tier": "A",
+  "source": "carotid ultrasound B-mode/Color Doppler (Kaggle)"
+ },
+ "palm": {
+  "public_rows": 13,
+  "clusters": [
+   "O7"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "PALM pathologic myopia"
+ },
+ "bracs": {
+  "public_rows": 12,
+  "clusters": [
+   "P7"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "BRACS"
+ },
+ "pannuke": {
+  "public_rows": 12,
+  "clusters": [
+   "P12"
+  ],
+  "conf": "M",
+  "tier": "B",
+  "source": "PanNuke cell-type labels"
+ },
+ "oct2017-kermany": {
+  "public_rows": 12,
+  "clusters": [
+   "O10"
+  ],
+  "conf": "M",
+  "tier": "A",
+  "source": "Kermany OCT / OCTID"
+ },
+ "ravir": {
+  "public_rows": 12,
+  "clusters": [
+   "O12"
+  ],
+  "conf": "H",
+  "tier": "D",
+  "source": "RAVIR NIR retinal A/V"
+ },
+ "polypgen": {
+  "public_rows": 11,
+  "clusters": [
+   "G4"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "colonoscopy polyp segmentation set(s) (Kvasir-SEG / CVC-ClinicDB / PolypGen)"
+ },
+ "her2-ihc-40x": {
+  "public_rows": 11,
+  "clusters": [
+   "P9"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "breast IHC HER2/PR/ER (BCI / others)"
+ },
+ "bbbc012-celegans-infection-marker": {
+  "public_rows": 11,
+  "clusters": [
+   "F5"
+  ],
+  "conf": "M",
+  "tier": "D",
+  "source": "C. elegans Oil Red O fat"
+ },
+ "kvasir-capsule": {
+  "public_rows": 10,
+  "clusters": [
+   "G3"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "Kvasir-Capsule (336x336 capsule frames)"
+ },
+ "tbx11k": {
+  "public_rows": 10,
+  "clusters": [
+   "X4"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "TBX11K"
+ },
+ "fitzpatrick17k": {
+  "public_rows": 10,
+  "clusters": [
+   "D4"
+  ],
+  "conf": "H",
+  "tier": "B",
+  "source": "Fitzpatrick17k (3-/9-partition labels)"
+ },
+ "itobos-2024": {
+  "public_rows": 10,
+  "clusters": [
+   "D7"
+  ],
+  "conf": "M",
+  "tier": "A",
+  "source": "iToBoS 2024 total-body-photography tile detection"
+ },
+ "skin-hair-mask-dataset": {
+  "public_rows": 10,
+  "clusters": [
+   "D8"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "dermoscopy lesion+artifact segmentation (hair, specular highlight, reflection)"
+ },
+ "odir-5k": {
+  "public_rows": 10,
+  "clusters": [
+   "O5"
+  ],
+  "conf": "H",
+  "tier": "D",
+  "source": "ODIR-5K 8-class"
+ },
+ "covid-qu-ex": {
+  "public_rows": 9,
+  "clusters": [
+   "X5"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "COVID/viral pneumonia/TB/normal CXR compilation"
+ },
+ "chest-ctscan-images": {
+  "public_rows": 9,
+  "clusters": [
+   "C3"
+  ],
+  "conf": "H",
+  "tier": "D",
+  "source": "Chest CT-Scan images (adeno/large cell/squamous w/ TNM names)"
+ },
+ "bbbc009-rbc-dic": {
+  "public_rows": 9,
+  "clusters": [
+   "H8"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "darkfield / DIC red blood cells (BBBC009-like)"
+ },
+ "mrl-eye": {
+  "public_rows": 9,
+  "clusters": [
+   "O13"
+  ],
+  "conf": "H",
+  "tier": "D",
+  "source": "MRL Eye infrared eyeglasses/open-closed"
+ },
+ "scr-jsrt-masks": {
+  "public_rows": 8,
+  "clusters": [
+   "X7"
+  ],
+  "conf": "M",
+  "tier": "D",
+  "source": "CXR heart/clavicle/lung masks (JSRT-SCR / Montgomery)"
+ },
+ "med-node": {
+  "public_rows": 8,
+  "clusters": [
+   "D5"
+  ],
+  "conf": "L",
+  "tier": "D",
+  "source": "MED-NODE / PH2 / ISIC-2020-style binary lesion sets"
+ },
+ "bcnb": {
+  "public_rows": 8,
+  "clusters": [
+   "P10"
+  ],
+  "conf": "M",
+  "tier": "C",
+  "source": "BCNB ALN status"
+ },
+ "sicapv2": {
+  "public_rows": 8,
+  "clusters": [
+   "P11"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "prostate Gleason (SICAPv2 / Gleason2019)"
+ },
+ "drac-2022": {
+  "public_rows": 8,
+  "clusters": [
+   "O16"
+  ],
+  "conf": "M",
+  "tier": "A",
+  "source": "OCTA DR lesions / systemic"
+ },
+ "uv-dna-damage-cpd-wsi": {
+  "public_rows": 7,
+  "clusters": [
+   "D10"
+  ],
+  "conf": "M",
+  "tier": "D",
+  "source": "UV DNA damage (CPD/6-4PP) IHC skin"
+ },
+ "mouse-embryo-hfu": {
+  "public_rows": 7,
+  "clusters": [
+   "U5"
+  ],
+  "conf": "M",
+  "tier": "A",
+  "source": "mouse embryo high-frequency US"
+ },
+ "herlev-pap-smear": {
+  "public_rows": 7,
+  "clusters": [
+   "P13"
+  ],
+  "conf": "H",
+  "tier": "D",
+  "source": "Herlev Pap smear (7 classes, 93x105)"
+ },
+ "bbbc041-p-vivax-malaria": {
+  "public_rows": 7,
+  "clusters": [
+   "H4"
+  ],
+  "conf": "M",
+  "tier": "B",
+  "source": "malaria (BBBC041 stages incl. leukocyte/RBC; NIH cell crops)"
+ },
+ "c-nmc-2019": {
+  "public_rows": 7,
+  "clusters": [
+   "H5"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "ALL blood smear normal/ALL"
+ },
+ "fluorescent-neuronal-cells-v2": {
+  "public_rows": 7,
+  "clusters": [
+   "F9"
+  ],
+  "conf": "M",
+  "tier": "A",
+  "source": "Fluorescent Neuronal Cells v2"
+ },
+ "ead2020": {
+  "public_rows": 6,
+  "clusters": [
+   "G5"
+  ],
+  "conf": "H",
+  "tier": "B",
+  "source": "EAD2019/2020 endoscopic artefact detection"
+ },
+ "laparoscopic-gastrectomy-annotated-images": {
+  "public_rows": 5,
+  "clusters": [
+   "L10"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "gastrectomy / ICG / robotic scene one-offs"
+ },
+ "isbi-aida-e-cle-celiac": {
+  "public_rows": 5,
+  "clusters": [
+   "G6"
+  ],
+  "conf": "M",
+  "tier": "D",
+  "source": "ISBI AIDA-E confocal laser endomicroscopy (celiac, Barrett)"
+ },
+ "ptx-498": {
+  "public_rows": 5,
+  "clusters": [
+   "X6"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "pneumothorax CXR (SIIM-ACR / PTX-498)"
+ },
+ "mpox-hsam-6class": {
+  "public_rows": 5,
+  "clusters": [
+   "D6"
+  ],
+  "conf": "M",
+  "tier": "A",
+  "source": "mpox 6-class skin photos"
+ },
+ "brachial-plexus-regional-us": {
+  "public_rows": 5,
+  "clusters": [
+   "U6"
+  ],
+  "conf": "L",
+  "tier": "B",
+  "source": "brachial plexus / liver US"
+ },
+ "nirschl-heart-failure-2018": {
+  "public_rows": 5,
+  "clusters": [
+   "P17"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "Nirschl cardiac H&E heart failure"
+ },
+ "malignant-lymphoma-orlov": {
+  "public_rows": 5,
+  "clusters": [
+   "P18"
+  ],
+  "conf": "H",
+  "tier": "D",
+  "source": "malignant lymphoma CLL/FL/MCL (Orlov)"
+ },
+ "osteosarcoma-utsw": {
+  "public_rows": 5,
+  "clusters": [
+   "P20"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "osteosarcoma viable/necrotic/non-tumor (UTSW)"
+ },
+ "sbfsem-vero-sars-cov-2-mitochondria": {
+  "public_rows": 5,
+  "clusters": [
+   "E3"
+  ],
+  "conf": "H",
+  "tier": "A",
+  "source": "SBF-SEM Vero cell SARS-CoV-2 organelles"
+ },
+ "intel-mobileodt-refined-766": {
+  "public_rows": 4,
+  "clusters": [
+   "G8"
+  ],
+  "conf": "L",
+  "tier": "A",
+  "source": "colposcopy transformation-zone types (Intel/MobileODT-like)"
+ },
+ "kaggle-brain-tumor-mri-nickparvar": {
+  "public_rows": 4,
+  "clusters": [
+   "M3"
+  ],
+  "conf": "M",
+  "tier": "A",
+  "source": "3-class brain tumor MRI (glioma/meningioma/pituitary)"
+ },
+ "knee-xray-osteoporosis-wani": {
+  "public_rows": 4,
+  "clusters": [
+   "K4"
+  ],
+  "conf": "M",
+  "tier": "A",
+  "source": "osteoporosis X-ray healthy/osteoporotic"
+ },
+ "bbbc001": {
+  "public_rows": 3,
+  "clusters": [
+   "F3"
+  ],
+  "conf": "M",
+  "tier": "B",
+  "source": "BBBC001/008 HT29 cell counts"
+ },
+ "siim-covid19-detection": {
+  "public_rows": 2,
+  "clusters": [
+   "X8"
+  ],
+  "conf": "M",
+  "tier": "B",
+  "source": "SIIM-FISABIO-RSNA COVID-19 CXR"
+ },
+ "fuseg-2021": {
+  "public_rows": 1,
+  "clusters": [
+   "D9"
+  ],
+  "conf": "L",
+  "tier": "B",
+  "source": "foot-ulcer segmentation photos (FUSeg / AZH)"
+ }
+}

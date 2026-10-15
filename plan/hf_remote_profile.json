@@ -1,0 +1,561 @@
+[
+ {
+  "id": "cystods",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "papila",
+  "status": "ok",
+  "mappable": [
+   "sparse text=no glaucoma/healthy eye→body_part:eye"
+  ]
+ },
+ {
+  "id": "openorganelle",
+  "status": "ok",
+  "mappable": [
+   "volume_name=jrc_mus-heart-1→body_part:heart",
+   "volume_name=jrc_mus-kidney→body_part:kidney",
+   "volume_name=jrc_mus-kidney-2→body_part:kidney",
+   "volume_name=jrc_mus-kidney-3→body_part:kidney",
+   "volume_name=jrc_mus-kidney-glomerulus-2→body_part:kidney",
+   "volume_name=jrc_mus-liver→body_part:liver",
+   "volume_name=jrc_mus-liver-2→body_part:liver",
+   "volume_name=jrc_mus-liver-3→body_part:liver",
+   "volume_name=jrc_mus-liver-4→body_part:liver",
+   "volume_name=jrc_mus-liver-5→body_part:liver",
+   "volume_name=jrc_mus-liver-6→body_part:liver",
+   "volume_name=jrc_mus-pancreas-4→body_part:pancreas",
+   "volume_name=jrc_mus-skin-1→body_part:skin"
+  ]
+ },
+ {
+  "id": "cellmap-challenge-2025",
+  "status": "ok",
+  "mappable": [
+   "crop_name=jrc_mus-kidney-3/recon-1/crop472→body_part:kidney",
+   "crop_name=jrc_mus-kidney/recon-1/crop158→body_part:kidney",
+   "crop_name=jrc_mus-kidney/recon-1/crop163→body_part:kidney",
+   "crop_name=jrc_mus-kidney/recon-1/crop230→body_part:kidney",
+   "crop_name=jrc_mus-kidney/recon-1/crop231→body_part:kidney",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop266→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop270→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop276→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop277→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop279→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop282→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop289→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop313→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop320→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop322→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop336→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop337→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop345→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop349→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop351→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-1/recon-1/crop386→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-2/recon-1/crop333→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-2/recon-1/crop357→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-2/recon-1/crop358→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-2/recon-1/crop366→body_part:liver",
+   "crop_name=jrc_mus-liver-zon-2/recon-1/crop368→body_part:liver",
+   "crop_name=jrc_mus-liver/recon-1/crop124→body_part:liver",
+   "crop_name=jrc_mus-liver/recon-1/crop125→body_part:liver",
+   "crop_name=jrc_mus-liver/recon-1/crop133→body_part:liver",
+   "crop_name=jrc_mus-liver/recon-1/crop135→body_part:liver",
+   "crop_name=jrc_mus-liver/recon-1/crop139→body_part:liver",
+   "crop_name=jrc_mus-liver/recon-1/crop145→body_part:liver",
+   "crop_name=jrc_mus-liver/recon-1/crop175→body_part:liver",
+   "crop_name=jrc_mus-liver/recon-1/crop417→body_part:liver",
+   "crop_name=jrc_zf-cardiac-1/recon-1/crop381→body_part:heart"
+  ]
+ },
+ {
+  "id": "scin",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "pad-ufes-20",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "wbcatt-plus-2026",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "brats-peds",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "taix-ray",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "pbc-acevedo-2020",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "mitoem-2",
+  "status": "info HTTP 500"
+ },
+ {
+  "id": "ucsf-pdgm",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "pan-multiplex-nimbus",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "lidc-idri",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "isic-2017",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "vestibular-schwannoma-seg",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "spider-lumbar-mri",
+  "status": "ok",
+  "mappable": [
+   "sequence=t1→submodality:structural mri",
+   "sequence=t2→submodality:structural mri",
+   "sequence=t2_SPACE→submodality:structural mri",
+   "series=10_t1→submodality:structural mri",
+   "series=10_t2→submodality:structural mri",
+   "series=12_t1→submodality:structural mri",
+   "series=12_t2→submodality:structural mri",
+   "series=13_t1→submodality:structural mri",
+   "series=13_t2→submodality:structural mri",
+   "series=15_t1→submodality:structural mri",
+   "series=15_t2→submodality:structural mri",
+   "series=16_t1→submodality:structural mri",
+   "series=16_t2→submodality:structural mri",
+   "series=17_t1→submodality:structural mri"
+  ]
+ },
+ {
+  "id": "spinal-multiple-myeloma-seg",
+  "status": "ok",
+  "mappable": [
+   "target=spine→body_part:spine"
+  ]
+ },
+ {
+  "id": "rodent-estrous-cytology-compendium-hf",
+  "status": "ok",
+  "mappable": [
+   "source_mouse=provisional:mouse_estrousbank_00cefd3282ddb002→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_079231f3808ae0a3→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_09cb886f69fd86ef→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_0b520fdd319de3ac→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_0c4e6864584987ba→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_0d2277e2af74bbe9→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_0e871edbe0b360d9→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_0ede48541a585360→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_0fab3edbd9c61574→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_1520ac70576c1a22→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_1972620610a359af→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_1d74d7c7c5b11868→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_20cc5a77af29b352→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_22c8c194f696817a→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_23bcfdaa5df4811b→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_2468be236ea9594e→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_256487eb872c99ba→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_26bf9c104505c11d→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_2ab872a4a49f2f2f→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_2ca9808aaf7db0e2→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_2d6e68d152e72961→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_2fab26e691e6fd6f→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_32a150b02afed5f8→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_3687bca3bc318770→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_38a69fa09eea4d95→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_3bccc965b30cdde1→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_3cb9617bdee63943→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_3dc94b44aa29f802→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_3f33b4d9b0cc25fb→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_44a24c0c40ba8523→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_45b0bee82268f246→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_4b8ee2eb75eccbf7→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_4fd9d86bd822294a→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_52b57866e1be119b→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_58249bf63effc1cd→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_59369f4f97f83c1b→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_5a44f7cfaad3a3b8→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_5dff97c159c1b96b→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_60b576b84cbddcc8→specimen:mouse",
+   "source_mouse=provisional:mouse_estrousbank_61cd75cb79a46b43→specimen:mouse"
+  ]
+ },
+ {
+  "id": "afids-anatomical-fiducials",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "openmind",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "ivygap-radiomics",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "nih-chestxray14",
+  "status": "info HTTP 501"
+ },
+ {
+  "id": "parasitobank-2025",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "popsicle-cryoet-benchmark",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "synthstrip-dataset",
+  "status": "ok",
+  "mappable": [
+   "modality=flair→modality:magnetic resonance imaging",
+   "modality=pd→modality:magnetic resonance imaging",
+   "modality=t1→modality:magnetic resonance imaging",
+   "modality=t2→modality:magnetic resonance imaging",
+   "modality_full=PDw 3D-FLASH→modality:magnetic resonance imaging",
+   "modality_full=PDw MRI→modality:magnetic resonance imaging",
+   "modality_full=T1w 2D-FLASH→modality:magnetic resonance imaging",
+   "modality_full=T1w MPRAGE→modality:magnetic resonance imaging",
+   "modality_full=T1w MRI→modality:magnetic resonance imaging",
+   "modality_full=T2-FLAIR 2D-FSE→modality:magnetic resonance imaging",
+   "modality_full=T2w 2D-FSE→modality:magnetic resonance imaging",
+   "modality_full=T2w 3D-SPACE→modality:magnetic resonance imaging",
+   "modality_full=T2w MRI→modality:magnetic resonance imaging",
+   "modality_type=MRI→modality:magnetic resonance imaging"
+  ]
+ },
+ {
+  "id": "mri-pairedfield-four-field-strengths",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "mogambo-gynaecological-brachytherapy-mri",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "mu-glioma-post",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "soop-stroke",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "brats-tcga-segmentations",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "brats-africa",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "harris-2015-hippocampal-neuropil",
+  "status": "info HTTP 501"
+ },
+ {
+  "id": "rhuh-gbm",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "deepcell-brightfield-single-cells",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "nsclc-radiogenomics",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "ispy2",
+  "status": "info HTTP 500"
+ },
+ {
+  "id": "whoi-plankton",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "mslesseg-2024",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "vertebral-bodies-ct-labels",
+  "status": "info HTTP 500"
+ },
+ {
+  "id": "mitoem",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "isles-2015",
+  "status": "ok",
+  "mappable": [
+   "base_modality=FLAIR→modality:magnetic resonance imaging",
+   "modalities=T1c|T2|DWI|CBF|CBV|TTP|Tmax→modality:magnetic resonance imaging",
+   "modalities=T1|T2|DWI|FLAIR→modality:magnetic resonance imaging"
+  ]
+ },
+ {
+  "id": "mm-odir-129",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "nirschl-heart-failure-2018",
+  "status": "ok",
+  "mappable": [
+   "classes_to_idx={'not_chronic_heart_failure': 0, 'chronic_heart_failure': 1}→body_part:heart",
+   "domain=pathology→domain:pathology",
+   "label=chronic heart failure→body_part:heart",
+   "label=heart tissue pathology→body_part:heart",
+   "label=not chronic heart failure→body_part:heart",
+   "label_name=chronic_heart_failure→body_part:heart",
+   "label_name=not_chronic_heart_failure→body_part:heart",
+   "modality=light microscopy→modality:light microscopy",
+   "stain=H&E→stain:h&e",
+   "submodality=brightfield microscopy→modality:light microscopy",
+   "submodality=brightfield microscopy→submodality:brightfield microscopy"
+  ]
+ },
+ {
+  "id": "feltrin-brain-tumor-mri-44c",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "tompei-cmmd",
+  "status": "ok",
+  "mappable": [
+   "view=MLO→submodality:mammography"
+  ]
+ },
+ {
+  "id": "tom500-thyroid-eye-orbital-mri",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "csxa-cervical-spine-xray-atlas",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "busi",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "hcc-tace-seg",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "octmnist",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "nes-plankton-ifcb-2022",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "crcd",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "pituitary-tumor-carotid-mri",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "single-cell-cancer-vs-normal-fluorescence-hf",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "m4raw-abdomen",
+  "status": "ok",
+  "mappable": [
+   "contrast=T1→submodality:structural mri",
+   "contrast=T2→submodality:structural mri",
+   "contrast=T2→submodality:structural mri"
+  ]
+ },
+ {
+  "id": "qin-prostate-repeatability",
+  "status": "ok",
+  "mappable": [
+   "view=T2W→modality:magnetic resonance imaging",
+   "view=T2W→submodality:structural mri"
+  ]
+ },
+ {
+  "id": "lnq2023",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "tcga-breast-radiogenomics",
+  "status": "ok",
+  "mappable": [
+   "series_description=T1 Sagittal post fat sat→submodality:structural mri"
+  ]
+ },
+ {
+  "id": "harvard-fairfedmed-oph",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "ispy1-tumor-seg-radiomics",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "beamster",
+  "status": "ok",
+  "mappable": [
+   "primary_origin=Gastrointestinal tract→body_part:gastrointestinal tract"
+  ]
+ },
+ {
+  "id": "prostatex-seg-zones",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "nci-isbi-2013-prostate",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "ctpelvic1k",
+  "status": "ok",
+  "mappable": [
+   "modality=CT→modality:computed tomography"
+  ]
+ },
+ {
+  "id": "cryoet-jove-dl-training-data",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "dap-atlas",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "stimage-1k4m",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "medmnist-ct-subsets",
+  "status": "info HTTP 501"
+ },
+ {
+  "id": "brachiolab-chestx",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "skin-lesion-yolo-ham-7class-makh",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "cpath-e2e-preprocessed-patches",
+  "status": "info HTTP 500"
+ },
+ {
+  "id": "real-colon",
+  "status": "ok",
+  "mappable": [
+   "dataset_name=real_colon→body_part:colon"
+  ]
+ },
+ {
+  "id": "camelyon17",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "olives",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "plism",
+  "status": "ok",
+  "mappable": []
+ },
+ {
+  "id": "segthy",
+  "status": "ok",
+  "mappable": [
+   "modality=MRI→modality:magnetic resonance imaging",
+   "classes_present=thyroid→body_part:thyroid",
+   "config=mri_thyroid→body_part:thyroid",
+   "modality=MRI→modality:magnetic resonance imaging",
+   "classes_present=thyroid, carotid_left→body_part:thyroid",
+   "classes_present=thyroid, carotid_left, jugular_left→body_part:thyroid",
+   "classes_present=thyroid, carotid_right, jugular_right→body_part:thyroid",
+   "modality=US→modality:ultrasound imaging"
+  ]
+ },
+ {
+  "id": "topcon-mm-fddm",
+  "status": "ok",
+  "mappable": [
+   "label=fundus_images→modality:optical imaging",
+   "label=fundus_images→submodality:fundus photography",
+   "label=oct_images→modality:optical imaging",
+   "label=oct_images→submodality:optical coherence tomography"
+  ]
+ },
+ {
+  "id": "open-h-embodiment",
+  "status": "info HTTP 501"
+ }
+]
