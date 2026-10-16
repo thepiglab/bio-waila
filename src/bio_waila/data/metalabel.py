@@ -414,7 +414,7 @@ def cmd_apply(args):
                 for src, c, col in ev:
                     hits.setdefault(src, {})[c] = True
                 r = resolve(reg[f], [("dicom" if k == "dicom" else "meta" if k in ("csv", "json", "hf", "bids") else "path", v)
-                                     for k, v in hits.items()], f)
+                                     for k, v in hits.items()], f, labels=reg)
                 if f in ("body_part", "domain") and r["mode"] in ("hard", "multi") and len({c for _, c, _ in ev}) > 1 and reg[f]["mode"] != "hard":
                     # several metadata columns name different regions (e.g. chest + lung): MMBU treats these as multi-label
                     allowed = set(reg[f]["values"]) if reg[f]["mode"] == "candidates" else None

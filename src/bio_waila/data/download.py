@@ -44,7 +44,8 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from bio_waila.data.files import MEDIA_EXT, ext, is_mask, kind
+from bio_waila.data import zipcompat  # noqa: F401  (registers Deflate64 support in zipfile)
+from bio_waila.data.files import IMAGE_EXT, MEDIA_EXT, ext, is_mask, kind
 
 from bio_waila.paths import PLAN, RAW
 OVERSAMPLE = 1.4          # extra files to absorb unreadable files, masks that slipped through and dedup losses
@@ -282,13 +283,28 @@ def get_file(e: Entry, dest: Path):
         hdr = {**(e.headers or {}), **({"Range": f"bytes={have}-"} if have else {})}
         try:
             with S.get(e.url, auth=e.auth, headers=hdr, stream=True, timeout=120) as r:
+                if r.status_code == 416 and have:
+                    # nothing left to send: the previous attempt already received the whole body. (e.size cannot be
+                    # trusted for a Kaggle dataset zip: it is the dataset's totalBytes, not the bundle's size.)
+                    total = (getattr(r, "headers", None) or {}).get("Content-Range", "").rsplit("/", 1)[-1]
+                    if total.isdigit() and int(total) != have:
+                        tmp.unlink(missing_ok=True)  # stale partial file, not a prefix of this one: start over
+                        continue
+                    break
                 r.raise_for_status()
                 if have and r.status_code != 206:  # server ignored the Range: start over
                     have = 0
+                hd = getattr(r, "headers", None) or {}
+                clen = hd.get("Content-Length", "")
+                expect = have + int(clen) if clen.isdigit() and not hd.get("Content-Encoding") else None
                 with open(tmp, "ab" if have else "wb") as f:
                     for chunk in r.iter_content(1 << 20):
                         f.write(chunk)
-            if e.size < 0 or tmp.stat().st_size >= e.size:
+            got = tmp.stat().st_size
+            if expect is not None:
+                if got >= expect:
+                    break
+            elif e.size < 0 or got >= e.size:
                 break
         except (requests.exceptions.ChunkedEncodingError, requests.exceptions.ConnectionError) as ex:
             if attempt == 5:
@@ -456,8 +472,9 @@ _ARCH_GOOD = re.compile(r"(image|img|data|png|jpe?g|dicom|dcm|nii|raw|frame|phot
 
 
 def archive_rank(e):
-    """Prefer image archives; push model weights, code, results, annotation bundles and tiny (<5 MB) zips to the back."""
-    return (bool(_ARCH_BAD.search(e.name)), 0 <= e.size < 5 * 2**20, not _ARCH_GOOD.search(e.name), -max(e.size, 0))
+    """Prefer image archives (zips before tars: they can be sampled by range reads); push model weights, code, results, annotation bundles and tiny (<5 MB) zips to the back."""
+    return (bool(_ARCH_BAD.search(e.name)), 0 <= e.size < 5 * 2**20, not _ARCH_GOOD.search(e.name),
+            ext(e.name) != ".zip", -max(e.size, 0))  # zips first: range reads beat streaming a tar.gz from the start
 
 
 def meta_rank(e):
@@ -610,6 +627,17 @@ def fetch_hf(ref, dest: Path, want, seed, dry, log, budget=None):
         return want, min(total, want * 300_000), "hf-stream", [f"repo {total / 2**30:.1f} GB"]
     import datasets
     from PIL import Image
+    names = [s.rfilename.lower() for s in files]
+    raw_only = any(n.endswith((".h5", ".hdf5", ".zip", ".tar.gz", ".tgz", ".tar")) for n in names) \
+        and not any(n.endswith((".parquet", ".arrow")) or ext(n) in IMAGE_EXT for n in names)
+    if raw_only:
+        # repos of raw files: the HDF5 builder in `datasets` assumes one column layout per file and fails on other
+        # schemas (cetus-2014, zea format), and streaming a multi-GB archive (ispy2) is slow and gives nothing; use
+        # the shared sampler (zip range reads / tar stream / loose files) and let prepare.py open the files
+        entries = [Entry(s.rfilename, s.size or -1, f"https://huggingface.co/datasets/{ref}/resolve/main/{s.rfilename}",
+                         headers={"Authorization": f"Bearer {os.environ['HF_TOKEN']}"} if os.environ.get("HF_TOKEN") else {}) for s in files]
+        n, b, strat, notes = fetch_entries(entries, dest, want, budget or 50 * 2**30, seed, False, log)
+        return n, b, "hf-files:" + strat, notes + ["raw-file repo: no streaming"]
     try:
         try:
             dsd = datasets.load_dataset(ref, streaming=True)

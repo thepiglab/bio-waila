@@ -167,7 +167,15 @@
   "bvem": "HF repo lists no media files or archives; streaming needs an unavailable module (volume format); verification run 2026-10-08",
   "hela-nuclear-envelope-sbfsem-gt": "record lists no media files or archives (volumes only); verification run 2026-10-08",
   "isoorg-1k": "HF yanchaoz/* (EMNeuron/OrgMIM): data only in multi-GB RAR archives of EM volumes; nothing readable in sampled archives (verification 2026-10-08)",
-  "denspine-em": "HF pytc/DenSpineEM: volumes only (streaming needs an unavailable module); no 2D images (verification 2026-10-08)"
+  "denspine-em": "HF pytc/DenSpineEM: volumes only (streaming needs an unavailable module); no 2D images (verification 2026-10-08)",
+  "isic-clonal-sk": "unsupported host / manual download (ISIC archive API, collections 534/476)",
+  "biad2493-two-channel-tirf-colocalization": "unsupported host / manual download (BioStudies S-BIAD2493)",
+  "biad3061-gbeta1gamma2-tirf-mobility": "unsupported host / manual download (BioStudies S-BIAD3061)",
+  "gzmh-gland": "unsupported host / manual download (ScienceDB, doi 10.57760/sciencedb.37165)",
+  "hagen-2021-fluorescence-denoising": "unsupported host / manual download (GigaDB 100888)",
+  "pk-covid-cxr-3568": "unsupported host / manual download (Mendeley cmwn37pv98: no files via the public API)",
+  "ropdb-sfax-mendeley-2024": "unsupported host / manual download (Mendeley 29w6jd6tvs: no files via the public API)",
+  "tcga-coad-ct": "unsupported host / manual download (TCIA unsupported; collection timed out)"
  },
  "route": {
   "mitoem-2": {
@@ -651,9 +659,10 @@
   },
   "msd-task08-hepatic-vessel": {
    "body_part": {
-    "mode": "hard",
+    "mode": "multi",
     "values": [
-     "abdomen"
+     "abdomen",
+     "liver"
     ]
    }
   },
@@ -991,7 +1000,7 @@
    "stain": {
     "mode": "hard",
     "values": [
-     "may-gr\u00fcnwald-giemsa"
+     "may-grünwald-giemsa"
     ]
    }
   },
@@ -1000,7 +1009,7 @@
     "mode": "candidates",
     "values": [
      "giemsa",
-     "may-gr\u00fcnwald-giemsa",
+     "may-grünwald-giemsa",
      "wright-giemsa"
     ]
    }
@@ -2136,8 +2145,9 @@
   },
   "head-cta-intracranial-aneurysm-dicom-2025": {
    "body_part": {
-    "mode": "hard",
+    "mode": "multi",
     "values": [
+     "brain",
      "head and neck"
     ]
    }
@@ -2190,7 +2200,7 @@
     "mode": "candidates",
     "values": [
      "giemsa",
-     "may-gr\u00fcnwald-giemsa",
+     "may-grünwald-giemsa",
      "wright-giemsa"
     ]
    }
@@ -2233,6 +2243,24 @@
    "specimen": {
     "mode": "masked",
     "values": []
+   }
+  },
+  "rajbari-multiclass-fundus-2026": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "eye",
+     "retina"
+    ]
+   }
+  },
+  "mcfi-2026": {
+   "body_part": {
+    "mode": "multi",
+    "values": [
+     "eye",
+     "retina"
+    ]
    }
   }
  },

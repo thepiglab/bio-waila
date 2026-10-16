@@ -12,7 +12,7 @@ a disagreeing strong hit is recorded as a conflict instead, so bad registry entr
 """
 import re
 
-from bio_waila.data.vocab import canon_body_part, canon_stain
+from bio_waila.data.vocab import body_descendants, canon_body_part, canon_stain, is_body_refinement
 
 # field → [(regex on normalized text, value, strong?)]
 _R = {
@@ -100,13 +100,15 @@ _R = {
         (r"\b(rat|rats)\b", "rat", False),
         (r"\b(zebrafish|danio)\b", "zebrafish", True),
         (r"\b(zf)\b", "zebrafish", False),
-        (r"\b(jurkat|hela|cos ?7|u2os|l929|mcf ?7|sum ?159|hek ?293\w*|cell line)\b", "cell line", True),
+        # named cell lines carry their species (a "cell line" folder alone does not; see GENERIC_VALUES)
+        (r"\b(jurkat|hela|u ?2 ?os|mcf ?7|sum ?159|hek ?293\w*|a549|mda ?mb ?231|bt ?20|ht ?1080|rpe ?1|hacat|huvec|caco ?2|"
+         r"hepg2|k562|thp ?1|u ?87|shsy5y|sh ?sy5y)\b", "human", True),
+        (r"\b(l929|eph4|nih ?3t3|3t3|raw ?264|c2c12)\b", "mouse", True),
+        (r"\b(cell lines?)\b", "cell line", True),
         (r"\b(phantom)\b", "phantom", True),
         (r"\b(synthetic|simulated|simcep)\b", "synthetic", True),
         (r"\b(ex ?vivo (porcine|pig)|porcine|swine)\b", "pig", True),
-        (r"\b(u ?2 ?os|a549|mda ?mb ?231|bt ?20|ht ?1080|rpe ?1|hacat|huvec)\b", "cell line", True),
         (r"\b(cos ?7|vero)\b", "non-human primate", True),
-        (r"\b(eph4|nih ?3t3)\b", "mouse", True),
         (r"\b(c ?elegans|caenorhabditis)\b", "c. elegans", True),
         (r"\b(drosophila|fruit fly)\b", "drosophila", True),
         (r"\b(fly)\b", "drosophila", False),
@@ -150,8 +152,14 @@ BIDS = {s_: "structural mri" for s_ in ("t1w", "t2w", "flair", "pdw", "t2starw",
 BIDS_MRI_ONLY = {"mra", "dwi", "adc", "trace", "swi", "cbf", "cbv", "ttp", "tmax", "asl", "bold", "perf", "dsc"}  # MRI, not structural
 
 
+# names whose camelCase halves read as other words: "MemBrain" (cryo-ET membrane segmentation) is not "brain",
+# "HeLa" is not "he la"
+_PROTECT = re.compile(r"(?i)mem[\s_\-]?brain|hela")
+
+
 def normalize_text(s):
-    s = re.sub(r"([a-z])([A-Z])", r"\1 \2", str(s))  # LymphNode -> Lymph Node, OlfactoryBulb -> Olfactory Bulb
+    s = _PROTECT.sub(lambda m: re.sub(r"[\s_\-]", "", m.group(0)).lower(), str(s))  # before the camelCase split
+    s = re.sub(r"([a-z])([A-Z])", r"\1 \2", s)  # LymphNode -> Lymph Node, OlfactoryBulb -> Olfactory Bulb
     s = s.lower()
     return " " + re.sub(r"[^a-z0-9&]+", " ", s).strip() + " "
 
@@ -246,11 +254,33 @@ def bids_hits(path):
 SOURCE_CONF = {"dicom": 0.95, "meta": 0.9, "path": 0.85}
 
 
-def resolve(dataset_label, evidence, field):
+# generic values that never contradict a more specific registry value: "cell line" says nothing about the species
+GENERIC_VALUES = {"specimen": {"cell line"}, "submodality": {"conventional ct"}}  # the latter: a bare "CT" default
+CT_SUBMODALITIES = {"conventional ct", "spiral ct"}
+SKIN_SUBMODALITIES = {"dermoscopy", "clinical photography"}
+
+
+def is_skin_dataset(labels):
+    """Registry body part is skin (or unset for a dermoscopy / skin clinical-photography dataset). MMBU labels these
+    'skin'; per-image metadata names the lesion's anatomical site (face, thorax, lower limbs), which is not the body part."""
+    bp = (labels or {}).get("body_part", {})
+    if bp.get("values") == ["skin"]:
+        return True
+    sub = (labels or {}).get("submodality", {})
+    return not bp.get("values") and bool(sub.get("values")) and set(sub["values"]) <= SKIN_SUBMODALITIES
+
+
+def resolve(dataset_label, evidence, field, labels=None):
     """Combine the registry's dataset-level label with per-image evidence for one field.
 
-    evidence: list of (source, {value: strong?}). Returns
-      {"mode", "values", "source", "confidence", "conflict"?}
+    evidence: list of (source, {value: strong?}). `labels` (all fields of the dataset) enables dataset-type rules.
+    Returns {"mode", "values", "source", "confidence", "conflict"?}
+
+    Hard registry label and a strong disagreeing hit:
+      · the hit is a more specific body part of the registry value (retina in eye, liver in abdomen): not a conflict,
+        both values are kept (mode "multi");
+      · a generic value ("cell line" vs a species) or, for skin datasets, an anatomical site: ignored;
+      · anything else is logged as a conflict.
     """
     mode, vals = dataset_label["mode"], dataset_label["values"]
     out = {"mode": mode, "values": vals, "source": "registry", "confidence": 1.0 if mode in ("hard", "multi") else 0.0}
@@ -258,8 +288,17 @@ def resolve(dataset_label, evidence, field):
         return out
     ranked = sorted(evidence, key=lambda e: -SOURCE_CONF[e[0]])
     if mode == "hard":
+        if field == "body_part" and is_skin_dataset(labels):
+            return out
         for src, hits in ranked:
             strong_other = [v for v, s in hits.items() if s and v not in vals]
+            if field == "body_part":
+                refine = [v for v in strong_other if is_body_refinement(v, vals)]
+                if refine and not set(hits) & set(vals):
+                    return {"mode": "multi", "values": sorted(set(vals) | set(refine)), "source": src,
+                            "confidence": SOURCE_CONF[src] - 0.1}
+            strong_other = [v for v in strong_other if v not in GENERIC_VALUES.get(field, ())
+                            or (field == "submodality" and not set(vals) <= CT_SUBMODALITIES)]
             if strong_other and not set(hits) & set(vals):
                 out["conflict"] = f"{src}:{strong_other[0]}"
                 break
@@ -287,7 +326,8 @@ FIELD_COLUMNS = {
     "specimen": r"specie|organism|specimen|animal|host|strain|model.?organism",
     "submodality": r"sequence|protocol|series.?desc|contrast|weighting|view|acqui|exam|submodal|scan.?type",
 }  # order matters: first match wins ("BodyPartExamined" is body_part, not an exam type)
-_FIELD_COL_RX = {f: re.compile(rx, re.I) for f, rx in FIELD_COLUMNS.items()}
+# a keyword must start a word of the column name ("preview_slice" is not a "view" column, "Acquisition" is)
+_FIELD_COL_RX = {f: re.compile(rx if rx.startswith("(?<![a-z])") else "(?<![a-z])(?:" + rx + ")", re.I) for f, rx in FIELD_COLUMNS.items()}
 # exact short codes that are only trusted inside a column of the right field (or a DICOM tag)
 CODES = {
     "modality": {"ct": "computed tomography", "mr": "magnetic resonance imaging", "mri": "magnetic resonance imaging",
@@ -332,12 +372,16 @@ def field_of_column(col):
 
 
 # columns that never carry Pass-2 metadata, however their values read (dates, ids, diagnoses, free text)
-SKIP_COLUMN = re.compile(r"(date|time|year|_id$|^id$|uuid|hash|path|file|url|note|comment|caption|diagnos|disease|"
+SKIP_COLUMN = re.compile(r"_id$|(?<![a-z])(date|time|year|^id$|uuid|hash|path|file|url|note|comment|caption|diagnos|disease|"
                          r"etiolog|lineage|histolog|grade|stage|finding|report|question|answer|prompt|common.?name|"
                          r"scientific|taxon|genus|family|order|origin|primary|metast|habit|smok|tobacco|device|model|manufacturer|vendor|dx.?type|"
                          r"folder|\bdir\b|directory)", re.I)
 _DATE = re.compile(r"\b\d{1,4}[-/ .](jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|\d{1,2})[a-z]*[-/ .]\d{2,4}\b", re.I)
 _IDLIKE = re.compile(r"^[a-z]{0,8}[_-]?\d{3,}([_-]\w+)?$", re.I)
+
+
+# values a bare "CT"/"MR" token would imply: a column that says only "CT" does not say conventional rather than spiral
+GENERIC_DEFAULTS = {("submodality", "conventional ct")}
 
 
 def match_value(value, column, classes):
@@ -346,7 +390,7 @@ def match_value(value, column, classes):
     if not v or v in ("nan", "none", "null", "unknown", "n/a", "na", "-", "?") or len(v) > 200:
         return {}
     col_name = re.sub(r"^(csv|json|hf|dicom|bids|path):([^:]*:)?", "", str(column))
-    if SKIP_COLUMN.search(col_name) and not str(column).startswith("dicom:") or _DATE.search(v) or _IDLIKE.match(v):
+    if SKIP_COLUMN.search(re.sub(r"([a-z])([A-Z])", r"\1 \2", col_name)) and not str(column).startswith("dicom:") or _DATE.search(v) or _IDLIKE.match(v):
         return {}
     ctx = field_of_column(column)
     free_text = len(v.split()) > 5
@@ -375,7 +419,7 @@ def match_value(value, column, classes):
         if f in out:
             continue
         in_ctx = f == ctx or (ctx in ("modality", "submodality") and f in ("modality", "submodality"))
-        strong = [k for k, s in hits.items() if s or in_ctx]
+        strong = [k for k, s in hits.items() if s or (in_ctx and (f, k) not in GENERIC_DEFAULTS)]
         if len(strong) == 1:
             out[f] = (strong[0], True)
         elif len(hits) == 1 and ctx is None:

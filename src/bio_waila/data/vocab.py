@@ -66,6 +66,65 @@ def canon_body_part(s):
     return None if s is None or s in NULL_VALUES else s
 
 
+# Body-part hierarchy for label resolution: parent → more specific parts (docs/data/label_rules.json: hierarchy_pairs
+# eye>retina, chest>lung, brain>cerebrum, lung>lung tissue, and the anatomical families, split into parent/child).
+# Evidence that names a child of the registry's value is a refinement, not a conflict.
+BODY_CHILDREN = {
+    "eye": {"retina", "cornea", "macula", "pupil", "eyelid", "optic disc", "anterior segment"},
+    "head": {"brain", "cerebrum", "face", "ear", "nose", "oral cavity", "teeth", "eye", "retina", "cornea", "eyelid"},
+    "head and neck": {"head", "neck", "brain", "cerebrum", "face", "ear", "nose", "larynx", "oral cavity", "teeth", "thyroid",
+                      "eye", "retina", "cornea", "eyelid"},
+    "brain": {"cerebrum"},
+    "chest": {"lung", "lung tissue", "lower respiratory tract", "heart"},
+    "thorax": {"lung", "lung tissue", "lower respiratory tract", "heart", "chest"},
+    "lung": {"lung tissue"},
+    "abdomen": {"liver", "pancreas", "gallbladder", "kidney", "spleen", "abdominal organs", "retroperitoneum", "stomach",
+                "small intestine", "colon"},
+    "abdominal organs": {"liver", "pancreas", "gallbladder", "kidney", "spleen"},
+    "thoracoabdominal region": {"chest", "thorax", "lung", "heart", "liver", "abdomen", "kidney", "spleen"},
+    "gastrointestinal tract": {"esophagus", "stomach", "small intestine", "colon", "rectum", "appendix", "colon tissue",
+                               "upper gastrointestinal tract"},
+    "upper gastrointestinal tract": {"esophagus", "stomach"},
+    "colon": {"colon tissue"},
+    "pelvis": {"prostate", "bladder", "uterus", "ovary", "cervix", "rectum", "male genitourinary system",
+               "genitourinary system", "reproductive system"},
+    "genitourinary system": {"kidney", "bladder", "prostate", "male genitourinary system"},
+    "reproductive system": {"uterus", "ovary", "cervix", "prostate"},
+    "upper limbs": {"hand", "wrist", "elbow", "shoulder"},
+    "lower limbs": {"foot", "ankle", "knee", "hip"},
+    "skeletal system": {"bone", "appendicular skeleton", "axial skeleton", "spine", "knee", "shoulder", "elbow", "hip",
+                        "wrist", "hand", "foot", "ankle", "upper limbs", "lower limbs"},
+    "appendicular skeleton": {"upper limbs", "lower limbs", "knee", "shoulder", "elbow", "hip", "wrist", "hand", "foot", "ankle"},
+    "axial skeleton": {"spine"},
+    "musculoskeletal system": {"bone", "muscle", "soft tissue", "spine", "knee", "shoulder", "elbow", "hip", "wrist", "hand",
+                               "foot", "ankle", "skeletal system", "appendicular skeleton", "axial skeleton"},
+    "blood": {"blood cells", "white blood cells", "red blood cells"},
+    "blood cells": {"white blood cells", "red blood cells", "lymphocytes", "neutrophils", "eosinophils", "monocytes"},
+    "white blood cells": {"lymphocytes", "neutrophils", "eosinophils", "monocytes"},
+    "heart": {"coronary arteries"},
+    "breast": {"breast tissue"},
+    "cells": {"epithelial cells", "sperm cells", "blood cells", "white blood cells", "red blood cells"},
+    "tissue": {"adipose tissue", "breast tissue", "lung tissue", "colon tissue", "soft tissue", "glandular epithelium"},
+    "whole body": set(),
+}
+
+
+def body_descendants(parent):
+    """All more specific body parts under `parent` (transitive); empty for leaves and unknown values."""
+    seen, todo = set(), [parent]
+    while todo:
+        for c in BODY_CHILDREN.get(todo.pop(), ()):
+            if c not in seen and c != parent:
+                seen.add(c)
+                todo.append(c)
+    return seen
+
+
+def is_body_refinement(value, registry_values):
+    """True when `value` is a (transitive) child of one of the registry's body-part values."""
+    return any(value in body_descendants(r) for r in registry_values)
+
+
 _STAIN_RULES = [  # (regex, canonical); first match wins. Order matters (wright before giemsa).
     (r"^(h&e|he|hes|hematoxylin and eosin.*|haematoxylin and eosin.*)$", "h&e"),
     (r"(ihc|immunohisto|^dab$|^her2$|^ki-?67$|^p53$|^cd\d+|^pr$|^er$)", "ihc"),

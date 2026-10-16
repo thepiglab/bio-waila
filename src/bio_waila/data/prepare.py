@@ -29,10 +29,7 @@ import tarfile
 import warnings
 import zipfile
 
-try:  # registers deflate64 support in zipfile when installed
-    import zipfile_deflate64  # noqa: F401
-except ImportError:
-    pass
+from bio_waila.data import zipcompat  # noqa: F401  (registers Deflate64 support in zipfile)
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -283,10 +280,40 @@ def read_volume(p):
         yield to_pil(s), loc, {}
 
 
+_H5_SKIP = re.compile(r"segment|mask|label|coordinat|annotat|metadata|metric|weight|probe", re.I)
+
+
+def load_h5_image(p):
+    """The image array of an HDF5 file: the largest numeric dataset outside segmentation/coordinate/metadata groups
+    (zea-format volumes keep it at tracks/track_0/data/image/values with a leading singleton axis)."""
+    import h5py
+    try:
+        import hdf5plugin  # noqa: F401  (registers the Blosc/Zstd/LZ4 filters)
+    except ImportError:
+        pass
+    best = []
+    with h5py.File(p, "r") as f:
+        def visit(name, obj):
+            if isinstance(obj, h5py.Dataset) and obj.ndim >= 2 and obj.dtype.kind in "uif" and not _H5_SKIP.search(name):
+                best.append((int(np.prod(obj.shape)) * (2 if "image" in name.lower() else 1), name))
+        f.visititems(visit)
+        if not best:
+            return None
+        a = np.asarray(f[max(best)[1]])
+    while a.ndim > 3 and a.shape[0] == 1:
+        a = a[0]
+    return a
+
+
 def read_array(p):
-    a = np.load(p, allow_pickle=False)
-    if isinstance(a, np.lib.npyio.NpzFile):
-        a = a[a.files[0]]
+    if Path(p).suffix.lower() in (".h5", ".hdf5"):
+        a = load_h5_image(p)
+        if a is None:
+            return
+    else:
+        a = np.load(p, allow_pickle=False)
+        if isinstance(a, np.lib.npyio.NpzFile):
+            a = a[a.files[0]]
     if a.ndim < 2:
         return  # label vectors (y_*.npy) are not images
     if a.ndim == 2 or (a.ndim == 3 and a.shape[-1] in (1, 3, 4)):
@@ -349,11 +376,13 @@ def extract_archives(root: Path):
         try:
             if zipfile.is_zipfile(a):
                 with zipfile.ZipFile(a) as z:
-                    for m in z.infolist():
-                        if m.is_dir() or ".." in m.filename or m.filename.startswith("/"):
-                            continue
-                        if kind(m.filename) in ("image", "volume", "video", "wsi", "array", "meta", "other"):
+                    want = [m for m in z.infolist() if not m.is_dir() and ".." not in m.filename and not m.filename.startswith("/")
+                            and kind(m.filename) in ("image", "volume", "video", "wsi", "array", "meta", "other")]
+                    try:
+                        for m in want:
                             z.extract(m, dest)
+                    except NotImplementedError:  # a method zipfile cannot read (PPMd, ...): use the 7-Zip CLI
+                        zipcompat.extract_7z(a, dest, [m.filename for m in want])
             elif tarfile.is_tarfile(a):
                 with tarfile.open(a) as t:
                     t.extractall(dest, filter="data")
@@ -521,7 +550,7 @@ def prepare_dataset(row, raw: Path, out: Path, body_classes, pub, seed):
                              "confidence": ml[f"{f}_conf"], "conflict": ml[f"{f}_conflict"]}
                         rec[f"{f}_evidence"] = ml.get(f"{f}_evidence", "")
                     else:
-                        r = resolve(row["labels"][f], [(s_, e[f]) for s_, e in ev if f in e], f)
+                        r = resolve(row["labels"][f], [(s_, e[f]) for s_, e in ev if f in e], f, labels=row["labels"])
                         rec[f"{f}_evidence"] = ""
                     rec[f"{f}_mode"], rec[f"{f}_values"] = r["mode"], r["values"]
                     rec[f"{f}_source"], rec[f"{f}_conf"] = r["source"], r["confidence"]
