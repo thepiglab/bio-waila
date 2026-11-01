@@ -561,3 +561,49 @@ def test_prefetch_systemone_downloads_whole_repo(zoo_world):
     calls.clear()
     zoo.prefetch(None, reg, fetch=fetch)
     assert list(calls) == ["o/g"]                                      # disabled: only fetched when named
+
+
+class FakeD1Model:
+    """Stands in for a d1 checkpoint: `system_one_batch` over (None, {field: choice question}, [image]) requests."""
+
+    def __init__(self):
+        self.requests = []
+
+    def system_one_batch(self, reqs):
+        self.requests += reqs
+        out = []
+        for _, qs, (im,) in reqs:
+            mod, sub, bps, stain, dom, _ = KINDS[_idx(im) % 3]
+            truth = {"modality": mod, "submodality": sub, "body_part": bps[0], "stain": stain or "h&e",
+                     "specimen": "human", "domain": dom[0]}
+            ans = {}
+            for name, q in qs.items():
+                f = {v: k for k, v in jev_gemma.QUESTION.items()}[q["instructions"]]
+                names = list(q["criteria"])
+                pr = {n: (0.9 if n == truth[f] else 0.1 / max(1, len(names) - 1)) for n in names}
+                ans[name] = {"choice": truth[f], "confidence": 0.9, "probabilities": pr}
+            out.append({"answers": ans})
+        return out
+
+
+def _d1(model):
+    from bio_waila.models.zoo_models import D1Scorer
+    sc = D1Scorer.__new__(D1Scorer)
+    sc.model, sc.n_params = model, 1.9
+    return sc
+
+
+def test_d1_asks_all_fields_in_one_request_with_every_class(zoo_world):
+    m = FakeD1Model()
+    res = zoo.run_model(entry("d1", "decision", readout="d1"), backend=_d1(m), out_root=zoo_world / "zoo")
+    assert res["C"] == pytest.approx(1.0) and res["zoo"]["k_max"] is None
+    assert len(m.requests) == res["n_images"]                       # one request per image, every annotated field in it
+    space = LabelSpace.load()
+    for _, qs, _ in m.requests:
+        assert len(qs) > 1 and all(len(q["criteria"]) == space.n(f) for f, q in qs.items())   # no tournament
+
+
+def test_d1_with_k_max_falls_back_to_tournaments(zoo_world):
+    m = FakeD1Model()
+    zoo.run_model(entry("d1k", "decision", readout="d1", k_max=12), backend=_d1(m), out_root=zoo_world / "zoo")
+    assert all(len(qs) == 1 and len(next(iter(qs.values()))["criteria"]) <= 12 for _, qs, _ in m.requests)

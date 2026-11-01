@@ -3,11 +3,14 @@
     uv run waila-train-jev --config configs/jev_gemma4_e4b.yaml --fold 0
     accelerate launch -m bio_waila.train.train_jev --config configs/jev_gemma4_e4b.yaml --fold 0      # multi-GPU
     uv run waila-train-jev --config configs/jev_gemma4_e4b.yaml --set train.formulation=F3        # progressive
+    uv run waila-train-jev --config configs/jev_gemma4_e4b.yaml --set train.formulation=F4        # packed, shared image
     uv run waila-train-jev --config configs/jev_gemma4_e4b.yaml --set train.epochs=0              # stock model only
 
 One training example is (image, field): the fields of each image are expanded into separate prompts (F2 = the
 independent formulation; it is mathematically the packed-F2 of experiment_plan.md at higher cost). F3 adds the
-earlier fields' gold answers as context with dropout. Evaluation runs every class of every field (tournament for
+earlier fields' gold answers as context with dropout. F4 (models/jev_packed.py) makes the example the image: all
+of its labelled fields are question blocks over one shared image prefix, one forward per image; with
+`train.bidirectional` the global layers attend both ways inside each block (the mammoth-1 mask). Evaluation runs every class of every field (tournament for
 fields with more than k_max classes) on up to `eval_per_dataset` images per held-out/val dataset, fits per-field
 temperatures on val, and reports with the shared metrics.
 """
@@ -22,7 +25,7 @@ from PIL import Image
 from bio_waila.data.manifest import load_manifest
 from bio_waila.eval.metrics import all_metrics, fit_temperature
 from bio_waila.models.jev_gemma import (ORDER, build_prompt, choose_options, field_logprobs, gold_context, letter_loss,
-                                    make_backend, option_target)
+                                    make_backend, option_target, packed_fields_logprobs)
 from bio_waila.paths import PREP
 from bio_waila.train.common import JsonlLog, cosine_lr, load_config, save_json, seed_all
 from bio_waila.train.folds import load_or_make_folds, split
@@ -55,27 +58,39 @@ class JevExamples(torch.utils.data.Dataset):
         rng = random.Random(int(self.seeds[i]))
         e = self.enc[r]
         fields = [f for f in self.space.fields if e[f][0] != MASKED] or [self.space.fields[0]]
-        f = rng.choices(fields, weights=[self.field_w[x] for x in fields])[0]
-        mode, vec = e[f]
-        opts = choose_options(self.space.n(f), vec, mode, k_max=self.cfg.get("k_max", 20), rng=rng, train=True)
-        lmode, tgt = option_target(vec, mode, opts)
-        ctx = (gold_context(e, self.space, f, self.cfg.get("context_dropout", 0.3), rng)
-               if self.cfg.get("formulation", "F2") == "F3" else None)
-        prompt = build_prompt(f, [self.space.classes[f][j] for j in opts], ctx)
+        if self.cfg.get("formulation", "F2") == "F4":
+            qs = [self._question(e, f, rng) for f in fields]
+            lmodes = [q[2] for q in qs]
+        else:
+            qs = [self._question(e, rng.choices(fields, weights=[self.field_w[x] for x in fields])[0], rng)]
+            lmodes = [qs[0][2]]
         try:
             im = Image.open(self.root / self.df.at[r, "image"]).convert("RGB")
             im.thumbnail((self.max_side, self.max_side))
         except Exception:
-            im, lmode = Image.new("RGB", (64, 64)), MASKED
-        k = self.cfg.get("k_max", 20)
+            im, lmodes = Image.new("RGB", (64, 64)), [MASKED] * len(qs)
+        return im, [q[0] for q in qs], [q[1] for q in qs], lmodes, [q[3] for q in qs]
+
+    def _question(self, e, f, rng):
+        mode, vec = e[f]
+        ab = bool(self.cfg.get("abstain", False))
+        opts = choose_options(self.space.n(f), vec, mode, k_max=self.cfg.get("k_max", 20), rng=rng, train=True,
+                              absent_p=self.cfg.get("absent_p", 0.0) if ab else 0.0)
+        lmode, tgt = option_target(vec, mode, opts, abstain=ab)
+        ctx = (gold_context(e, self.space, f, self.cfg.get("context_dropout", 0.3), rng)
+               if self.cfg.get("formulation", "F2") == "F3" else None)
+        prompt = build_prompt(f, [self.space.classes[f][j] for j in opts], ctx, abstain=ab,
+                              rng=rng if self.cfg.get("paraphrase", False) else None)
+        k = self.cfg.get("k_max", 20) + ab
         pad = np.zeros(k, np.float32)
         pad[: len(tgt)] = tgt
-        return im, prompt, len(opts), lmode, pad
+        return prompt, len(tgt), lmode, pad
 
 
 def collate(b):
-    return [x[0] for x in b], [x[1] for x in b], torch.tensor([x[2] for x in b]), torch.tensor([x[3] for x in b]), \
-        torch.from_numpy(np.stack([x[4] for x in b]))
+    """images, prompt lists (one list per image) and the flattened per-question tensors (nopt, modes, targets)."""
+    return [x[0] for x in b], [x[1] for x in b], torch.tensor([n for x in b for n in x[2]]), \
+        torch.tensor([m for x in b for m in x[3]]), torch.from_numpy(np.stack([t for x in b for t in x[4]]))
 
 
 def eval_subset(df, per_dataset, seed=0):
@@ -93,6 +108,7 @@ def evaluate(backend, df, root, space, cfg, temps=None, bs=8):
     backend.eval()
     enc = [space.encode(r) for r in df.to_dict("records")]
     L = {f: [] for f in space.fields}
+    packed = cfg.get("formulation", "F2") == "F4"
     for s in range(0, len(df), bs):
         ims = []
         for p in df["image"].iloc[s:s + bs]:
@@ -100,9 +116,16 @@ def evaluate(backend, df, root, space, cfg, temps=None, bs=8):
             im.thumbnail((cfg.get("max_side", 512),) * 2)
             ims.append(im)
         ctx = [dict() for _ in ims]
+        if packed:
+            lps = packed_fields_logprobs(backend, ims, list(space.fields), space, k_max=cfg.get("k_max", 20),
+                                         abstain=bool(cfg.get("abstain", False)),
+                                         bidirectional=bool(cfg.get("bidirectional", False)))
+            for f in space.fields:
+                L[f].append(lps[f])
+            continue
         for f in [f for f in ORDER if f in space.fields]:
             lp = field_logprobs(backend, ims, f, space, ctx if cfg.get("formulation", "F2") == "F3" else None,
-                                k_max=cfg.get("k_max", 20))
+                                k_max=cfg.get("k_max", 20), abstain=bool(cfg.get("abstain", False)))
             L[f].append(lp)
             for b in range(len(ims)):
                 ctx[b][f] = space.classes[f][int(lp[b].argmax())]
@@ -133,7 +156,9 @@ def main(argv=None):
     cfg = load_config(a.config, a.set)
     tc, d = cfg["train"], cfg["data"]
     from accelerate import Accelerator
-    acc = Accelerator(mixed_precision="no", gradient_accumulation_steps=tc.get("grad_accum", 1))  # weights already bf16
+    # "no" for LoRA on bf16 weights; full FT loads fp32 weights (model.dtype: float32) and trains under bf16 autocast,
+    # since bf16 weights cannot absorb updates at LR ~3e-6
+    acc = Accelerator(mixed_precision=tc.get("mixed_precision", "no"), gradient_accumulation_steps=tc.get("grad_accum", 1))
     seed_all(tc.get("seed", 0))
     fold = a.fold if a.fold is not None else d.get("fold", 0)
     out = Path(a.out or cfg.get("out", "runs/jev_e4b")) / f"{tc.get('formulation', 'F2')}_fold{fold}"
@@ -160,7 +185,8 @@ def main(argv=None):
         ds = JevExamples(train, root, space, tc, n, seed=tc.get("seed", 0), sampler_cfg=cfg.get("sampler"))
         loader = torch.utils.data.DataLoader(ds, num_workers=tc.get("workers", 4), collate_fn=collate,
                                              batch_sampler=RankSlicedBatches(n, gb, acc.process_index, acc.num_processes))
-        opt = torch.optim.AdamW(trainable, lr=tc.get("lr", 1e-4), weight_decay=tc.get("wd", 0.0))
+        opt = torch.optim.AdamW(trainable, lr=tc.get("lr", 1e-4), weight_decay=tc.get("wd", 0.0),
+                                betas=tuple(tc.get("betas", (0.9, 0.999))))
         backend, opt = acc.prepare(backend, opt)
         log(event="sampler", global_batch=gb, per_gpu=gb // acc.num_processes, grad_accum=tc.get("grad_accum", 1), examples=n)
         total = len(loader) // tc.get("grad_accum", 1)
@@ -168,11 +194,15 @@ def main(argv=None):
         backend.train()
         for it, (ims, prompts, nopt, modes, tgts) in enumerate(loader):
             with acc.accumulate(backend):
-                lp = acc.unwrap_model(backend).letter_logits(ims, prompts)        # [B, 26]
+                bk = acc.unwrap_model(backend)
+                lp = (bk.packed_letter_logits(ims, prompts, bidirectional=bool(tc.get("bidirectional", False)))
+                      if tc.get("formulation", "F2") == "F4"
+                      else bk.letter_logits(ims, [p for ps in prompts for p in ps]))       # [questions, 26]
                 k = tgts.shape[1]
                 lp = lp[:, :k].masked_fill(torch.arange(k, device=lp.device)[None] >= nopt[:, None].to(lp.device), -1e4)
                 lp = torch.log_softmax(lp, -1)
-                loss = letter_loss(lp, modes.to(lp.device), tgts.to(lp.device), smoothing=tc.get("label_smoothing", 0.0))
+                loss = letter_loss(lp, modes.to(lp.device), tgts.to(lp.device), smoothing=tc.get("label_smoothing", 0.0),
+                                   brier=tc.get("brier", 0.0))
                 acc.backward(loss)
                 if acc.sync_gradients:
                     for g in opt.param_groups:

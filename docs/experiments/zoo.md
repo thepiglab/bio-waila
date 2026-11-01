@@ -18,6 +18,9 @@ Every run is logged in `plan/public_looks.jsonl` as `zoo:<slug>`.
 Cluster: `bash slurm/zoo_eval.sbatch submit [LIMIT]` submits `slurm/zoo_prefetch.sbatch` (CPU), then one GPU job per enabled model
 (own `--mem` / `--gpus` from the registry, `afterok` the prefetch), then a CPU leaderboard job (`afterany` all of them). Only the
 per-model evaluation uses a GPU. `sbatch --array=0-N slurm/zoo_eval.sbatch` also works (task i = i-th enabled model).
+`MODELS=a,b bash slurm/zoo_eval.sbatch submit [LIMIT]` runs the same chain for those slugs only (unknown or disabled slugs stop
+the submit). `bash slurm/zoo_lfm3.sh [LIMIT]` is the LFM3 comparison (d1-2B, plus LFM3-VL-2B against Gemma-4-E2B and
+LFM2.5-VL-3B; d1-3B is not rerun, since d1-2B replaces it; `docs/models/lfm3.md` §4); it first checks that the venv has transformers >= 5.19.
 
 Outputs per model, in `runs/zoo/<slug>/`: `public_metrics.json` (the standard report plus a `zoo` block: mode, parameters in
 billions, seconds per image, unmapped / unknown rates, per-field mapping counts), `public_predictions.parquet` (per image and field:
@@ -74,6 +77,10 @@ log-probabilities: the multi-label sigmoid in `eval/metrics.py` therefore report
 returning `{"answers": {name: {"choice", "confidence", "probabilities"}}}` (needs `trust_remote_code`; transformers >= 5.14 / 5.15). The image
 is the whole state (`None`), the options are the class names (description = name), and `probabilities` become the log-probs. d1 has no
 26-option limit, so all classes go in one question unless the entry sets `k_max` (then the same tournament is used).
+Without a `k_max`, `D1Scorer.score_rows` asks **all annotated fields of an image in one request**, each as a named `choice`
+question over every class: d1-2B packs a state's questions after it (`d1_attention: set`, up to 16), which is how it was trained.
+(Fixed 2026-10-27: the runner used to pass `k_max = 26` to every decision backend, so d1 ran tournaments on body part and
+submodality although the registry set none.) d1-2B (LFM3-based) needs transformers >= 5.19.
 
 ## Registry (`configs/zoo.yaml`)
 
@@ -82,8 +89,8 @@ Keys: `slug`, `hf_id`, `mode`, `readout` (letters | d1), `backend` (systemone), 
 unknown keys, duplicate slugs, bad modes, `k_max` above 26, and Chinese-origin / Qwen-family ids (project policy).
 
 * **Generative, enabled:** MedGemma 4B, 1.5-4B, 27B (gated, auto-approved: accept the terms on the model page with the token's
-  account before `prefetch`), Gemma 4 E2B / E4B / 12B / 26B-A4B, LFM2.5-VL 1.6B / 3B, Ministral-3-3B, Mistral-Small-3.2-24B, SmolVLM2-2.2B.
-* **Decision, enabled:** stock Gemma 4 E4B / 12B / 26B-A4B (the letter-readout baseline), Liquid d1-3B and d1-omni-600M, Xor-26B-A4B,
+  account before `prefetch`), Gemma 4 E2B / E4B / 12B / 26B-A4B, LFM2.5-VL 1.6B / 3B, LFM3-VL-2B (remote code, thinking off), Ministral-3-3B, Mistral-Small-3.2-24B, SmolVLM2-2.2B.
+* **Decision, enabled:** stock Gemma 4 E4B / 12B / 26B-A4B (the letter-readout baseline), Liquid d1-2B, d1-3B and d1-omni-600M, Xor-26B-A4B,
   GEV-26B-Decide, the AJev 12B LoRA (on Gemma 4 12B), Torchcast decision 12B (cc-by-nc-4.0: evaluation only), Jev-Omni,
   Quyet-1.0-Large (31B). Several of these ship their own decision heads or calibration; the stock LM letter readout used here
   ignores those, so their numbers can understate them.

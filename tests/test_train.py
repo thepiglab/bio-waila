@@ -179,6 +179,27 @@ def test_jev_options_prompt_and_loss():
     assert torch.isfinite(l) and l.item() < 0.5
 
 
+def test_jev_abstain_brier_and_paraphrase():
+    import random as _r
+    from bio_waila.models.jev_gemma import ABSTAIN, QUESTION, build_prompt, choose_options, letter_loss, option_target
+    vec = np.zeros(8, np.float32)
+    vec[3] = 1
+    opts = choose_options(8, vec, HARD, k_max=20, rng=_r.Random(0), train=True, absent_p=1.0)
+    assert 3 not in opts and len(opts) == 7
+    mode, t = option_target(vec, HARD, opts, abstain=True)
+    assert mode == HARD and t[-1] == 1 and t.sum() == 1 and len(t) == 8
+    mode, t = option_target(vec, HARD, list(range(8)), abstain=True)
+    assert t[3] == 1 and t[-1] == 0
+    assert option_target(vec, MASKED, opts, abstain=True)[0] == MASKED
+    p = build_prompt("stain", ["H&E", "PAS"], abstain=True)
+    assert f"C. {ABSTAIN}" in p and QUESTION["stain"] in p
+    assert any(QUESTION["stain"] not in build_prompt("stain", ["H&E"], rng=_r.Random(i)) for i in range(10))
+    logp = torch.log_softmax(torch.tensor([[2.0, 0.0, -1e4], [0.0, 2.0, -1e4]]), -1)
+    m, y = torch.tensor([HARD, CAND]), torch.tensor([[1.0, 0, 0], [1.0, 1.0, 0]])
+    ce, cb = letter_loss(logp, m, y), letter_loss(logp, m, y, brier=1.0)
+    assert cb > ce and (cb - ce).item() < 0.1     # Brier adds a small, bounded term on confident right answers
+
+
 def test_jev_tournament_covers_every_class():
     from PIL import Image
     from bio_waila.models.jev_gemma import FakeBackend, field_logprobs
@@ -208,12 +229,43 @@ def test_train_jev_fake_backend_end_to_end(world):
                     "folds_k": 3},
            "model": {"kind": "fake"},
            "train": {"batch": 8, "workers": 0, "epochs": 1, "examples_per_epoch": 160, "lr": 5e-2, "k_max": 3,
-                     "formulation": "F3", "eval_per_dataset": 3, "log_every": 5}}
+                     "formulation": "F3", "eval_per_dataset": 3, "log_every": 5,
+                     "brier": 1.0, "abstain": True, "absent_p": 0.2, "paraphrase": True}}
     p = world / "jev.yaml"
     p.write_text(yaml.safe_dump(cfg))
     rep = train_jev.main(["--config", str(p), "--fold", "0"])
     assert "val" in rep and "heldout" in rep and set(rep["temperatures"]) == set(SPACE)
     assert (world / "runs_jev" / "F3_fold0" / "metrics.json").exists()
+
+
+def test_train_jev_f4_packed_fake_backend(world):
+    import yaml
+    from bio_waila.train import train_jev
+    cfg = {"out": str(world / "runs_jev4"),
+           "data": {"manifest": str(world / "prep" / "manifest.parquet"), "image_root": str(world / "prep"),
+                    "label_space": str(world / "plan" / "label_space.json"), "folds_path": str(world / "plan" / "folds.json"),
+                    "folds_k": 3},
+           "model": {"kind": "fake"},
+           "train": {"batch": 4, "workers": 0, "epochs": 1, "examples_per_epoch": 40, "lr": 5e-2, "k_max": 3,
+                     "formulation": "F4", "eval_per_dataset": 3, "log_every": 5, "brier": 1.0, "abstain": True,
+                     "absent_p": 0.2}}
+    p = world / "jev4.yaml"
+    p.write_text(yaml.safe_dump(cfg))
+    rep = train_jev.main(["--config", str(p), "--fold", "0"])
+    assert "val" in rep and set(rep["temperatures"]) == set(SPACE)
+
+
+def test_packed_fields_logprobs_matches_per_field_tournament():
+    from PIL import Image
+    from bio_waila.models.jev_gemma import FakeBackend, field_logprobs, packed_fields_logprobs
+    sp = LabelSpace(["modality", "body_part"], {"modality": ["x-ray", "ct", "mri"],
+                                                "body_part": [f"organ{i}" for i in range(45)]},
+                    {"modality": False, "body_part": True})
+    ims = [Image.new("RGB", (8, 8), (200, 10, 10)), Image.new("RGB", (8, 8), (10, 10, 200))]
+    fb = FakeBackend()
+    got = packed_fields_logprobs(fb, ims, ["modality", "body_part"], sp, k_max=20, abstain=True)
+    for f in ("modality", "body_part"):
+        torch.testing.assert_close(got[f], field_logprobs(fb, ims, f, sp, k_max=20, abstain=True))
 
 
 def test_clm_heads_match_official_format_and_infonce():

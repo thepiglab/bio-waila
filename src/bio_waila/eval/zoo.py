@@ -483,7 +483,7 @@ def _decision(backend, df, root, space, modes, tgts, batch, max_side, k_max):
     import torch
     from bio_waila.train.labels import MASKED
     N = len(df)
-    if hasattr(backend, "score_rows"):
+    if hasattr(backend, "score_rows") and not (k_max and getattr(backend, "rows_need_full_vocab", False)):
         logits, secs = _decision_rows(backend, df, root, space, modes, batch, max_side)
         return logits, secs, {"unmapped_rate": None}, _decision_cols(logits, modes, space), None
     logits = {f: torch.full((N, space.n(f)), -30.0) for f in space.fields}
@@ -525,7 +525,9 @@ def run_model(entry, limit=None, batch=None, out_root=None, backend=None, public
     if entry.mode == "generative":
         logits, secs, extra, cols, raw = _generative(backend, df, root, space, modes, tgts, bs, 1024)
     else:
-        logits, secs, extra, cols, raw = _decision(backend, df, root, space, modes, tgts, bs, 512, entry.k_max or 26)
+        # letters stop at 26, so the letter readout always chunks; d1 takes every class in one question unless k_max is set
+        k_max = entry.k_max or (26 if entry.readout == "letters" else None)
+        logits, secs, extra, cols, raw = _decision(backend, df, root, space, modes, tgts, bs, 512, k_max)
     res = pub.score_public(logits, modes, tgts, df, space)
     res["zoo"] = {"slug": entry.slug, "hf_id": entry.hf_id, "base": entry.base, "mode": entry.mode, "readout": entry.readout,
                   "params_b": float(getattr(backend, "n_params", float("nan"))), "sec_per_image": secs / max(len(df), 1),

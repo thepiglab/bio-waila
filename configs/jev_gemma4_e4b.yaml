@@ -23,7 +23,9 @@ sampler:                     # train/sampling.py; the sequence is fixed by train
 eval:
   public: true              # score the final model on mmbu-public (eval only; skipped if absent) → public_metrics.json
 train:
-  formulation: F2            # F2 | F3
+  formulation: F2            # F2 | F3 | F4 (all labelled fields of an image packed over one shared image prefix;
+                             #   examples_per_epoch then counts images, global_batch counts images)
+  bidirectional: false       # F4 only: global layers attend both ways inside the prefix and each block (mammoth-1)
   context_dropout: 0.3       # F3 only
   k_max: 20                  # options shown per prompt; larger fields are sampled (train) / tournament (eval)
   global_batch: 8            # prompts per micro-step over all GPUs (x grad_accum per optimiser step)
@@ -31,9 +33,13 @@ train:
   workers: 8
   epochs: 1
   examples_per_epoch: 200000 # (image, field) prompts
-  lr: 1.0e-4
+  lr: 1.0e-4                 # LoRA. Full-FT arm (ablations.yaml jev.full_ft): 3e-6, β2 0.95, as for elephant-1
   warmup_frac: 0.03
-  label_smoothing: 0.05
+  label_smoothing: 0.0       # teacher logits feed the ensemble: no smoothing; Brier does the calibration work
+  brier: 1.0                 # CE + λ·Brier (mammoth-1 / elephant-1, λ = 1)
+  abstain: true              # "none of these options" as the last letter (mammoth-1 uncertainty training)
+  absent_p: 0.15             # share of training prompts whose correct option is removed → target = abstain
+  paraphrase: true           # random question wording per prompt (randomised serialisation)
   grad_clip: 1.0
   max_side: 512
   eval_per_dataset: 20

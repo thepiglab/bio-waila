@@ -74,9 +74,15 @@ class LetterScorer:
 
 
 class D1Scorer:
-    """Liquid d1 (3B and omni-600M share one API, per their model cards):
+    """Liquid d1 (3B, omni-600M and the LFM3-based 2B share one API, per their model cards):
     `model.system_one_batch([(state, {name: {"type": "choice", "instructions", "criteria": {option: description}}}, [image])])`
-    → `{"answers": {name: {"choice", "confidence", "probabilities"}}}`; the image is the whole state (state=None)."""
+    → `{"answers": {name: {"choice", "confidence", "probabilities"}}}`; the image is the whole state (state=None).
+
+    `score_rows` asks every annotated field of an image as one named question of one request, with every class as an
+    option: d1-2B packs a state's questions after it (`d1_attention: set`), which is how it was trained. A registry
+    `k_max` switches the run back to per-field tournaments (`logprobs`)."""
+
+    rows_need_full_vocab = True        # score_rows shows every class: with a k_max the runner uses logprobs instead
 
     def __init__(self, hf_id, dtype="bfloat16", trust_remote_code=True):
         from transformers import AutoModel
@@ -113,6 +119,16 @@ class D1Scorer:
             return [self._probs(r["answers"]["q"], [names[i] for i in opts]) for r, opts in zip(res, option_sets)]
 
         return tournament_logprobs(run, len(images), len(names), k_max or len(names))
+
+    @torch.no_grad()
+    def score_rows(self, images, fields_per_image, space) -> list[dict]:
+        """[{field: log-probs [n_classes]}]: one request per image, its fields as named questions over all classes."""
+        reqs = [(None, {f: self._question(f, space.classes[f]) for f in fields}, [im])
+                for im, fields in zip(images, fields_per_image)]
+        res = self.model.system_one_batch(reqs)
+        res = [res] if isinstance(res, dict) else list(res)
+        return [{f: self._probs(r["answers"][f], space.classes[f]) for f in fields}
+                for r, fields in zip(res, fields_per_image)]
 
 
 class SystemOneError(RuntimeError):

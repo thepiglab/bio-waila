@@ -14,7 +14,8 @@
 #   STAGE=leaderboard             waila-zoo leaderboard   runs/zoo/*/public_metrics.json → runs/zoo/leaderboard.{csv,md}
 #
 #   cd $WAILA_HOME && sbatch slurm/zoo_prefetch.sbatch                                  # prefetch everything enabled
-#   sbatch --export=ALL,MODELS=gen_gemma4_e4b_it,dec_liquid_d1_3b slurm/zoo_prefetch.sbatch
+#   MODELS=gen_gemma4_e4b_it,dec_liquid_d1_3b sbatch --export=ALL slurm/zoo_prefetch.sbatch   # not --export=ALL,MODELS=a,b:
+#                                                                                           # Slurm splits that on the comma
 #   sbatch --export=ALL,STAGE=leaderboard slurm/zoo_prefetch.sbatch
 # `bash slurm/zoo_eval.sbatch submit [LIMIT]` chains prefetch → one GPU job per model → leaderboard.
 

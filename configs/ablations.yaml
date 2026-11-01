@@ -17,3 +17,12 @@ targets:
 curriculum:
   no_ramp:   [train.cand_ramp_frac=0.0]
   ramp_5pct: [train.cand_ramp_frac=0.05]                 # default
+jev:                                                     # waila-train-jev; docs/models/baseten_decision_recipe.md
+  baseline_v0:  [train.brier=0.0, train.abstain=false, train.paraphrase=false, train.label_smoothing=0.05]
+  no_brier:     [train.brier=0.0]
+  no_abstain:   [train.abstain=false]
+  absent_30pct: [train.absent_p=0.3]
+  f4_packed:    [train.formulation=F4]                       # same logits as F2 at init; about 2x fewer tokens
+  f4_bidir:     [train.formulation=F4, train.bidirectional=true]
+  full_ft:      [model.lora=null, model.full_ft=true, model.dtype=float32, train.mixed_precision=bf16, train.lr=3.0e-6,
+                 'train.betas=[0.9, 0.95]']

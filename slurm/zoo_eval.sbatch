@@ -17,6 +17,9 @@
 #   cd $WAILA_HOME && bash slurm/zoo_eval.sbatch submit [LIMIT]
 #       prefetch (CPU) → one GPU job per enabled model (own --mem / --gpus / job name, afterok prefetch) → leaderboard (CPU, afterany)
 #       LIMIT (optional): score a random subsample of that many public images, for a smoke test
+#   MODELS=a,b,c bash slurm/zoo_eval.sbatch submit [LIMIT]
+#       the same chain for those slugs only (prefetch included); unknown or disabled slugs stop the submit
+#   bash slurm/zoo_lfm3.sh [LIMIT]       LFM3 comparison: d1-2B, LFM3-VL-2B vs Gemma-4-E2B, LFM2.5-VL-3B
 #   sbatch --export=ALL,MODEL=gen_medgemma_4b_it,LIMIT=64 slurm/zoo_eval.sbatch             # one model by hand
 #   sbatch --array=0-22 slurm/zoo_eval.sbatch                                                 # or an array over the enabled models
 #                                                                                             # (index into `waila-zoo list --porcelain`)
@@ -25,13 +28,22 @@ if [ "${1:-}" = submit ]; then
   : "${WAILA_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
   source "$WAILA_HOME/slurm/env.sh" || exit 1
   LIMIT=${2:-}; S=slurm/zoo_eval.sbatch
-  JP=$(sbatch --parsable slurm/zoo_prefetch.sbatch)
+  LIST=$(uv run --no-sync waila-zoo list --porcelain) || exit 1
+  if [ -n "${MODELS:-}" ]; then
+    for m in ${MODELS//,/ }; do
+      grep -q "^$m"$'\t' <<<"$LIST" || { echo "zoo: $m is not an enabled zoo entry (waila-zoo list)" >&2; exit 1; }
+    done
+    LIST=$(grep -E "^(${MODELS//,/|})"$'\t' <<<"$LIST")
+  fi
+  # MODELS reaches the prefetch job through the environment (--export=ALL): Slurm splits --export=VAR=a,b on commas
+  export MODELS="${MODELS:-}"
+  JP=$(sbatch --parsable --export=ALL slurm/zoo_prefetch.sbatch)
   IDS=""
   while IFS=$'\t' read -r slug gpus mem; do
     J=$(sbatch --parsable --job-name="zoo-$slug" --dependency=afterok:$JP --gpus="$gpus" --mem="${mem}gb" \
         --export=ALL,MODEL="$slug",LIMIT="$LIMIT" $S)
     IDS="$IDS:$J"
-  done < <(uv run --no-sync waila-zoo list --porcelain)
+  done <<<"$LIST"
   JL=$(sbatch --parsable --dependency=afterany$IDS --export=ALL,STAGE=leaderboard slurm/zoo_prefetch.sbatch)
   echo "zoo: prefetch=$JP  eval=${IDS#:}  leaderboard=$JL   (watch: squeue -u \$USER; result: runs/zoo/leaderboard.md)"
   exit 0

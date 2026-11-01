@@ -9,6 +9,7 @@ It rests on:
   - [`models/general_encoders.md`](../models/general_encoders.md)
   - [`models/decision_index_2026-10.md`](../models/decision_index_2026-10.md)
   - [`models/liquid_ai.md`](../models/liquid_ai.md)
+  - [`models/baseten_decision_recipe.md`](../models/baseten_decision_recipe.md) (added 2026-10-21: the mammoth-1 / elephant-1 recipe mapped to Pass-2)
 - the earlier notes ([`models/backbones.md`](../models/backbones.md), [`clm_methods.md`](../models/clm_methods.md), [`jev_methods.md`](../models/jev_methods.md)).
 
 I spot-checked the research claims that change decisions against the HF Hub API: d1-3B, d1-omni-600M, LFM2.5-VL, EmbeddingGemma 2, TIPSv2, C-RADIOv4 and MedSigLIP all exist, with the licenses and dates stated.
@@ -25,10 +26,10 @@ I spot-checked the research claims that change decisions against the HF Hub API:
 | CLM-LLM side arm (the original CLM recipe) | frozen **Gemma-4-E4B** embeddings (layer at 60% depth, image-token mean plus last token) + per-field state heads + shared action head; **EmbeddingGemma 2** as the second encoder | CLM itself is a frozen Qwen3-8B plus two MLP heads (ineligible base). LLM embedders trail SigLIP-class encoders by 10–25 points on classification probes (MIEB; `models/clm_llm_vs_encoder.md`), so this is a cheap arm (about 1–2 B200-h). Keep it only if within ~3 points of SigLIP 2, or if it adds ≥ 1.5 points in combination. | code ready |
 | Moondream 3.1 vision tower (CLM-vision arm) | Moondream 3.1's tower (SigLIP 2 So400m/14 fine-tuned inside the VLM, BF16) loaded into the SigLIP trunk, with SigLIP 2 text tower and heads (`waila-convert-moondream`, `configs/clm_moondream31_vision.yaml`) | Cheap bake-off arm: the only part of Moondream 3.1 that is usable without custom engine work. It lost alignment with SigLIP 2's text tower (pooled cosine 0.67), so stage A runs longer. **Moondream for Jev / CLM-LLM: not pursued**: kestrel exposes no logits, hidden states or local training; it would take 3–12 days (`models/moondream31_for_clm_jev.md`). | code ready |
 | Microscopy / EM / endoscopy specialist | **BMC-CLIP-CF ViT-L/14** (Stanford, MIT, ungated) | The only ungated encoder trained on light, fluorescence and EM figures. | added only if those slices lag |
-| **Jev-style teacher** | **Gemma-4-E4B-it**, letter readout plus LoRA for the prototype; **Gemma-4-26B-A4B-it** for scale | Best eligible evidence: Docto has E4B above MedGemma-1.5-4B and E2B as a decision base; 26B-A4B has the only strong non-Chinese *image* decision results (Rune: Image JevBench #2, ECE 22.9% → 6%). | build second |
-| Free zero-shot voters | **Liquid d1-3B** (open since Oct 5); stock Gemma-4 letter readout | d1-3B is a ready-made image-capable decision model (3.1B, calibrated, 475 decisions/s). It costs nothing to add as a vote. | stage 0 |
-| **Submitted student (Track 3)** | **Gemma-4-E2B vs LFM2.5-VL-3B**, decided by a head-to-head and by the organizers' parameter-counting ruling | E2B is 2.4B compute-active but **5.1B stored**. LFM2.5-VL-3B is 3.1B all-in (400M SigLIP2 tower). If stored weights count, E2B fails the 4B cap. | ask organizers now |
-| Track 3 bridge tower | **EmbeddingGemma 2** vision tower | Exactly the E2B tower shape (768-d, 16 layers), retrained and text-aligned, Apache-2.0. The best path to put a medically adapted tower *inside* the E2B student. | stage 3 arm |
+| **Jev-style teacher** | **Gemma-4-E4B-it**, letter readout plus LoRA for the prototype; **Gemma-4-26B-A4B-it** for scale; **d1-2B fine-tune arm** (added 2026-10-27, `models/lfm3.md` §3: F4-style set attention trained in, >26 options, multi-label choice, student's architecture) | Best eligible evidence: Docto has E4B above MedGemma-1.5-4B and E2B as a decision base; 26B-A4B has the only strong non-Chinese *image* decision results (Rune: Image JevBench #2, ECE 22.9% → 6%). | build second |
+| Free zero-shot voters | **Liquid d1-2B** (Oct 24; replaces d1-3B: ImajevBench 75.5 vs 64.0, Decision Index 51.1 vs 49.0); stock Gemma-4 letter readout | d1-3B is a ready-made image-capable decision model (3.1B, calibrated, 475 decisions/s). It costs nothing to add as a vote. | stage 0 |
+| **Submitted student (Track 3)** | **LFM3-VL-2B (first) vs Gemma-4-E2B**, decided by a head-to-head (no thinking) and by the organizers' rulings (2026-10-27, `models/lfm3.md`) | LFM3-VL-2B is 1.92B all-in (164M in-house tower), multiplier 1.076. It beats E2B on Liquid's 62-benchmark table even without thinking (62.1 vs 53.6), and by far on grounding (RefCOCO 87.4 vs 68.0), which matters for IoU-scored detection. No medical results are published, so measure first. E2B is 5.1B stored: ineligible if stored weights count. LFM2.5-VL-3B is now only a fallback. | zero-shot zoo run now |
+| Track 3 bridge tower | **EmbeddingGemma 2** vision tower (E2B student); for an **LFM3-VL-2B student, the d1-2B teacher's own adapted tower** (same shapes) | EmbeddingGemma 2 is exactly the E2B tower shape (768-d, 16 layers), retrained and text-aligned, Apache-2.0. A d1-2B teacher fine-tuned on Pass-2 shares the LFM3-VL-2B student's architecture, so its tower swaps in directly. | stage 3 arm |
 
 **Not chosen:**
 - Moondream 3.1: no torch path for 3.1, FP8 Photon format.
@@ -106,7 +107,20 @@ The CLM teacher's job is:
 - **Training:**
   - LoRA r16–32 on language tensors with the tower frozen first. Then a second run unfreezes the 150M E4B tower at LR ×0.1, because the towers were frozen in Gemma 4 pretraining and have never seen EM or fundus images.
   - Targets: 50% gold labels, 50% CLM-teacher distribution (Brier or KL), the recipe that recurs among the top Decision Index entries.
+  - **Loss and abstention (2026-10-21, after mammoth-1 / elephant-1):**
+    - CE + 1.0·Brier, with no label smoothing.
+    - A "none of these options" letter. 15% of training prompts have their correct options removed, so the target is that letter. It also lets body-part chunks without the answer say so.
+    - Random question wording.
+    - Later, once the CLM teacher exists: τ-rule abstention (abstain where the CLM gives the gold label < 0.45) and hard-negative distractors at p = 0.5.
+    - Ablations: `configs/ablations.yaml` `jev:`.
+  - **Full-FT arm:** every language-model weight, tower frozen, LR 3e-6, β = (0.9, 0.95), fp32 master weights; elephant-1's recipe on a Gemma base. It runs against LoRA on the winning formulation.
+  - **Scale:** formulation comparisons run on 200k prompts. The winner trains on **one full epoch** (about 3.5M labelled (image, field) pairs). Data volume was the largest single gain for elephant-1 (45.5 → 66.0 on the Jev index).
 - **Formulations:** F2 (independent fields, one packed pass) and F3 (progressive, domain **last**), with context dropout and scheduled sampling. F1 is kept as the soft-flow control. All three cost the same compute (`experiment_plan.md` §1).
+  - **F4 (implemented 2026-10-21)** is the mammoth-1 layout: a shared image prefix, one block per labelled field, and one forward per image.
+    - With the bidirectional mask off, it gives the same logits as F2 (checked to 1e-6 on a tiny Gemma 4 with the real processor) at about 2.2× fewer tokens.
+    - The real-weights check is still to run on HiPerGator: `scripts/check_f4_equivalence.py`.
+    - `train.bidirectional` adds the trained block-bidirectional mask. On E4B it can act only through the first 24 layers, because the last 18 share K/V.
+    - Details: `baseten_decision_recipe.md` §4.
 - **Image tokens:** 280 by default. A second run at 1,120 tokens for microscopy and pathology rows (Rune: +6 points at 4× tokens).
 - **Scale run:** Gemma-4-26B-A4B-it, **frozen** letter readout first (deck31b showed frozen plus temperature is near the top), then one LoRA run if the frozen readout leaves a gap above 2 points to the E4B LoRA.
 
@@ -122,7 +136,10 @@ These give the floor every trained teacher must beat, and cheap extra votes for 
 
 For every training image and every field whose label is `masked` or `candidates`:
 1. Combine calibrated teacher probabilities (weighted log-linear, weights fitted on validation datasets).
-2. Keep the result as **hard** if p_max ≥ τ_f, where τ_f is chosen for at least 95% precision on held-out datasets. Keep it as a **soft target** if between τ_low and τ_f. Leave it masked otherwise.
+2. Decide what to keep:
+   - **Hard:** p_max ≥ τ_f, where τ_f is chosen for at least 95% precision on held-out datasets, **and at least 4 of the 5 panel teachers** (SigLIP2-FT, MedSigLIP-FT, Jev-E4B, d1-3B, 26B-A4B) agree on the argmax. Letter-readout teachers average two option orders. This is mammoth-1's judge-panel rule.
+   - **Soft target:** p_max between τ_low and τ_f.
+   - **Masked:** everything else, and any field where the Jev teacher's top answer is "none of these options".
 3. `hard` and `multi` gold labels are never overwritten. Where a teacher disagrees with them confidently, the case is logged for review; that is how the remaining label bugs surface.
 
 ### 2.5 Batch composition, order and graded targets
@@ -205,12 +222,28 @@ That answers the only question that matters: do teacher labels make the submitte
 - CPU jobs on a low-priority (burst) queue;
 - group memory is the binding limit, so CPU jobs request modest memory.
 
+### 4.1 Data loop (after mammoth-1, adapted)
+
+After every teacher run:
+1. Rank (field × submodality) slices by held-out accuracy.
+2. For the five weakest slices, choose one of three actions:
+   - (a) add datasets from the registry (`data_discovery/`, 5,099 TOMLs);
+   - (b) repair labels (`plan/registry_fixes.json`, `rules.py`);
+   - (c) add hard negatives.
+3. Pilot each new data group first: a frozen-feature probe, then a 240-step Jev run on the fixed val subset. The group enters the mix only if held-out macro accuracy does not drop.
+4. **Audit agent** (independent of the labeller):
+   - re-derive a sample of labels from the image and the dataset docs;
+   - flag answer giveaways: burned-in modality or stain text, dataset-unique scale bars and borders, DICOM overlays, filename leaks.
+
+For mammoth-1, repair plus abstention were worth more than any architecture change. So this loop runs alongside stages 1–2, not after them.
+
 ## 5. Questions to send the organizers now
 
 1. **Parameter counting for Track 3:** do Gemma-4-E2B's per-layer-embedding tables (stored, not compute-active) count toward the 4B cap? This decides E2B vs LFM2.5-VL-3B.
 2. **Licences:** is a model under the LFM Open License v1.0 acceptable as the submission (commercial use limited to under $10M annual revenue, with an exemption for qualified non-profits)? Is a student trained on labels from a HAI-DEF model (MedSigLIP) acceptable? Its terms treat outputs as not Model Derivatives, but other clauses cover distillation.
 3. **Vision tower:** may the submitted VLM's vision tower be replaced (EmbeddingGemma-2 tower) or fine-tuned?
 4. **Judging:** do partial-credit rules apply to multi-label body part and domain?
+4a. **Thinking:** does a model that writes a reasoning trace before its answer, in one generate call, count as "one pass per example"? LFM3-VL-2B gains about 9 points on average with thinking.
 5. **Non-commercial data:** may it be used to train a teacher whose labels train the submission?
 
 ## 6. What changed from the earlier plan
@@ -219,4 +252,17 @@ That answers the only question that matters: do teacher labels make the submitte
 - **Liquid d1-3B** is new: a free image-capable decision voter. **LFM2.5-VL-3B** is a real Track-3 student alternative if stored parameters count.
 - **EmbeddingGemma 2** gives a text-aligned tower of exactly the E2B shape: the first credible way to transfer a medically adapted tower into the student, not only labels.
 - Jev teacher for scale: **26B-A4B over 12B**. The Gemma-4-12B is encoder-free, so there's no tower to adapt, and the 26B-A4B has the image evidence.
+- 2026-10-27, from LFM3 (`models/lfm3.md`):
+  - LFM3-VL-2B becomes the first-choice Track-3 student (1.92B all-in, strong grounding);
+  - d1-2B replaces d1-3B as the free voter and gets a fine-tune arm next to the E4B Jev teacher;
+  - the LFM3 vision encoder joins the stage-1a probe bake-off;
+  - both models are in `configs/zoo.yaml`.
+- 2026-10-21, from Baseten's mammoth-1 / elephant-1 (`models/baseten_decision_recipe.md`):
+  - the Jev teacher gets CE + Brier, an abstain letter and paraphrased questions (in code, on by default);
+  - a full-FT arm;
+  - one full epoch for the winner;
+  - a 4-of-5 panel rule for pseudo-labels;
+  - a weakest-slice data loop with an audit agent;
+  - F4 (shared image prefix, block masks), implemented and checked against F2.
+  - Their weights are Qwen-based and text-only, so they are not usable; their data is not released.
 - Data: 418 datasets and about 873k images, fully re-validated. The near-duplicate filter against mmbu-public was replaced; the old one dropped real images in 117 datasets.
