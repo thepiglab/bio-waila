@@ -7,7 +7,8 @@
 #   cd $WAILA_HOME && bash slurm/zoo_lfm3.sh 64     # smoke test: 64 public images per model
 #   cd $WAILA_HOME && bash slurm/zoo_lfm3.sh        # full mmbu-public
 #
-# Chain: prefetch (CPU, burst QOS) → one B200 job per model (64 GB each, afterok prefetch) → leaderboard (afterany).
+# Chain (slurm/zoo_eval.sbatch submit): per model, download (CPU, burst QOS) → one B200 job → delete the weights (CPU);
+# leaderboard (CPU) at the end.
 # Results: runs/zoo/<slug>/public_metrics.json and runs/zoo/leaderboard.md (which also lists earlier zoo runs).
 # Needs transformers >= 5.19 in the venv (d1-2B's card; LFM3 ships remote code): checked before anything is submitted.
 : "${WAILA_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"

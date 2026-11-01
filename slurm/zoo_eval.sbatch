@@ -15,37 +15,53 @@
 # Weights must already be in $HF_HOME (slurm/zoo_prefetch.sbatch); the job runs with HF_HUB_OFFLINE=1.
 #
 #   cd $WAILA_HOME && bash slurm/zoo_eval.sbatch submit [LIMIT]
-#       prefetch (CPU) → one GPU job per enabled model (own --mem / --gpus / job name, afterok prefetch) → leaderboard (CPU, afterany)
+#       every enabled model through `waila-zoo lanes`: LANES (default 4) lanes, each running one group of models at a time as
+#       download (CPU) → one GPU job per model (own --mem / --gpus / job name) → delete the weights (CPU); then the next group.
+#       Weights never pile up (at most one group per lane on disk) and at most LANES GPUs are in use. Leaderboard (CPU) at the end.
 #       LIMIT (optional): score a random subsample of that many public images, for a smoke test
 #   MODELS=a,b,c bash slurm/zoo_eval.sbatch submit [LIMIT]
-#       the same chain for those slugs only (prefetch included); unknown or disabled slugs stop the submit
+#       the same chain for those slugs only, in that order (priority first); unknown or disabled slugs stop the submit
+#   ACCOUNT=cai6734 LANES=4 MODELS=... bash slurm/zoo_eval.sbatch submit
+#       another allocation: CPU jobs on its burst QOS (<account>-b), GPU jobs on its investment QOS (<account>)
 #   bash slurm/zoo_lfm3.sh [LIMIT]       LFM3 comparison: d1-2B, LFM3-VL-2B vs Gemma-4-E2B, LFM2.5-VL-3B
-#   sbatch --export=ALL,MODEL=gen_medgemma_4b_it,LIMIT=64 slurm/zoo_eval.sbatch             # one model by hand
+#   sbatch --export=ALL,MODEL=gen_medgemma_4b_it,LIMIT=64 slurm/zoo_eval.sbatch             # one model by hand (weights
+#                                                                                             # downloaded first, deleted after)
 #   sbatch --array=0-22 slurm/zoo_eval.sbatch                                                 # or an array over the enabled models
-#                                                                                             # (index into `waila-zoo list --porcelain`)
+#                                                                                             # (index into `waila-zoo list --porcelain`;
+#                                                                                             # needs every model downloaded: re-runs only)
 
 if [ "${1:-}" = submit ]; then
   : "${WAILA_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
   source "$WAILA_HOME/slurm/env.sh" || exit 1
-  LIMIT=${2:-}; S=slurm/zoo_eval.sbatch
-  LIST=$(uv run --no-sync waila-zoo list --porcelain) || exit 1
-  if [ -n "${MODELS:-}" ]; then
-    for m in ${MODELS//,/ }; do
-      grep -q "^$m"$'\t' <<<"$LIST" || { echo "zoo: $m is not an enabled zoo entry (waila-zoo list)" >&2; exit 1; }
+  LIMIT=${2:-}; S=slurm/zoo_eval.sbatch; P=slurm/zoo_prefetch.sbatch
+  CPU=(); GPU=()   # ACCOUNT=<group>: CPU jobs on its burst QOS, GPU jobs on its investment QOS (default: the #SBATCH lines)
+  [ -n "${ACCOUNT:-}" ] && CPU=(--account="$ACCOUNT" --qos="$ACCOUNT-b") && GPU=(--account="$ACCOUNT" --qos="$ACCOUNT")
+  PLAN=$(uv run --no-sync waila-zoo lanes ${MODELS:+--models "$MODELS"} --lanes "${LANES:-4}") || exit 1
+  # Each lane takes its groups one after another: download (CPU) → score each model (GPU) → delete the weights (CPU).
+  # A group's slugs reach the CPU jobs as MODELS in the environment: Slurm splits --export=VAR=a,b on commas.
+  TAILS=""
+  for lane in $(cut -f1 <<<"$PLAN" | sort -nu); do
+    prev=""
+    for group in $(awk -F'\t' -v l="$lane" '$1 == l {print $2}' <<<"$PLAN" | uniq); do
+      rows=$(awk -F'\t' -v g="$group" '$2 == g' <<<"$PLAN")
+      slugs=$(cut -f3 <<<"$rows" | paste -sd, -)
+      first=${slugs%%,*}
+      JD=$(MODELS=$slugs sbatch --parsable "${CPU[@]}" --job-name="zoo-get-$first" ${prev:+--dependency=afterany:$prev} \
+           --export=ALL,STAGE=prefetch,STRICT=1 $P)
+      last=""
+      while IFS=$'\t' read -r _ _ slug gpus mem; do
+        # a failed download cancels the group's GPU jobs (instead of leaving them pending), so the lane moves on
+        last=$(sbatch --parsable "${GPU[@]}" --job-name="zoo-$slug" --dependency="afterok:$JD${last:+,afterany:$last}" \
+               --kill-on-invalid-dep=yes --gpus="$gpus" --mem="${mem}gb" --export=ALL,MODEL="$slug",LIMIT="$LIMIT" $S)
+      done <<<"$rows"
+      prev=$(MODELS=$slugs sbatch --parsable "${CPU[@]}" --job-name="zoo-del-$first" --dependency=afterany:$last \
+             --export=ALL,STAGE=purge $P)
+      echo "zoo: lane $lane  $slugs  download=$JD  last score=$last  delete=$prev"
     done
-    LIST=$(grep -E "^(${MODELS//,/|})"$'\t' <<<"$LIST")
-  fi
-  # MODELS reaches the prefetch job through the environment (--export=ALL): Slurm splits --export=VAR=a,b on commas
-  export MODELS="${MODELS:-}"
-  JP=$(sbatch --parsable --export=ALL slurm/zoo_prefetch.sbatch)
-  IDS=""
-  while IFS=$'\t' read -r slug gpus mem; do
-    J=$(sbatch --parsable --job-name="zoo-$slug" --dependency=afterok:$JP --gpus="$gpus" --mem="${mem}gb" \
-        --export=ALL,MODEL="$slug",LIMIT="$LIMIT" $S)
-    IDS="$IDS:$J"
-  done <<<"$LIST"
-  JL=$(sbatch --parsable --dependency=afterany$IDS --export=ALL,STAGE=leaderboard slurm/zoo_prefetch.sbatch)
-  echo "zoo: prefetch=$JP  eval=${IDS#:}  leaderboard=$JL   (watch: squeue -u \$USER; result: runs/zoo/leaderboard.md)"
+    TAILS="$TAILS:$prev"
+  done
+  JL=$(sbatch --parsable "${CPU[@]}" --job-name=zoo-leaderboard --dependency=afterany$TAILS --export=ALL,STAGE=leaderboard $P)
+  echo "zoo: leaderboard=$JL   (watch: squeue -u \$USER; result: runs/zoo/leaderboard.md)"
   exit 0
 fi
 

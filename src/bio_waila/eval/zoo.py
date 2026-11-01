@@ -3,6 +3,8 @@
     waila-zoo list [--porcelain]                      the registry (configs/zoo.yaml) with enabled flags
     waila-zoo prefetch [--models a,b] [--strict]      CPU: download weights into HF_HOME, build plan/eval_public.parquet
     waila-zoo run --model SLUG [--limit N] [--batch B] [--base-url URL] [--enable]    GPU: score one model → runs/zoo/<slug>/
+    waila-zoo purge --models a,b                      CPU: delete those models' weights from HF_HOME
+    waila-zoo lanes [--models a,b] [--lanes 4]        the Slurm chain plan: lane<TAB>group<TAB>slug<TAB>gpus<TAB>mem_gb
     waila-zoo leaderboard                             aggregate runs/zoo/*/public_metrics.json → leaderboard.{csv,md}
 
 Two scoring modes (docs/experiments/zoo.md):
@@ -604,6 +606,63 @@ def prefetch(slugs=None, path=None, strict=False, fetch=prefetch_one):
     return 1 if (bad and strict) else 0
 
 
+# ── Slurm chain: download (CPU) → score (GPU) → delete (CPU), per group of models ───────────────────────────────────
+def repos(e: Entry) -> list[str]:
+    """The Hugging Face repos an entry downloads (a LoRA adapter's base first)."""
+    return list(dict.fromkeys([e.base, e.hf_id] if e.base else [e.hf_id]))
+
+
+def lanes(slugs=None, n_lanes=4, path=None):
+    """[(lane, group, Entry)] for the Slurm chain. Entries that share a repo (the gen_ and dec_ entries of one model, a LoRA
+    and its base) form one group: its weights are downloaded once, before its first model, and deleted after its last. Groups
+    keep the order given (priority first) and are dealt round-robin to the lanes; each lane runs one GPU job at a time, so
+    n_lanes caps the GPUs in use."""
+    entries = load_registry(path)
+    if slugs:
+        by = {e.slug: e for e in entries}
+        unknown = [s for s in slugs if s not in by]
+        if unknown:
+            raise SystemExit(f"unknown models: {unknown}")
+        entries = [by[s] for s in dict.fromkeys(slugs)]
+        off = [e.slug for e in entries if not e.enabled or e.backend]
+        if off:
+            raise SystemExit(f"disabled or server-backed entries cannot be chained: {off}")
+    else:
+        entries = [e for e in entries if e.enabled and not e.backend]
+    groups = []
+    for e in entries:
+        hit = [g for g in groups if set(repos(e)) & {r for x in g for r in repos(x)}]
+        for g in hit[1:]:  # e links several groups: merge them into the first
+            hit[0].extend(g)
+            groups.remove(g)
+        if hit:
+            hit[0].append(e)
+        else:
+            groups.append([e])
+    return [(i % n_lanes, i, e) for i, g in enumerate(groups) for e in g]
+
+
+def purge(slugs, path=None, cache_dir=None):
+    """Delete the cached weights of these models from the HF cache (the CPU step after their GPU runs); returns bytes freed.
+    Uses huggingface_hub's cache API, which also sweeps the cache-wide shared blob store (<hub>/blobs) that symlinks point
+    into, so deleting the repo folders alone would leave the weights behind."""
+    from huggingface_hub import scan_cache_dir
+    by = {e.slug: e for e in load_registry(path)}
+    unknown = [s for s in slugs if s not in by]
+    if unknown:
+        raise SystemExit(f"unknown models: {unknown}")
+    want = {r for s in slugs for r in repos(by[s])}
+    info = scan_cache_dir(cache_dir)
+    revs = [rev.commit_hash for repo in info.repos if repo.repo_type == "model" and repo.repo_id in want for rev in repo.revisions]
+    if not revs:
+        print(f"[purge] nothing cached for {sorted(want)}", flush=True)
+        return 0
+    strategy = info.delete_revisions(*revs)
+    strategy.execute()
+    print(f"[purge] {sorted(want)}: freed {strategy.expected_freed_size_str}", flush=True)
+    return strategy.expected_freed_size
+
+
 # ── leaderboard ──────────────────────────────────────────────────────────────────────────────────────────────────
 def leaderboard(root=None):
     """Aggregate <root>/*/public_metrics.json (root default runs/zoo) → leaderboard.csv + leaderboard.md; returns the DataFrame."""
@@ -671,6 +730,11 @@ def main(argv=None):
     p.add_argument("--out", default=None, help="output root (default runs/zoo)")
     p.add_argument("--base-url", default=None, help="systemone entries: server URL (overrides options.base_url; implies --enable)")
     p.add_argument("--enable", action="store_true", help="run an entry even though it is `enabled: false` in the registry")
+    p = sub.add_parser("purge", help="CPU: delete these models' weights from the HF cache")
+    p.add_argument("--models", required=True, help="comma-separated slugs")
+    p = sub.add_parser("lanes", help="the Slurm chain plan as lane<TAB>group<TAB>slug<TAB>gpus<TAB>mem_gb")
+    p.add_argument("--models", default=None, help="comma-separated slugs in priority order (default: all enabled)")
+    p.add_argument("--lanes", type=int, default=4, help="number of lanes = GPU jobs at once")
     sub.add_parser("leaderboard", help="aggregate runs/zoo/*/public_metrics.json")
     a = ap.parse_args(argv)
     if a.cmd == "list":
@@ -687,6 +751,13 @@ def main(argv=None):
         return 0
     if a.cmd == "prefetch":
         return prefetch(a.models.split(",") if a.models else None, a.registry, a.strict)
+    if a.cmd == "purge":
+        purge(a.models.split(","), a.registry)
+        return 0
+    if a.cmd == "lanes":
+        for lane, group, e in lanes(a.models.split(",") if a.models else None, a.lanes, a.registry):
+            print(f"{lane}\t{group}\t{e.slug}\t{e.gpus}\t{e.mem_gb}")
+        return 0
     if a.cmd == "run":
         e = get_entry(a.model, a.registry)
         if a.base_url:

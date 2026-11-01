@@ -11,6 +11,8 @@
 #   STAGE=prefetch     (default)  waila-zoo prefetch   weights → $HF_HOME, plus plan/eval_public.parquet. Gated repos (MedGemma …)
 #                                  need the terms accepted on HF by the HF_TOKEN account; failures are listed in the log and do not
 #                                  stop the other downloads (the matching GPU job then fails fast with HF_HUB_OFFLINE=1).
+#                                  STRICT=1: exit non-zero if any download failed (the submit chain then cancels the GPU jobs)
+#   STAGE=purge                   waila-zoo purge --models $MODELS   delete those models' weights from $HF_HOME (after scoring)
 #   STAGE=leaderboard             waila-zoo leaderboard   runs/zoo/*/public_metrics.json → runs/zoo/leaderboard.{csv,md}
 #
 #   cd $WAILA_HOME && sbatch slurm/zoo_prefetch.sbatch                                  # prefetch everything enabled
@@ -24,7 +26,8 @@ source "$WAILA_HOME/slurm/env.sh" || exit 1
 set -euo pipefail
 
 case "${STAGE:-prefetch}" in
-  prefetch)    uv run --no-sync waila-zoo prefetch ${MODELS:+--models "$MODELS"} ;;
+  prefetch)    uv run --no-sync waila-zoo prefetch ${MODELS:+--models "$MODELS"} ${STRICT:+--strict} ;;
+  purge)       uv run --no-sync waila-zoo purge --models "${MODELS:?STAGE=purge needs MODELS}" ;;
   leaderboard) uv run --no-sync waila-zoo leaderboard && cat "$WAILA_RUNS/zoo/leaderboard.md" ;;
   *) echo "unknown STAGE=$STAGE" >&2; exit 2 ;;
 esac

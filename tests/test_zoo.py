@@ -31,7 +31,7 @@ def test_default_registry_is_valid():
     by = {e.slug: e for e in es}
     assert len(by) == len(es) >= 25
     for e in es:
-        assert e.gpus == 1 and e.mem_gb in (64, 128) and (e.enabled or e.reason)
+        assert e.gpus == 1 and e.mem_gb in (32, 48, 64, 128) and (e.enabled or e.reason)
         assert not zoo.BANNED.search(e.hf_id)
     assert {e.mode for e in es} == {"generative", "decision"}
     assert by["dec_ajev_gemma4_12b_lora5"].base == "google/gemma-4-12B-it"
@@ -40,6 +40,8 @@ def test_default_registry_is_valid():
                  "dec_blink_v0_3_26b_a4b_nvfp4"):
         assert not by[slug].enabled
     assert by["gen_medgemma_27b_it"].enabled and by["dec_quyet_1_0_large"].mem_gb == 128
+    # only Gemma and Liquid models run (user, 2026-11-01)
+    assert {e.hf_id.split("/")[0] for e in es if e.enabled and not e.backend} == {"google", "LiquidAI"}
 
 
 def _reg(tmp_path, *models):
@@ -366,6 +368,61 @@ def test_prefetch_reports_failures_and_continues(zoo_world, capsys):
     assert seen == ["g/gated", "o/base", "o/lora"] and "gated" in out and "accept the terms" in out and "2/4 ok" not in out
     assert "3/4 ok" in out and "1 FAILED" in out and "eval set: 4 rows" in out
     assert zoo.prefetch(["a"], reg, strict=True, fetch=fetch) == 1
+
+
+# ── Slurm chain: lanes and purge ─────────────────────────────────────────────────────────────────────────────────
+def test_lanes_group_shared_repos_and_deal_round_robin(tmp_path, capsys):
+    reg = _reg(tmp_path, {"slug": "a", "hf_id": "x/one", "mode": "generative"},
+               {"slug": "b", "hf_id": "x/one", "mode": "decision"},
+               {"slug": "c", "hf_id": "o/lora", "base": "o/base", "mode": "decision"},
+               {"slug": "d", "hf_id": "o/base", "mode": "generative"},
+               {"slug": "e", "hf_id": "e/e", "mode": "generative"},
+               {"slug": "f", "hf_id": "f/f", "mode": "decision"},
+               {"slug": "g", "hf_id": "g/g", "mode": "decision", "enabled": False, "reason": "x"},
+               {"slug": "q", "hf_id": "q/lora", "base": "e/e", "mode": "decision", "enabled": False, "reason": "x"})
+    plan = [(lane, group, e.slug) for lane, group, e in zoo.lanes(None, 2, reg)]
+    assert plan == [(0, 0, "a"), (0, 0, "b"), (1, 1, "c"), (1, 1, "d"), (0, 2, "e"), (1, 3, "f")]
+    # the given order is the priority order; a model whose repos touch two groups merges them
+    assert [(lane, group, e.slug) for lane, group, e in zoo.lanes(["e", "b", "a"], 4, reg)] == [(0, 0, "e"), (1, 1, "b"), (1, 1, "a")]
+    (tmp_path / "two").mkdir()
+    reg2 = _reg(tmp_path / "two", {"slug": "p", "hf_id": "p/p", "mode": "generative"},
+                {"slug": "r", "hf_id": "r/r", "mode": "generative"}, {"slug": "s", "hf_id": "r/r", "base": "p/p", "mode": "decision"})
+    assert {(lane, group) for lane, group, _ in zoo.lanes(None, 4, reg2)} == {(0, 0)}
+    with pytest.raises(SystemExit, match="disabled"):
+        zoo.lanes(["a", "g"], 2, reg)
+    with pytest.raises(SystemExit, match="unknown"):
+        zoo.lanes(["nope"], 2, reg)
+    assert zoo.main(["--registry", str(reg), "lanes", "--lanes", "2", "--models", "f,a"]) == 0
+    assert capsys.readouterr().out.splitlines() == ["0\t0\tf\t1\t64", "1\t1\ta\t1\t64"]
+
+
+def _cached(cache, repo, payload):
+    """A minimal Hugging Face cache entry: blob, refs/main and a snapshot symlink."""
+    import hashlib
+    root = cache / f"models--{repo.replace('/', '--')}"
+    commit, blob = hashlib.sha1(repo.encode()).hexdigest(), hashlib.sha1(repo.encode() + payload).hexdigest()
+    (root / "blobs").mkdir(parents=True)
+    (root / "blobs" / blob).write_bytes(payload)
+    (root / "refs").mkdir()
+    (root / "refs" / "main").write_text(commit)
+    (root / "snapshots" / commit).mkdir(parents=True)
+    (root / "snapshots" / commit / "model.safetensors").symlink_to(f"../../blobs/{blob}")
+    return root
+
+
+def test_purge_deletes_only_those_models(tmp_path, capsys):
+    reg = _reg(tmp_path, {"slug": "a", "hf_id": "x/one", "mode": "generative"},
+               {"slug": "b", "hf_id": "o/lora", "base": "o/base", "mode": "decision"},
+               {"slug": "c", "hf_id": "k/keep", "mode": "generative"})
+    cache = tmp_path / "hub"
+    gone = [_cached(cache, r, b"w" * 4096) for r in ("x/one", "o/lora", "o/base")]
+    kept = _cached(cache, "k/keep", b"k" * 4096)
+    assert zoo.purge(["a", "b"], reg, cache_dir=cache) == 3 * 4096
+    assert not any(p.exists() for p in gone) and (kept / "snapshots").exists()
+    assert "freed" in capsys.readouterr().out
+    assert zoo.purge(["a"], reg, cache_dir=cache) == 0  # nothing left to delete
+    with pytest.raises(SystemExit, match="unknown"):
+        zoo.purge(["nope"], reg, cache_dir=cache)
 
 
 # ── System One backend (respanai/span-02) ────────────────────────────────────────────────────────────────────────

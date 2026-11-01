@@ -14,12 +14,17 @@ Every run is logged in `plan/public_looks.jsonl` as `zoo:<slug>`.
 | `waila-zoo prefetch [--models a,b] [--strict]` | CPU | `snapshot_download` into `HF_HOME` (uses `HF_TOKEN`), builds `plan/eval_public.parquet` if missing. Gated or unauthorized repos are reported per model and the rest continue |
 | `waila-zoo run --model SLUG [--limit N] [--batch B] [--base-url URL] [--enable]` | GPU | scores one model; `--limit` takes a fixed-seed random subsample for smoke tests; works with `HF_HUB_OFFLINE=1`. A disabled entry is refused unless `--enable` is given (`--base-url`, systemone entries only, implies it) |
 | `waila-zoo leaderboard` | CPU | `runs/zoo/*/public_metrics.json` → `runs/zoo/leaderboard.csv` and `.md` (C, mean field acc, per-field acc, n, mode, params, seconds per image, unmapped rate) |
+| `waila-zoo purge --models a,b` | CPU | deletes those models' weights (and a LoRA's base) from the HF cache through huggingface_hub's cache API, which also sweeps the shared blob store (`hub/blobs`) |
+| `waila-zoo lanes [--models a,b] [--lanes 4]` | anywhere | the Slurm chain plan, `lane<TAB>group<TAB>slug<TAB>gpus<TAB>mem_gb`: models sharing a repo form one group; groups keep the given order and are dealt round-robin to the lanes |
 
-Cluster: `bash slurm/zoo_eval.sbatch submit [LIMIT]` submits `slurm/zoo_prefetch.sbatch` (CPU), then one GPU job per enabled model
-(own `--mem` / `--gpus` from the registry, `afterok` the prefetch), then a CPU leaderboard job (`afterany` all of them). Only the
-per-model evaluation uses a GPU. `sbatch --array=0-N slurm/zoo_eval.sbatch` also works (task i = i-th enabled model).
-`MODELS=a,b bash slurm/zoo_eval.sbatch submit [LIMIT]` runs the same chain for those slugs only (unknown or disabled slugs stop
-the submit). `bash slurm/zoo_lfm3.sh [LIMIT]` is the LFM3 comparison (d1-2B, plus LFM3-VL-2B against Gemma-4-E2B and
+Cluster: `bash slurm/zoo_eval.sbatch submit [LIMIT]` runs every enabled model **one group at a time per lane**: download its
+weights (CPU, `STAGE=prefetch STRICT=1`) → one GPU job per model (own `--mem` / `--gpus` from the registry, `afterok` the download)
+→ delete the weights (CPU, `STAGE=purge`, `afterany`) → the next group. Weights never pile up (at most one group per lane on disk),
+at most `LANES` (default 4) GPUs are in use, and a failed download cancels its GPU jobs (`--kill-on-invalid-dep`) so the lane moves
+on. A CPU leaderboard job runs after every lane. `MODELS=a,b` runs those slugs only, in that order (put the priority models first;
+unknown or disabled slugs stop the submit). `ACCOUNT=<group>` submits to another allocation: CPU jobs on `<group>-b` (burst), GPU
+jobs on `<group>`. `sbatch --array=0-N slurm/zoo_eval.sbatch` (task i = i-th enabled model) needs every model downloaded first,
+so it is for re-runs only. `bash slurm/zoo_lfm3.sh [LIMIT]` is the LFM3 comparison (d1-2B, plus LFM3-VL-2B against Gemma-4-E2B and
 LFM2.5-VL-3B; d1-3B is not rerun, since d1-2B replaces it; `docs/models/lfm3.md` §4); it first checks that the venv has transformers >= 5.19.
 
 Outputs per model, in `runs/zoo/<slug>/`: `public_metrics.json` (the standard report plus a `zoo` block: mode, parameters in
@@ -89,11 +94,13 @@ Keys: `slug`, `hf_id`, `mode`, `readout` (letters | d1), `backend` (systemone), 
 unknown keys, duplicate slugs, bad modes, `k_max` above 26, and Chinese-origin / Qwen-family ids (project policy).
 
 * **Generative, enabled:** MedGemma 4B, 1.5-4B, 27B (gated, auto-approved: accept the terms on the model page with the token's
-  account before `prefetch`), Gemma 4 E2B / E4B / 12B / 26B-A4B, LFM2.5-VL 1.6B / 3B, LFM3-VL-2B (remote code, thinking off), Ministral-3-3B, Mistral-Small-3.2-24B, SmolVLM2-2.2B.
-* **Decision, enabled:** stock Gemma 4 E4B / 12B / 26B-A4B (the letter-readout baseline), Liquid d1-2B, d1-3B and d1-omni-600M, Xor-26B-A4B,
-  GEV-26B-Decide, the AJev 12B LoRA (on Gemma 4 12B), Torchcast decision 12B (cc-by-nc-4.0: evaluation only), Jev-Omni,
-  Quyet-1.0-Large (31B). Several of these ship their own decision heads or calibration; the stock LM letter readout used here
-  ignores those, so their numbers can understate them.
+  account before `prefetch`), Gemma 4 E2B / E4B / 12B / 26B-A4B, LFM2.5-VL 1.6B / 3B, LFM3-VL-2B (remote code, thinking off).
+* **Decision, enabled:** stock Gemma 4 E4B / 12B / 26B-A4B (the letter-readout baseline), Liquid d1-2B, d1-3B and d1-omni-600M.
+* **Disabled by choice (2026-11-01):** only Gemma (Gemma 4 first, MedGemma lower priority) and Liquid models are run. Ministral-3-3B,
+  Mistral-Small-3.2-24B and SmolVLM2-2.2B are not expected to be competitive. The community decision fine-tunes are also off: Xor-26B-A4B,
+  GEV-26B-Decide, the AJev 12B LoRA, Torchcast decision 12B, Jev-Omni and Quyet-1.0-Large. Their entries stay for reference.
+* **Memory:** `mem_gb` is host RAM, set from measured peaks. Weights load straight to the GPU, so the first runs used 2–9 GB. That
+  gives 32 GB for models up to E4B, 48 GB for 12B and 64 GB for 26B-A4B / 27B.
 * **Disabled, own engine:** respanai/span-02 (see its section below; run with `--base-url` or `slurm/zoo_span.sbatch`).
 * **Disabled:** Llama-3.2-11B-Vision (manual gating by Meta), Phi-4-multimodal (custom code, not a stock image-text-to-text
   architecture), Winnow-12B (GGUF only, no safetensors), Blink-v0.3-26B-A4B-NVFP4 (NVFP4 kernels), rune-26b-a4b (safetensors repo private).
