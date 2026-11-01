@@ -3,6 +3,7 @@
     waila-zoo list [--porcelain]                      the registry (configs/zoo.yaml) with enabled flags
     waila-zoo prefetch [--models a,b] [--strict]      CPU: download weights into HF_HOME, build plan/eval_public.parquet
     waila-zoo run --model SLUG [--limit N] [--batch B] [--base-url URL] [--enable]    GPU: score one model → runs/zoo/<slug>/
+    waila-zoo rescore [--models a,b]                  CPU: re-map saved generative answers with the current mapper
     waila-zoo purge --models a,b                      CPU: delete those models' weights from HF_HOME
     waila-zoo lanes [--models a,b] [--lanes 4]        the Slurm chain plan: lane<TAB>group<TAB>slug<TAB>gpus<TAB>mem_gb
     waila-zoo leaderboard                             aggregate runs/zoo/*/public_metrics.json → leaderboard.{csv,md}
@@ -290,6 +291,8 @@ EXTRA_ALIASES = {
                   "eyes": "eye", "white blood cell": "white blood cells", "red blood cells": "blood cells"},
 }
 FUZZY_CUTOFF = 0.88
+# pieces of a compound answer ('chest/thorax', 'eye or retina', 'a | b', 'a; b', 'a, b'); tried only when the whole string does not map
+SPLIT = re.compile(r"\s*(?:[|;,/]|\bor\b)\s*", re.I)
 
 
 def key(s) -> str:
@@ -355,24 +358,31 @@ class Mapper:
                 return self.exact[f].get(m[0]) or self.alias[f][m[0]], "fuzzy"
         return None, "unmapped"
 
+    def _pieces(self, f, value):
+        """(class | None, how) per item of a raw value, in the model's order: a list's items; a string that does not map as a
+        whole is split into the pieces of a compound answer (SPLIT)."""
+        out = []
+        for it in ([str(v) for v in value] if isinstance(value, (list, tuple)) else [str(value)]):
+            c, how = self.map_one(f, it)               # the whole item first: class names can contain commas, slashes or "or"
+            parts = [p for p in SPLIT.split(it) if p.strip()] if how == "unmapped" else []  # "N/A" stays unknown
+            out += [self.map_one(f, p) for p in parts] if len(parts) > 1 else [(c, how)]
+        return out
+
     def map(self, f, value):
-        """(class | None, how) for a raw model value. A list, or a 'a|b' / 'a; b' / 'a, b' string, yields its first mappable item
-        (the model's primary answer); how ∈ exact | alias | fuzzy | unknown | unmapped | missing."""
+        """(class | None, how) for a raw model value: its first mappable item, the model's primary answer;
+        how ∈ exact | alias | fuzzy | unknown | unmapped | missing."""
         if value is None:
             return None, "missing"
-        items = [str(v) for v in value] if isinstance(value, (list, tuple)) else [str(value)]
-        if not isinstance(value, (list, tuple)) and re.search(r"[|;,]", items[0]):
-            c, how = self.map_one(f, items[0])               # the whole string first (class names can contain commas)
-            if c:
-                return c, how
-            items = [x for x in re.split(r"\s*[|;,]\s*", items[0]) if x.strip()]
         hows = []
-        for it in items:
-            c, how = self.map_one(f, it)
+        for c, how in self._pieces(f, value):
             if c:
                 return c, how
             hows.append(how)
         return None, ("unknown" if hows and all(h == "unknown" for h in hows) else "unmapped" if hows else "missing")
+
+    def map_all(self, f, value):
+        """Every class a raw value maps to, primary answer first, without repeats (multi-label fields keep them all)."""
+        return [] if value is None else list(dict.fromkeys(c for c, _ in self._pieces(f, value) if c))
 
 
 # ── turning predictions into the tensors score_public expects ────────────────────────────────────────────────────
@@ -380,15 +390,17 @@ HI, LO = 8.0, -8.0
 
 
 def onehot_logits(pred_idx, tgt, n_classes):
-    """[N, C] logits: +8 at the predicted class, -8 elsewhere. No prediction (unknown / unmapped / missing): -8 everywhere with
-    the first class that is NOT a target nudged to -7, so top-1 is guaranteed wrong (argmax of a flat row would be class 0,
+    """[N, C] logits: +8 at the predicted class, -8 elsewhere. A list of classes (multi-label answer) puts +8 on the first, the
+    model's primary answer, so it stays top-1, and +7 on the rest. No prediction (unknown / unmapped / missing): -8 everywhere
+    with the first class that is NOT a target nudged to -7, so top-1 is guaranteed wrong (argmax of a flat row would be class 0,
     which could be correct by accident) while sigmoid(-7) stays far below any multi-label threshold."""
     import torch
     L = torch.full((len(pred_idx), n_classes), LO)
     t = tgt.cpu().numpy() > 0
     for i, p in enumerate(pred_idx):
         if p is not None:
-            L[i, p] = HI
+            for k, j in enumerate(p if isinstance(p, (list, tuple)) else [p]):
+                L[i, j] = HI if k == 0 else HI - 1
         else:
             wrong = np.nonzero(~t[i])[0]
             if len(wrong):
@@ -417,6 +429,27 @@ def load_backend(entry):
     return lb(entry)
 
 
+MAP_HOWS = ("exact", "alias", "fuzzy", "unknown", "unmapped", "missing", "parse_failed")
+
+
+def _map_field(mapper, space, f, value):
+    """(class indices, primary answer first | None, how) for one raw value; multi-label fields keep every mapped class."""
+    c, how = mapper.map(f, value)
+    cs = mapper.map_all(f, value) if space.multilabel[f] else [c] if c else []
+    return [space.index[f][x] for x in cs] or None, how
+
+
+def _mapping_extra(how, ann, space):
+    """unmapped / unknown rates and per-field counts of how each requested answer was mapped."""
+    N = len(next(iter(how.values())))
+    asked_n = {f: int(ann[f].sum()) for f in space.fields}
+    cnt = {f: {h: sum(1 for i in range(N) if ann[f][i] and how[f][i] == h) for h in MAP_HOWS} for f in space.fields}
+    tot = max(sum(asked_n.values()), 1)
+    bad = sum(c["unmapped"] + c["missing"] + c["parse_failed"] for c in cnt.values())
+    return {"unmapped_rate": bad / tot, "unknown_rate": sum(c["unknown"] for c in cnt.values()) / tot, "mapping": cnt,
+            "n_asked": asked_n}
+
+
 def _generative(backend, df, root, space, modes, tgts, batch, max_side):
     from bio_waila.train.labels import MASKED
     mapper = Mapper(space)
@@ -436,22 +469,16 @@ def _generative(backend, df, root, space, modes, tgts, batch, max_side):
             rec = {"unique_id": df["unique_id"].iloc[i], "image": df["image"].iloc[i], "fields": a, "raw": text,
                    "json_ok": ok, "rationale": rationale, "values": {}, "mapped": {}}
             for f in a:
-                c, h = mapper.map(f, vals.get(f))
-                pred[f][i] = space.index[f][c] if c else None
+                pred[f][i], h = _map_field(mapper, space, f, vals.get(f))
                 how[f][i] = h if ok or h != "missing" else "parse_failed"
-                rec["values"][f], rec["mapped"][f] = vals.get(f), {"class": c, "how": how[f][i]}
+                cs = [space.classes[f][j] for j in pred[f][i] or []]
+                rec["values"][f], rec["mapped"][f] = vals.get(f), {"class": cs[0] if cs else None, "classes": cs, "how": how[f][i]}
             raw.append(rec)
         print(f"[zoo] generative {min(s + batch, len(todo))}/{len(todo)}", flush=True)
     secs = time.perf_counter() - t0
     logits = {f: onehot_logits(pred[f], tgts[f], space.n(f)) for f in space.fields}
-    asked_n = {f: int(ann[f].sum()) for f in space.fields}
-    cnt = {f: {h: sum(1 for i in range(N) if ann[f][i] and how[f][i] == h)
-               for h in ("exact", "alias", "fuzzy", "unknown", "unmapped", "missing", "parse_failed")} for f in space.fields}
-    tot = max(sum(asked_n.values()), 1)
-    bad = sum(c["unmapped"] + c["missing"] + c["parse_failed"] for c in cnt.values())
-    extra = {"unmapped_rate": bad / tot, "unknown_rate": sum(c["unknown"] for c in cnt.values()) / tot,
-             "json_ok_rate": float(np.mean([r["json_ok"] for r in raw])) if raw else float("nan"),
-             "mapping": cnt, "n_asked": asked_n}
+    extra = {**_mapping_extra(how, ann, space),
+             "json_ok_rate": float(np.mean([r["json_ok"] for r in raw])) if raw else float("nan")}
     cols = {f"{f}_raw": [json.dumps(r["values"].get(f)) if f in r["values"] else None for r in _by_row(raw, df)] for f in space.fields}
     cols.update({f"{f}_map": [how[f][i] if ann[f][i] else None for i in range(N)] for f in space.fields})
     return logits, secs, extra, cols, raw
@@ -547,6 +574,49 @@ def run_model(entry, limit=None, batch=None, out_root=None, backend=None, public
     print(f"[zoo] {entry.slug}: C={res['C']:.4f} mean_field_acc={res['mean_field_acc']:.4f} n={res['n_images']} "
           f"{res['zoo']['sec_per_image']:.2f}s/img → {out}", flush=True)
     return res
+
+
+def rescore(slugs=None, root=None, public=None):
+    """Re-map the saved raw answers of finished generative runs with the current Mapper and rewrite their reports, on CPU
+    (no model is loaded; raw_outputs.jsonl keeps the original mapping). Returns {slug: (old C, new C)}."""
+    from bio_waila.eval import public as pub
+    from bio_waila.train.labels import MASKED, LabelSpace
+    got = public or pub.try_load_public({}, limit=None)
+    if got is None:
+        raise SystemExit("mmbu-public is not available (set WAILA_PUBLIC; `waila-zoo prefetch` builds the eval set)")
+    full = got[0].set_index("unique_id")
+    space = LabelSpace.load()
+    mapper = Mapper(space)
+    out = {}
+    for p in sorted(Path(root or RUNS / "zoo").glob("*/public_metrics.json")):
+        m = json.loads(p.read_text())
+        z = m.get("zoo") or {}
+        if z.get("mode") != "generative" or (slugs and z.get("slug") not in slugs):
+            continue
+        old = pd.read_parquet(p.parent / "public_predictions.parquet")
+        df = full.loc[old["unique_id"]].reset_index()  # the run's rows in its order (also for --limit runs)
+        modes, tgts = encode_rows(df, space)
+        ann = {f: modes[f].numpy() != MASKED for f in space.fields}
+        pred = {f: [None] * len(df) for f in space.fields}
+        how = {f: ["missing"] * len(df) for f in space.fields}
+        for f in space.fields:
+            for i in np.nonzero(ann[f])[0]:
+                raw, was = old[f"{f}_raw"].iloc[i], old[f"{f}_map"].iloc[i]
+                value = json.loads(raw) if isinstance(raw, str) else None
+                pred[f][i], h = _map_field(mapper, space, f, value)
+                how[f][i] = "parse_failed" if was == "parse_failed" and value is None else h
+        logits = {f: onehot_logits(pred[f], tgts[f], space.n(f)) for f in space.fields}
+        res = pub.score_public(logits, modes, tgts, df, space)
+        res["zoo"] = {**z, **_mapping_extra(how, ann, space), "rescored": time.strftime("%Y-%m-%dT%H:%M:%S")}
+        table = pub.predictions_table(logits, modes, tgts, df, space)
+        for f in space.fields:
+            table[f"{f}_raw"] = old[f"{f}_raw"].to_numpy()
+            table[f"{f}_map"] = [how[f][i] if ann[f][i] else None for i in range(len(df))]
+        pub.write_public_report(p.parent, f"zoo:{z['slug']}:rescore", res, table)
+        out[z["slug"]] = (m["C"], res["C"])
+        print(f"[rescore] {z['slug']}: C {m['C']:.4f} → {res['C']:.4f}, unmapped rate {z.get('unmapped_rate') or 0:.3f} → "
+              f"{res['zoo']['unmapped_rate']:.3f}", flush=True)
+    return out
 
 
 # ── prefetch ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -730,6 +800,8 @@ def main(argv=None):
     p.add_argument("--out", default=None, help="output root (default runs/zoo)")
     p.add_argument("--base-url", default=None, help="systemone entries: server URL (overrides options.base_url; implies --enable)")
     p.add_argument("--enable", action="store_true", help="run an entry even though it is `enabled: false` in the registry")
+    p = sub.add_parser("rescore", help="CPU: re-map saved generative answers with the current mapper; rewrite the reports")
+    p.add_argument("--models", default=None, help="comma-separated slugs (default: every generative run in runs/zoo)")
     p = sub.add_parser("purge", help="CPU: delete these models' weights from the HF cache")
     p.add_argument("--models", required=True, help="comma-separated slugs")
     p = sub.add_parser("lanes", help="the Slurm chain plan as lane<TAB>group<TAB>slug<TAB>gpus<TAB>mem_gb")
@@ -751,6 +823,9 @@ def main(argv=None):
         return 0
     if a.cmd == "prefetch":
         return prefetch(a.models.split(",") if a.models else None, a.registry, a.strict)
+    if a.cmd == "rescore":
+        rescore(a.models.split(",") if a.models else None)
+        return 0
     if a.cmd == "purge":
         purge(a.models.split(","), a.registry)
         return 0

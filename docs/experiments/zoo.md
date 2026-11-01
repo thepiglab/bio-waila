@@ -14,6 +14,7 @@ Every run is logged in `plan/public_looks.jsonl` as `zoo:<slug>`.
 | `waila-zoo prefetch [--models a,b] [--strict]` | CPU | `snapshot_download` into `HF_HOME` (uses `HF_TOKEN`), builds `plan/eval_public.parquet` if missing. Gated or unauthorized repos are reported per model and the rest continue |
 | `waila-zoo run --model SLUG [--limit N] [--batch B] [--base-url URL] [--enable]` | GPU | scores one model; `--limit` takes a fixed-seed random subsample for smoke tests; works with `HF_HUB_OFFLINE=1`. A disabled entry is refused unless `--enable` is given (`--base-url`, systemone entries only, implies it) |
 | `waila-zoo leaderboard` | CPU | `runs/zoo/*/public_metrics.json` → `runs/zoo/leaderboard.csv` and `.md` (C, mean field acc, per-field acc, n, mode, params, seconds per image, unmapped rate) |
+| `waila-zoo rescore [--models a,b]` | CPU | re-maps the saved raw answers (`*_raw` in `public_predictions.parquet`) of generative runs with the current mapper and rewrites `public_metrics.json` / `public_predictions.parquet` (`zoo.rescored` records when); `raw_outputs.jsonl` keeps the original mapping |
 | `waila-zoo purge --models a,b` | CPU | deletes those models' weights (and a LoRA's base) from the HF cache through huggingface_hub's cache API, which also sweeps the shared blob store (`hub/blobs`) |
 | `waila-zoo lanes [--models a,b] [--lanes 4]` | anywhere | the Slurm chain plan, `lane<TAB>group<TAB>slug<TAB>gpus<TAB>mem_gb`: models sharing a repo form one group; groups keep the given order and are dealt round-robin to the lanes |
 
@@ -53,8 +54,13 @@ smart quotes and single-quoted JSON are tolerated, as is a flat object without `
 4. otherwise **unmapped**, which is wrong. `unknown` (and N/A, "none of the above", ...) is a decline: also wrong, but counted in
    `unknown_rate`, not in `unmapped_rate`.
 
-Lists and `a|b` / `a; b` / `a, b` strings are tried whole first, then item by item; the first item that maps is the prediction
-(top-1 is what C scores, in single- and multi-label fields alike). `unmapped_rate` = (unmapped + missing key + parse failure) / requested fields.
+Lists, and compound strings (`a/b`, `a or b`, `a|b`, `a; b`, `a, b`), are tried whole first and then piece by piece, the
+pieces only when the whole string is unmapped: "N/A" stays a decline. Added 2026-11-01: the first zoo runs left about 40% of
+generative answers unmapped, many of them compounds such as "chest/thorax". The first piece that maps is the prediction (top-1
+is what C scores, in single- and multi-label fields alike). In the multi-label fields (body part, domain), every mapped piece
+is predicted: +8 on the first, +7 on the rest, so the F1 metrics see them all. `unmapped_rate` = (unmapped + missing key + parse
+failure) / requested fields. After a mapper change, `waila-zoo rescore` re-maps the saved raw answers of every generative run on
+CPU and rewrites its report, so no GPU is needed.
 
 **Logits.** The predicted class gets logit +8 and every other class -8, so `score_public` sees a one-hot top-1. With no prediction
 every logit is -8 except the first non-target class (-7): the argmax is then never correct, and the multi-label sigmoid readout in

@@ -136,6 +136,11 @@ def test_parse_output_odd_shapes():
     ("body_part", "unknown | brain", "brain", "exact"),
     ("domain", ["Radiology"], "radiology", "exact"),
     ("submodality", "total internal reflection", None, "unmapped"),
+    # compound answers: split only when the whole string does not map; the first mappable piece is the answer
+    ("body_part", "chest/thorax", "chest", "exact"),
+    ("body_part", "Liver or Kidney", "liver", "exact"),
+    ("domain", "Urology/Radiology", "urology", "exact"),
+    ("modality", "banana/smoothie", None, "unmapped"),
 ])
 def test_mapper(field, value, cls, how):
     sp = small_space()
@@ -150,6 +155,22 @@ def test_mapper_unknown_unmapped_missing():
     assert m.map("modality", "banana smoothie") == (None, "unmapped")
     assert m.map("modality", None) == (None, "missing") and m.map("modality", []) == (None, "missing")
     assert m.map("modality", {"a": 1})[0] is None
+
+
+def test_mapper_map_all_keeps_every_piece_in_order():
+    m = zoo.Mapper(small_space())
+    assert m.map_all("body_part", "chest/abdomen") == ["chest", "abdomen"]
+    assert m.map_all("body_part", ["Liver", "unknown", "Kidney"]) == ["liver", "kidney"]
+    assert m.map_all("body_part", "lung / lungs") == ["lung"] and m.map_all("body_part", None) == []
+    sp = small_space()
+    assert zoo._map_field(m, sp, "body_part", "chest/abdomen") == ([sp.index["body_part"]["chest"], sp.index["body_part"]["abdomen"]], "exact")
+    assert zoo._map_field(m, sp, "modality", "MRI/CT") == ([sp.index["modality"]["magnetic resonance imaging"]], "alias")  # single-label: first
+
+
+def test_onehot_logits_multilabel_answer_keeps_primary_on_top():
+    tgt = torch.tensor([[1., 1., 0.]])
+    L = zoo.onehot_logits([[1, 0]], tgt, 3)
+    assert int(L.argmax(-1)[0]) == 1 and torch.sigmoid(L[0])[0] > 0.99 and torch.sigmoid(L[0])[2] < 0.01
 
 
 def test_onehot_logits_unmapped_is_never_correct():
@@ -309,6 +330,21 @@ def test_run_generative_end_to_end(zoo_world):
     assert looks[-1]["run"] == "zoo:fake" and looks[-1]["C"] == pytest.approx(res["C"])
     df = zoo.leaderboard(zoo_world / "zoo")
     assert df.slug.tolist() == ["fake"] and df.unmapped_rate[0] == pytest.approx(4 / 17)
+
+
+def test_rescore_remaps_saved_answers(zoo_world):
+    res = zoo.run_model(entry(), backend=FakeGenerator(), out_root=zoo_world / "zoo", batch=3)
+    out = zoo_world / "zoo" / "fake"
+    assert zoo.rescore(None, zoo_world / "zoo") == {"fake": (pytest.approx(res["C"]), pytest.approx(res["C"]))}  # same mapper
+    pr = pd.read_parquet(out / "public_predictions.parquet")
+    pr.loc[3, "modality_raw"] = json.dumps(f"banana/{pr.modality_target[3][0]}")  # img3's wrong modality, now a compound answer
+    pr.to_parquet(out / "public_predictions.parquet", index=False)
+    got = zoo.rescore(["fake"], zoo_world / "zoo")
+    assert got["fake"][1] == pytest.approx((1 + 0.8 + 0 + 1) / 4)
+    m = json.loads((out / "public_metrics.json").read_text())
+    assert m["zoo"]["rescored"] and m["zoo"]["mapping"]["modality"]["parse_failed"] == 1 and m["zoo"]["json_ok_rate"] == pytest.approx(0.75)
+    pr = pd.read_parquet(out / "public_predictions.parquet")
+    assert bool(pr.modality_correct[3]) and pr.modality_map[3] == "exact" and pr.stain_map[1] == "unknown"
 
 
 class FakeDecider:
