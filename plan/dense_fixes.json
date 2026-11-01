@@ -1,0 +1,25 @@
+{
+ "ccm-seg-2026": {
+  "classes": {
+   "1": "corneal nerve"
+  }
+ },
+ "prostate-ppat-healthy-longitudinal-2026": {
+  "_note": "The label volumes hold values 1-4 and neither Zenodo record has a legend, so the values stay unnamed. An earlier entry named 1 'periprostatic adipose tissue' from the dataset title alone; it was removed. Name the values from the per-volume metadata CSVs or the authors: the prostate and its surrounding fat sit in the same place on a slice."
+ },
+ "papila": {
+  "_note": "The HF copy (ai4ophth/PAPILA-dataset) stores its cup/disc masks as matplotlib figures (axes, ticks, white margins), which build rejects as 'figure'. The figshare original (doi:10.6084/m9.figshare.14798004) has the expert contour files; route the dense step there if PAPILA regions are needed."
+ },
+ "fdr26": {
+  "_note": "vessels_FDR26.zip pairs by name, but every mask is 560x576 while the images are 1960x1958 or 2576x1958 (the registry says the vessel masks are not original to this dataset), so build rejects them as size_mismatch. No usable dense labels."
+ },
+ "rav-rotterdam-artery-vein": {
+  "_note": "Colour A/V masks; classes stay rgb(...) until the colour legend is checked against the dataset README (registry classes: artery, vein, unknown vessel; overlaps are drawn in a mixed colour)."
+ },
+ "murinecyto-det": {
+  "classes": {
+   "Marcophage/Monocyte": "macrophage/monocyte"
+  },
+  "_note": "Colour masks are named from the per-image COCO boxes (5 cell types). The per-image json files carry a 'Research Use Only' licence string pointing at a Kaggle source, while the Zenodo record is CC-BY-4.0: check before training on it."
+ }
+}

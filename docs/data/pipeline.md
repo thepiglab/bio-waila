@@ -28,6 +28,30 @@ Every location is in `src/bio_waila/paths.py` and can be overridden with a `WAIL
 4. **Prepare**. Extracts archives, finds media (images, DICOM, NIfTI, video, WSI, arrays; masks and macOS junk are skipped by `files.py`), samples slices/frames/tiles, writes 8-bit JPEGs with a long side of at most 512 px, drops duplicates and anything near-identical to an mmbu-public image, and attaches the labels from step 3 (falling back to header and path rules if metalabel was not run). `--merge` concatenates the per-dataset manifests and writes `stats.md`.
 5. **Validate**. The same steps one dataset at a time inside a size-capped local cache (`waila-cache status`), for checking datasets on a laptop before using the cluster. It writes a per-dataset report: columns used, label modes and sources, conflicts, sample images. The raw download is deleted afterwards.
 
+### Dense annotations (optional step 6)
+
+The Pass-2 steps keep no masks, boxes or points: download samples media only and prepare skips masks. The point-seeded reveal traces of the grounded-reveal flywheel (`../data_discovery/research/grounded_reveal_flywheel.md`) need them, so `waila-dense` adds them as a sidecar without changing any image.
+
+| Command | Reads | Writes |
+|---|---|---|
+| `waila-dense fetch --shard i/n` | `$RAW/<id>/` (`_status.json`, `_files.jsonl`), the source listing, `$PREP/manifest/<id>.parquet` if present | annotation files paired with the media already downloaded, under the usual `files/`, `zip_members/`, `tar_members/`; HF datasets: `hf_masks/`, `_hf_dense.jsonl` |
+| `waila-dense build --shard i/n`, then `build --merge` | `$RAW/<id>/`, `$PREP/manifest/<id>.parquet`, `plan/dense_fixes.json` | `$PREP/dense/<id>/<image stem>.json` + one PNG per mask layer, `dense/manifest/<id>.parquet`, `dense.parquet`, `dense_stats.md` |
+
+- **Targets:** plan datasets whose registry entry lists spatial labels and that may train the student (`train_ok`), 173 as of 2026-10-30. `--all-spatial` adds the teacher-only ones; `--only` picks ids.
+- **New downloads:** `waila-download --dense` captures the annotations directly. For HF that means mask image columns plus box/point columns (`objects.bbox` with its ClassLabel names). For listings it runs `fetch` right after the media.
+- **Fetch never re-downloads images.**
+  - Loose files and zip members are re-listed, and only the annotation files that pair with downloaded media are fetched. Masks often sit in another zip (FDR26's `vessels_FDR26.zip`), so every zip's central directory is read.
+  - Tars are re-streamed.
+  - HF rows are re-streamed with the download's seed and `want` (from `_status.json`). Each row is checked against the image saved the first time.
+  - Archives downloaded whole need nothing: `build` extracts their masks.
+- **Pairing** (`dense.PairIndex`):
+  - **Matching order:** identical stems in parallel folders, then the same case key once role words are removed (`x.png` ↔ `x_mask.png`, `Image 98` ↔ `Seg 98`, `case_0000.nii.gz` ↔ `case.nii.gz`), then a key plus a class name (`C3L_03126` ↔ `C3L-03126_pancreas`), then the owner folder (`case/volume.nii.gz` ↔ `case/label.nii.gz`, TotalSegmentator's `s0001/segmentations/*`), then the BIDS subject.
+  - **Numeric keys** must come from parallel folders.
+  - **Content checks:** an RGB "mask" with more than 64 colours is an overlay and is rejected. Mask and image sizes must agree.
+- **Geometry:** annotations go through the same EXIF turn, resize and volume slicing as the image (canonical orientation + `rot90` for NIfTI, the shortest axis for SimpleITK volumes, items of `.npy` stacks).
+- **Annotation formats read:** YOLO / YOLO-seg / DOTA txt (class names from `classes.txt` or `data.yaml`), VOC and CVAT xml, labelme json, COCO json (boxes, polygons, keypoints, RLE), and CSV/TSV/JSON tables with box or point columns.
+- **Not covered yet:** video frames, WSI tiles, DICOM-SEG and multi-frame DICOM, HDF5. These are counted as `unsupported:*` in the build log.
+
 **Evaluation set (not a pipeline step).** `waila-eval-set` turns mmbu-public (`metadata.jsonl` + `images/`) into `plan/eval_public.parquet` in the training label format; fields a row leaves empty are `masked` and skipped when scoring. The split is **eval only**: nothing in the training manifest or any trainer reads it for learning. Trainers score their final model on it, and `waila-eval --run <run dir>` scores a finished run (`src/bio_waila/eval/public.py`, `run.py`): `public_metrics.json` (per-field metrics by MMBU task and pooled, plus the context score C: the mean over images of the share of annotated fields whose top-1 is in the target set), `public_predictions.parquet`, and a line in `plan/public_looks.jsonl` per look.
 
 ## Where does a fix go?
@@ -42,6 +66,7 @@ Pick the narrowest place that fixes the problem.
 | Masks, overlays or junk files are read as images, or real images are skipped | `src/bio_waila/data/files.py`, plus `tests/test_files.py` | re-run `profile`, `map`, `apply` and `prepare` |
 | A label spelling is not canonical (`HES` vs `h&e`, a new species alias) | `src/bio_waila/data/vocab.py` or `resources/public_aliases.json`, plus `tests/test_vocab.py` | re-run `waila-select` and metalabel |
 | Class lists or MMBU vocabulary change | `resources/` (`taxonomy.toml`, `pass2_vocabulary.json`, ...) | re-run `waila-select` |
+| Dense sidecars: wrong class names, an overlay folder taken as masks, a box format guessed wrong (`dense_stats.md`, the build log) | `plan/dense_fixes.json`: `{"<id>": {"classes": {"1": "polyp"}, "ignore": "<regex>", "box_format": "xyxy"}}`; a pairing rule that fails across datasets goes in `src/bio_waila/data/dense.py` with a case in `tests/test_dense.py` | re-run `waila-dense build` for that dataset |
 
 Rules of thumb: never edit the registry (it lives in the sibling `data_discovery` workspace); per-dataset knowledge goes in the two data files (`registry_fixes.json`, `overrides.csv`), general knowledge goes in code with a test. Every `registry_fixes.json` entry should say why (the `drop` and `reaudit` values are the reason strings).
 
@@ -59,6 +84,7 @@ One-time on a login node: `git clone`, then `bash slurm/setup.sh` (builds the ve
 
 - Pilot (about 64 images per dataset, CPU only, writes `$WAILA_WORK/prepared_pilot`): `bash slurm/cpu_pilot.sbatch submit 8`.
 - Full run: `sbatch slurm/download.sbatch`, then `slurm/metalabel.sbatch` (array), `slurm/metalabel_map.sbatch`, `slurm/prepare.sbatch` (array), and the merge (`MERGE=1`, see the script header). Chain them with `--dependency=afterok:<jobid>`.
+- Dense sidecars, after prepare: `sbatch slurm/dense.sbatch` (fetch + build per shard), then the merge with `MERGE=1`.
 - Pick up a code or plan change with `git pull` (and `bash slurm/setup.sh` if `pyproject.toml` or `uv.lock` changed).
 
 ## Behaviour changes on 2026-10-07 (validation round R/N)

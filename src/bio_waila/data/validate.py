@@ -102,6 +102,21 @@ def validate_one(row, guard: CacheGuard, args):
         rep["samples"] = [{"image": str(work / df.at[i, "image"]), "source": df.at[i, "source"],
                            **{f: list(df.at[i, f + "_values"]) for f in FIELDS},
                            "evidence": {f: df.at[i, f + "_evidence"] for f in FIELDS if df.at[i, f + "_evidence"]}} for i in idx]
+    if getattr(args, "dense", False) and rep.get("n_images"):  # sidecars must be built before raw/ is deleted
+        from bio_waila.data import dense
+        if "dense" in st:  # run_one fetched them right after the media (dl.DENSE)
+            rep["dense_fetch"] = st["dense"]
+        elif (raw / rid / "_hf_dense.jsonl").exists():
+            rep["dense_fetch"] = "captured while streaming (HF)"
+        else:  # downloaded earlier, without --dense
+            rep["dense_fetch"] = dense.fetch_dataset(row, raw, args.max_gb, 0, work)
+        rep["dense"] = dense.build_dataset(row, raw, work, dense.load_fixes())
+        dman = work / "dense" / "manifest" / f"{rid}.parquet"
+        if dman.exists():
+            dd = pd.read_parquet(dman)
+            rep["dense_samples"] = [{"image": str(work / x.image), "json": str(work / x.dense_json), "labels": list(x.labels),
+                                     "n_regions": int(x.n_regions), "n_boxes": int(x.n_boxes), "match": x.match}
+                                    for x in dd.head(args.samples).itertuples()]
     rep["status"] = "validated" if rep.get("n_images") else "no images prepared"
     freed = 0 if args.keep_raw else guard.remove_raw(rid)
     rep["raw_bytes_freed"] = freed
@@ -137,12 +152,14 @@ def main():
     ap.add_argument("--max-gb", type=float, default=3.0, help="per-dataset download budget")
     ap.add_argument("--samples", type=int, default=8, help="sample images listed in each report for visual checks")
     ap.add_argument("--keep-raw", action="store_true")
+    ap.add_argument("--dense", action="store_true", help="also fetch and build dense-annotation sidecars (dense.py)")
     ap.add_argument("--retry", action="store_true")
     ap.add_argument("--redo", action="store_true", help="re-validate datasets that already have a report")
     ap.add_argument("--wait-s", type=int, default=3600)
     ap.add_argument("--root", default=str(CACHE))
     ap.add_argument("--summary", action="store_true")
     args = ap.parse_args()
+    dl.DENSE = args.dense
     guard = CacheGuard(Path(args.root))
     if args.summary:
         return summary(guard)

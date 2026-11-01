@@ -48,6 +48,7 @@ from bio_waila.data import zipcompat  # noqa: F401  (registers Deflate64 support
 from bio_waila.data.files import IMAGE_EXT, MEDIA_EXT, ext, is_mask, kind
 
 from bio_waila.paths import PLAN, RAW
+DENSE = False             # --dense: also keep the annotations paired with the sampled media (see dense.py)
 OVERSAMPLE = 1.4          # extra files to absorb unreadable files, masks that slipped through and dedup losses
 SLICES_PER_VOLUME = 4     # prepare.py takes this many slices per 3D volume
 META_MAX = 50 * 2**20
@@ -658,6 +659,17 @@ def fetch_hf(ref, dest: Path, want, seed, dry, log, budget=None):
         return n, b, "hf-files:" + strat, notes + [f"streaming failed: {type(ex).__name__}"]
 
 
+def fetch_hf_dense(ref, dest: Path, want, seed):
+    """Dense top-up of an HF dataset streamed earlier: the same rows again (same seed and want), keeping only their mask
+    and box/point columns. Returns how many rows got annotations."""
+    import datasets
+    try:
+        dsd = datasets.load_dataset(ref, streaming=True)
+    except ValueError:
+        dsd = datasets.load_dataset(ref, datasets.get_dataset_config_names(ref)[0], streaming=True)
+    return _stream_hf(dsd, ref, dest, want, seed, [], None, [], dense_only=True)
+
+
 def _parquet_files(ds):
     """hf:// parquet files behind a streaming split (None if the split is not parquet-backed)."""
     ei = getattr(ds, "_ex_iterable", None)
@@ -707,11 +719,31 @@ def _split_rows(ds, n, seed):
     return ds.shuffle(seed=seed, buffer_size=100)  # small buffer: big images exhaust memory otherwise
 
 
-def _stream_hf(dsd, ref, dest, want, seed, log, budget, files):
+def _same_image(path: Path, im):
+    """The PNG saved earlier for this row holds the same picture (dense top-up re-streams rows and must not mix them)."""
     from PIL import Image
+    try:
+        old = Image.open(path)
+        if old.size != im.size:
+            return False
+        a = np.asarray(old.convert("L").resize((32, 32), Image.BILINEAR), dtype=np.int16)
+        b = np.asarray(im.convert("L").resize((32, 32), Image.BILINEAR), dtype=np.int16)
+        return bool(np.abs(a - b).max() <= 2)
+    except Exception:
+        return False
+
+
+def _stream_hf(dsd, ref, dest, want, seed, log, budget, files, dense_only=False):
+    """Save `want` image rows. With DENSE, also save each row's mask columns and box/point columns (dense.capture_hf_row).
+    dense_only re-runs the same sampling (same seed and want give the same rows) and only adds those annotations,
+    checking each row against the image saved the first time."""
+    from PIL import Image
+    from bio_waila.data import dense
     out = dest / "hf_images"
     out.mkdir(parents=True, exist_ok=True)
-    rows = open(dest / "hf_rows.jsonl", "a")
+    rows = io.StringIO() if dense_only else open(dest / "hf_rows.jsonl", "a")
+    dense_f = open(dest / "_hf_dense.jsonl", "a") if (DENSE or dense_only) else None
+    n_dense = 0
     got, nbytes = 0, 0
     splits = sorted(dsd.keys(), key=lambda s: (s != "train", s))
     names = {}  # ClassLabel columns: store the class *name*, not its integer
@@ -726,6 +758,7 @@ def _stream_hf(dsd, ref, dest, want, seed, log, budget, files):
         except Exception:
             pass
     for sp in splits:
+        cpaths = dense.class_label_paths(dsd[sp].features) if dense_f else {}
         quota = want - got if sp == splits[-1] else max(1, int((want - got) * (0.8 if sp == "train" else 0.5)))
         it = _split_rows(dsd[sp], min(2 * quota + 20, quota + 500), seed)  # spare rows for masks / rows without images
         taken = 0
@@ -751,14 +784,23 @@ def _stream_hf(dsd, ref, dest, want, seed, log, budget, files):
                 continue
             for k, im in imgs[:1]:
                 fn = f"{sp}_{i:07d}.png"
-                im.save(out / fn)
-                nbytes += (out / fn).stat().st_size
+                if dense_only:
+                    same = (out / fn).exists() and _same_image(out / fn, im)
+                    nbytes += (out / fn).stat().st_size if (out / fn).exists() else 0
+                else:
+                    im.save(out / fn)
+                    nbytes += (out / fn).stat().st_size
                 meta = {kk: (names[kk][vv] if kk in names and isinstance(vv, int) and 0 <= vv < len(names[kk]) else vv)
                         for kk, vv in ex.items() if isinstance(vv, (str, int, float, bool)) and len(str(vv)) <= 300}
                 if any(isinstance(v, str) and re.fullmatch(r"(mask|label|segmentation|gt|ground.?truth)s?", v.strip(), re.I)
                        for k_, v in meta.items() if k_ in names):
                     continue  # a ClassLabel saying this row is a mask (e.g. raabin-wbc "Mask"/"Original")
                 rows.write(json.dumps({"file": fn, "split": sp, "image_column": k, **meta}, ensure_ascii=False, default=str) + "\n")
+                if dense_f is not None and (not dense_only or same):
+                    rec = dense.capture_hf_row(ex, k, fn, dest, cpaths)
+                    if rec:
+                        dense_f.write(json.dumps(rec, default=str) + "\n")
+                        n_dense += 1
             got += 1
             taken += 1
             if taken >= quota or got >= want or (budget and nbytes >= budget):
@@ -766,6 +808,10 @@ def _stream_hf(dsd, ref, dest, want, seed, log, budget, files):
         if got >= want:
             break
     rows.close()
+    if dense_f is not None:
+        dense_f.close()
+    if dense_only:
+        return n_dense
     log.append({"src": f"hf:{ref}", "images": got, "bytes": nbytes})
     if got < max(1, 0.2 * want):  # CSV-only config, preview-only parquet (e.g. 60 slices), or images stored as files
         entries = [Entry(s.rfilename, s.size or -1, f"https://huggingface.co/datasets/{ref}/resolve/main/{s.rfilename}",
@@ -838,6 +884,13 @@ def run_one(row, out_root: Path, args):
         with open(dest / "_files.jsonl", "a") as f:
             for x in log:
                 f.write(json.dumps(x) + "\n")
+        if DENSE and st.get("state") in ("done", "partial") and st.get("strategy") != "hf-stream":  # HF rows captured inline
+            from bio_waila.data import dense
+            try:
+                st["dense"] = dense.fetch_dataset(row, out_root, args.max_gb, args.seed)
+            except Exception as ex:
+                st["dense"] = {"state": f"error: {type(ex).__name__}: {ex}"}
+            st_path.write_text(json.dumps(st, indent=1))
     return st
 
 
@@ -854,7 +907,11 @@ def main():
     ap.add_argument("--retry", action="store_true", help="also redo datasets marked done/manual/too_big")
     ap.add_argument("--pilot", type=int, default=0, help="cap images per dataset (e.g. 128) for a fast first pass; "
                     "a later full run tops the same folders up (files already fetched are reused)")
+    ap.add_argument("--dense", action="store_true", help="also keep the masks / box / point files paired with the "
+                    "sampled media (HF: mask and box columns); waila-dense build turns them into sidecars")
     args = ap.parse_args()
+    global DENSE
+    DENSE = args.dense
 
     rows = [json.loads(l) for l in open(args.plan)]
     if args.pilot:

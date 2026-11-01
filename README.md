@@ -78,6 +78,7 @@ bio-waila/
 │   │   ├── eval_set.py        mmbu-public → eval parquet (eval only)    (waila-eval-set)
 │   │   ├── autolabel.py       optional GPU fallback labeler             (waila-autolabel)
 │   │   ├── cache.py           size-capped local cache                   (waila-cache)
+│   │   ├── dense.py           masks / boxes / points → sidecar per image (waila-dense)
 │   │   └── validate.py        local per-dataset pipeline validation     (waila-validate)
 │   ├── models/                clm_siglip (CLM-vision), clm_llm (CLM-LLM), jev_gemma (Jev), moondream_vision, zoo_models (zoo backends)
 │   ├── train/                 labels, folds, data, losses; train_clm / train_clm_llm / train_jev   (waila-train-*)
@@ -113,6 +114,7 @@ The registry used by `waila-select` lives next to this repo, at `../data_discove
 | Label from metadata | `uv run waila-metalabel profile\|map\|apply` | `$WAILA_PREP/labels/<id>.parquet`, `metalabel/review.csv` |
 | Build images | `uv run waila-prepare --shard i/n` then `--merge` | `$WAILA_PREP/manifest.parquet`, `stats.md` |
 | Eval set | `uv run waila-eval-set` | `plan/eval_public.parquet` |
+| Dense sidecars (optional) | `uv run waila-dense fetch`, then `waila-dense build` and `build --merge` | `$WAILA_PREP/dense/<id>/*.json\|png`, `dense.parquet`, `dense_stats.md` |
 
 **Corrections:** dataset-level fixes from the audits live in `plan/registry_fixes.json`: drop, route, labels, exclude_paths. Per-value label overrides live in `plan/overrides.csv`. General matcher fixes go in `src/bio_waila/data/rules.py` with a test. Edit those, never the registry. Details: [docs/data/pipeline.md](docs/data/pipeline.md).
 
