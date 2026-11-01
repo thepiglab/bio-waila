@@ -23,8 +23,8 @@ weights (CPU, `STAGE=prefetch STRICT=1`) → one GPU job per model (own `--mem` 
 → delete the weights (CPU, `STAGE=purge`, `afterany`) → the next group. Weights never pile up (at most one group per lane on disk),
 at most `LANES` (default 4) GPUs are in use, and a failed download cancels its GPU jobs (`--kill-on-invalid-dep`) so the lane moves
 on. A CPU leaderboard job runs after every lane. `MODELS=a,b` runs those slugs only, in that order (put the priority models first;
-unknown or disabled slugs stop the submit). `ACCOUNT=<group>` submits to another allocation: CPU jobs on `<group>-b` (burst), GPU
-jobs on `<group>`. `sbatch --array=0-N slurm/zoo_eval.sbatch` (task i = i-th enabled model) needs every model downloaded first,
+unknown or disabled slugs stop the submit). `ACCOUNT=<group>` puts the GPU jobs on that group's QOS; `CPU_ACCOUNT=<group>` (default: `ACCOUNT`)
+puts the CPU jobs on that group's regular QOS, not burst. Example: GPUs on cai6734, CPUs on the CPU-only cai5731. `sbatch --array=0-N slurm/zoo_eval.sbatch` (task i = i-th enabled model) needs every model downloaded first,
 so it is for re-runs only. `bash slurm/zoo_lfm3.sh [LIMIT]` is the LFM3 comparison (d1-2B, plus LFM3-VL-2B against Gemma-4-E2B and
 LFM2.5-VL-3B; d1-3B is not rerun, since d1-2B replaces it; `docs/models/lfm3.md` §4); it first checks that the venv has transformers >= 5.19.
 

@@ -21,8 +21,8 @@
 #       LIMIT (optional): score a random subsample of that many public images, for a smoke test
 #   MODELS=a,b,c bash slurm/zoo_eval.sbatch submit [LIMIT]
 #       the same chain for those slugs only, in that order (priority first); unknown or disabled slugs stop the submit
-#   ACCOUNT=cai6734 LANES=4 MODELS=... bash slurm/zoo_eval.sbatch submit
-#       another allocation: CPU jobs on its burst QOS (<account>-b), GPU jobs on its investment QOS (<account>)
+#   ACCOUNT=cai6734 CPU_ACCOUNT=cai5731 LANES=4 MODELS=... bash slurm/zoo_eval.sbatch submit
+#       other allocations: GPU jobs on ACCOUNT's QOS, CPU jobs on CPU_ACCOUNT's regular QOS (default: ACCOUNT; no burst)
 #   bash slurm/zoo_lfm3.sh [LIMIT]       LFM3 comparison: d1-2B, LFM3-VL-2B vs Gemma-4-E2B, LFM2.5-VL-3B
 #   sbatch --export=ALL,MODEL=gen_medgemma_4b_it,LIMIT=64 slurm/zoo_eval.sbatch             # one model by hand (weights
 #                                                                                             # downloaded first, deleted after)
@@ -34,8 +34,11 @@ if [ "${1:-}" = submit ]; then
   : "${WAILA_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
   source "$WAILA_HOME/slurm/env.sh" || exit 1
   LIMIT=${2:-}; S=slurm/zoo_eval.sbatch; P=slurm/zoo_prefetch.sbatch
-  CPU=(); GPU=()   # ACCOUNT=<group>: CPU jobs on its burst QOS, GPU jobs on its investment QOS (default: the #SBATCH lines)
-  [ -n "${ACCOUNT:-}" ] && CPU=(--account="$ACCOUNT" --qos="$ACCOUNT-b") && GPU=(--account="$ACCOUNT" --qos="$ACCOUNT")
+  # ACCOUNT=<group>: GPU jobs on its QOS; CPU_ACCOUNT=<group> (default ACCOUNT): CPU jobs on its regular QOS, not burst.
+  # Neither set: the #SBATCH lines of the two scripts.
+  CPU=(); GPU=(); CA=${CPU_ACCOUNT:-${ACCOUNT:-}}
+  [ -n "${ACCOUNT:-}" ] && GPU=(--account="$ACCOUNT" --qos="$ACCOUNT")
+  [ -n "$CA" ] && CPU=(--account="$CA" --qos="$CA")
   PLAN=$(uv run --no-sync waila-zoo lanes ${MODELS:+--models "$MODELS"} --lanes "${LANES:-4}") || exit 1
   # Each lane takes its groups one after another: download (CPU) → score each model (GPU) → delete the weights (CPU).
   # A group's slugs reach the CPU jobs as MODELS in the environment: Slurm splits --export=VAR=a,b on commas.
