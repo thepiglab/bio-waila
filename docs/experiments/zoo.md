@@ -34,6 +34,15 @@ Every run is logged in `plan/public_looks.jsonl` as `zoo:<slug>`.
 | gen_gemma4_e2b_it | generative | 5.10 | 0.328 | 0.343 | 0.419 | 0.260 | 0.412 | 0.446 | 0.011 | 0.512 | 0.54 | 0.30 |
 | dec_liquid_d1_omni_600m | decision | 0.59 | 0.280 | 0.240 | 0.492 | 0.099 | 0.254 | 0.011 | 0.077 | 0.508 | 0.02 | – |
 
+**Re-sync to `a6280c5` (2026-11-02).** The table above was scored on the 2026-10-01 snapshot (`922064e`, 3,147 rows). `waila-zoo rescore --previous-public` re-scored every run on the current release on CPU.
+- **Coverage:** 2,959 of 3,103 rows. The other 144 have no prediction yet: 33 new rows, 7 swapped images, and 104 images redrawn under the same file name, mostly chest X-ray segmentation rows. A GPU run of a model covers them.
+- **Effect:** C moved by at most 0.011 and the order is unchanged. Rescored C:
+  - **Decision:** d1-3B 0.639, Gemma-4-E4B 0.592, 26B-A4B 0.587, 12B 0.580, d1-2B 0.512, d1-omni-600M 0.275.
+  - **Generative:**
+    - Gemma 4: 12B 0.448, 26B-A4B 0.444, E4B 0.392, E2B 0.328.
+    - MedGemma: 27B 0.434, 1.5-4B 0.395, 4B 0.366.
+    - LFM: LFM2.5-VL-3B 0.405, LFM3-VL-2B 0.381, LFM2.5-VL-1.6B 0.333.
+
 **Findings:**
 - **Decision readout beats generation by 15–20 points of C.** The readout always picks a valid class, while 16–44% of generated answers map to nothing. d1-3B (3.1B, 0.03 s/image) is the best model overall.
 - **Gemma 4's letter readout does not scale.** E4B, 12B and 26B-A4B land at 0.584–0.590.
