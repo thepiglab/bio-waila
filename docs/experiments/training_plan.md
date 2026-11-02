@@ -248,6 +248,12 @@ For mammoth-1, repair plus abstention were worth more than any architecture chan
 
 ## 6. What changed from the earlier plan
 
+- 2026-11-01: the stage-0 zero-shot zoo ran 16 Gemma and Liquid models on mmbu-public (`zoo.md`, Results).
+  - Its implications are noted there, and no decision here has changed yet.
+  - d1-3B was the best model (C 0.641), which favours keeping it as the voter.
+  - Gemma 4's letter readout does not improve with size, which supports E4B as the cheap Jev base.
+  - By the `lfm3.md` §4 rules, LFM3-VL-2B passes Gemma-4-E2B as the student.
+
 - Medical encoders enter as a **second tower** (MedSigLIP-448), not a replacement. No single medical encoder covers endoscopy, EM and fluorescence. MedSigLIP's medical pairs are 98% histopathology patches. Evidence that medical encoders beat a fine-tuned SigLIP is thin, except frozen or few-shot.
 - **Liquid d1-3B** is new: a free image-capable decision voter. **LFM2.5-VL-3B** is a real Track-3 student alternative if stored parameters count.
 - **EmbeddingGemma 2** gives a text-aligned tower of exactly the E2B shape: the first credible way to transfer a medically adapted tower into the student, not only labels.

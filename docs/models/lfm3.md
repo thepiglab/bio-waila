@@ -112,3 +112,8 @@ Both need checking on held-out datasets.
 - If zero-shot d1-2B is within ~3 points of zero-shot Gemma letter readout on mmbu-public fields, the d1-2B fine-tune arm gets priority over the E4B LoRA.
 - If LFM3-VL-2B no-think is at or above E2B on mmbu-public T, it becomes the default student.
 - Detection is weighted separately, because the IoU scoring is where the gap should show.
+
+**Zero-shot results, 2026-11-01** (`experiments/zoo.md`, Results). These are noted here and not yet adopted:
+- **d1-2B vs Gemma letter readout:** d1-2B scored C 0.514 against Gemma-4-E4B's 0.590, 7.6 points behind. By the first rule, the E4B LoRA keeps priority.
+- **LFM3-VL-2B vs Gemma-4-E2B:** 0.387 against 0.328, so by the second rule LFM3-VL-2B becomes the default student. LFM2.5-VL-3B scored 0.410. LFM3 returned valid JSON for only 18% of images.
+- **d1-3B, which this note replaced:** 0.641, the best of all zoo models, and 13 points above d1-2B.

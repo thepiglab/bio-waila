@@ -6,6 +6,50 @@ without any training on the public MMBU split and produces the same numbers as t
 metrics from `eval/public.py`. It answers "what does an off-the-shelf model already get?" and gives the baselines for the student.
 Every run is logged in `plan/public_looks.jsonl` as `zoo:<slug>`.
 
+## Results (2026-11-01)
+
+**Setup:**
+- All 3,147 mmbu-public images, zero-shot, one run per model. One B200 per model, on HiPerGator account cai6734.
+- Chain: download → score → delete (`zoo_eval.sbatch submit`).
+- Generative answers were scored with the compound-splitting mapper (commit e65f956); runs scored before it were rescored.
+- Only Gemma and Liquid models were run. The disabled entries (Mistral family, SmolVLM2, community decision fine-tunes) were not.
+- Copy of `runs/zoo/leaderboard.md` on the cluster:
+
+| model | mode | params (B) | C | mean acc | modality | submod. | body part | stain | specimen | domain | s/img | unmapped |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| dec_liquid_d1_3b | decision | 3.12 | **0.641** | 0.610 | 0.794 | 0.765 | 0.257 | 0.459 | 0.721 | 0.664 | 0.03 | – |
+| dec_gemma4_e4b_it | decision | 7.94 | 0.590 | 0.569 | 0.829 | 0.727 | 0.385 | 0.480 | 0.412 | 0.580 | 0.28 | – |
+| dec_gemma4_26b_a4b_it | decision | 25.81 | 0.587 | 0.580 | 0.790 | 0.697 | 0.296 | 0.582 | 0.512 | 0.606 | 0.43 | – |
+| dec_gemma4_12b_it | decision | 11.96 | 0.584 | 0.575 | 0.736 | 0.776 | 0.348 | 0.559 | 0.465 | 0.568 | 0.30 | – |
+| dec_liquid_d1_2b | decision | 1.92 | 0.514 | 0.455 | 0.749 | 0.666 | 0.210 | 0.145 | 0.433 | 0.526 | 0.02 | – |
+| gen_gemma4_26b_a4b_it | generative | 25.81 | **0.443** | 0.458 | 0.617 | 0.289 | 0.555 | 0.559 | 0.102 | 0.624 | 0.68 | 0.21 |
+| gen_gemma4_12b_it | generative | 11.96 | 0.441 | 0.457 | 0.644 | 0.328 | 0.527 | 0.559 | 0.103 | 0.582 | 0.72 | 0.28 |
+| gen_medgemma_27b_it | generative | 27.43 | 0.436 | 0.438 | 0.557 | 0.361 | 0.527 | 0.448 | 0.191 | 0.544 | 1.00 | 0.16 |
+| gen_lfm25_vl_3b | generative | 3.12 | 0.410 | 0.419 | 0.579 | 0.375 | 0.553 | 0.493 | 0.081 | 0.434 | 0.19 | 0.33 |
+| gen_medgemma_1_5_4b_it | generative | 4.30 | 0.404 | 0.365 | 0.438 | 0.421 | 0.499 | 0.150 | 0.173 | 0.508 | 0.59 | 0.22 |
+| gen_gemma4_e4b_it | generative | 7.94 | 0.389 | 0.393 | 0.592 | 0.275 | 0.493 | 0.423 | 0.002 | 0.575 | 0.62 | 0.22 |
+| gen_lfm3_vl_2b | generative | 1.92 | 0.387 | 0.409 | 0.570 | 0.306 | 0.533 | 0.548 | 0.138 | 0.360 | 0.27 | 0.44 |
+| gen_medgemma_4b_it | generative | 4.30 | 0.372 | 0.340 | 0.550 | 0.339 | 0.472 | 0.166 | 0.035 | 0.474 | 0.47 | 0.23 |
+| gen_lfm25_vl_1_6b | generative | 1.60 | 0.344 | 0.354 | 0.543 | 0.182 | 0.555 | 0.436 | 0.002 | 0.407 | 0.15 | 0.38 |
+| gen_gemma4_e2b_it | generative | 5.10 | 0.328 | 0.343 | 0.419 | 0.260 | 0.412 | 0.446 | 0.011 | 0.512 | 0.54 | 0.30 |
+| dec_liquid_d1_omni_600m | decision | 0.59 | 0.280 | 0.240 | 0.492 | 0.099 | 0.254 | 0.011 | 0.077 | 0.508 | 0.02 | – |
+
+**Findings:**
+- **Decision readout beats generation by 15–20 points of C.** The readout always picks a valid class, while 16–44% of generated answers map to nothing. d1-3B (3.1B, 0.03 s/image) is the best model overall.
+- **Gemma 4's letter readout does not scale.** E4B, 12B and 26B-A4B land at 0.584–0.590.
+- **Generative mode improves with size.** The top three are almost level: 26B-A4B 0.443, 12B 0.441 and MedGemma-27B 0.436. MedGemma beats Gemma 4 at neither size: MedGemma-4B 0.372 vs E4B 0.389, and 27B 0.436 vs 12B 0.441.
+- **Specimen fails in every generative run (0.00–0.19).** The models name the sample ("tissue section", "retina/fundus") instead of the organism the label asks for. The decision readout does not have this problem (d1-3B 0.72), so this comes from how the prompt asks for specimen, not from what the models know.
+- **Unmapped answers:**
+  - Splitting compounds such as "chest/thorax" lifted Gemma-4-E2B from 0.274 to 0.328 and E4B from 0.367 to 0.389.
+  - What stays unmapped is mostly vague: "medical imaging", "medicine", "light".
+  - LFM3-VL-2B returned valid JSON for only 18% of images (every other model 95–100%), which accounts for much of its 44% unmapped. Its score partly measures output format.
+
+**What this implies for the training plan.** None of this is adopted; the decisions stay with the user.
+- **Free voter:** d1-3B (0.641) beats d1-2B (0.514) by 13 points. `models/lfm3.md` replaced d1-3B with d1-2B on Liquid's benchmarks; this measurement points the other way.
+- **Jev teacher base:** the flat letter readout supports E4B as the cheap base. Scale may still matter after fine-tuning, which this does not test.
+- **d1-2B fine-tune arm (`lfm3.md` §4 rule):** d1-2B is 7.6 points behind Gemma's letter readout, more than the ~3-point threshold. By the rule, the E4B LoRA keeps priority.
+- **Track-3 student (`lfm3.md` §4 rule):** LFM3-VL-2B (0.387) is above Gemma-4-E2B (0.328), so by the rule it becomes the default student. The fallback LFM2.5-VL-3B scored higher still (0.410). LFM3's JSON failures (above) suggest a prompt or format fix may be worth more than the choice of base.
+
 ## Commands
 
 | Command | Where | What |
