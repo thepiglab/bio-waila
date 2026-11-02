@@ -455,7 +455,9 @@ class PublicIndex:
 
 
 def public_hashes(public_dir: Path, cache: Path):
-    cache = cache.with_name(cache.stem + "_v2.npz")
+    from bio_waila.data.eval_set import local_revision
+    rev = local_revision(public_dir)  # a re-synced copy gets its own cache (the image set changes between commits)
+    cache = cache.with_name(cache.stem + "_v2" + (f"_{rev[:12]}" if rev else "") + ".npz")
     if cache.exists():
         z = np.load(cache)
         return PublicIndex(z["dh256"], z["thumbs"])

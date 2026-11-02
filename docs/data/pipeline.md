@@ -52,7 +52,16 @@ The Pass-2 steps keep no masks, boxes or points: download samples media only and
 - **Annotation formats read:** YOLO / YOLO-seg / DOTA txt (class names from `classes.txt` or `data.yaml`), VOC and CVAT xml, labelme json, COCO json (boxes, polygons, keypoints, RLE), and CSV/TSV/JSON tables with box or point columns.
 - **Not covered yet:** video frames, WSI tiles, DICOM-SEG and multi-frame DICOM, HDF5. These are counted as `unsupported:*` in the build log.
 
-**Evaluation set (not a pipeline step).** `waila-eval-set` turns mmbu-public (`metadata.jsonl` + `images/`) into `plan/eval_public.parquet` in the training label format; fields a row leaves empty are `masked` and skipped when scoring. The split is **eval only**: nothing in the training manifest or any trainer reads it for learning. Trainers score their final model on it, and `waila-eval --run <run dir>` scores a finished run (`src/bio_waila/eval/public.py`, `run.py`): `public_metrics.json` (per-field metrics by MMBU task and pooled, plus the context score C: the mean over images of the share of annotated fields whose top-1 is in the target set), `public_predictions.parquet`, and a line in `plan/public_looks.jsonl` per look.
+**Evaluation set (not a pipeline step).**
+- **Pinning:** mmbu-public is pinned to one dataset commit, `PUBLIC_REVISION` in `src/bio_waila/paths.py`. It is the commit mmbu-eval pins, `a6280c5` (2026-10-30, 3,103 rows); see `../RULES_AND_UPDATES.md`.
+- **Re-syncing:** download into an empty folder with `hf download mmbu/mmbu-public --repo-type dataset --revision <PUBLIC_REVISION> --local-dir <folder>`, then point `WAILA_PUBLIC` at it or swap it in for `../mmbu-public`.
+- **What the pin enforces:**
+  - `waila-eval-set` refuses a copy from another commit and records the commit in `plan/eval_public.json`.
+  - A manifest built from an older copy is rebuilt automatically.
+  - The prepare step's near-duplicate hashes are cached per commit.
+  - `waila-zoo rescore` re-scores finished zoo runs on the new rows, on CPU.
+
+`waila-eval-set` turns mmbu-public (`metadata.jsonl` + `images/`) into `plan/eval_public.parquet` in the training label format; fields a row leaves empty are `masked` and skipped when scoring. The split is **eval only**: nothing in the training manifest or any trainer reads it for learning. Trainers score their final model on it, and `waila-eval --run <run dir>` scores a finished run (`src/bio_waila/eval/public.py`, `run.py`): `public_metrics.json` (per-field metrics by MMBU task and pooled, plus the context score C: the mean over images of the share of annotated fields whose top-1 is in the target set), `public_predictions.parquet`, and a line in `plan/public_looks.jsonl` per look.
 
 ## Where does a fix go?
 

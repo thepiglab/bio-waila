@@ -37,6 +37,21 @@ def test_load_public_builds_parquet(fake_public):
     assert pub.load_public(build_if_missing=False)[0].shape == df.shape      # now cached on disk
 
 
+def test_public_revision_is_pinned_and_rebuilds_on_resync(fake_public):
+    from bio_waila.data import eval_set
+    meta = fake_public / ".cache/huggingface/download"
+    meta.mkdir(parents=True)
+    (meta / "metadata.jsonl.metadata").write_text("b" * 40 + "\netag\n1.0\n")
+    with pytest.raises(SystemExit, match="re-sync"):          # a copy from another commit than the pin is refused
+        pub.load_public()
+    eval_set.build(fake_public, pub.PLAN, revision="b" * 40)  # this commit is pinned for the test
+    assert eval_set.recorded_revision(pub.PLAN) == "b" * 40
+    assert len(pub.load_public()[0]) == 4                     # recorded == on disk: the manifest is reused
+    (meta / "metadata.jsonl.metadata").write_text(eval_set.PUBLIC_REVISION + "\netag\n1.0\n")  # re-synced to the pin
+    pub.load_public()
+    assert eval_set.recorded_revision(pub.PLAN) == eval_set.PUBLIC_REVISION  # the stale manifest was rebuilt
+
+
 def test_load_public_missing_message(tmp_path, monkeypatch):
     monkeypatch.setattr(pub, "PUBLIC", tmp_path / "nope")
     monkeypatch.setattr(pub, "PLAN", tmp_path / "plan_x")

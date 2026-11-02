@@ -12,5 +12,8 @@ PREP = Path(os.environ.get("WAILA_PREP", DATA / "prepared"))    # metalabel/prep
 CACHE = Path(os.environ.get("WAILA_CACHE", DATA / "cache"))     # local validation cache (size-capped, see data/cache.py)
 # the public MMBU split (eval only) and the dataset registry live next to this repo in the mmbu/ workspace
 PUBLIC = Path(os.environ.get("WAILA_PUBLIC", REPO.parent / "mmbu-public"))
+# mmbu-public is pinned to one dataset commit, the one mmbu-eval pins (RULES_AND_UPDATES.md). Re-sync with
+#   hf download mmbu/mmbu-public --repo-type dataset --revision <PUBLIC_REVISION> --local-dir <WAILA_PUBLIC>
+PUBLIC_REVISION = os.environ.get("WAILA_PUBLIC_REVISION", "a6280c5004ff93ba67ae4e84de9ec2dcb53c4d5e")
 REGISTRY = Path(os.environ.get("WAILA_REGISTRY", REPO.parent / "data_discovery" / "build" / "registry.json"))
 RUNS = Path(os.environ.get("WAILA_RUNS", REPO / "runs"))        # training / benchmark outputs (gitignored)

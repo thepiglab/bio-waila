@@ -32,7 +32,9 @@ def load_public(build_if_missing=True, parquet=None):
     """(eval manifest, image root). Raises PublicMissing (with the expected location) if mmbu-public is not there."""
     from bio_waila.data import eval_set
     pq = Path(parquet) if parquet else PLAN / "eval_public.parquet"
-    if not pq.exists():
+    # a manifest built from another copy of mmbu-public (e.g. before a re-sync) is rebuilt from the copy on disk
+    stale = parquet is None and pq.exists() and eval_set.recorded_revision(PLAN) != eval_set.local_revision(PUBLIC)
+    if not pq.exists() or stale:
         if parquet is None and build_if_missing and (PUBLIC / "metadata.jsonl").exists():
             df = eval_set.build(PUBLIC, PLAN)
         else:
@@ -104,7 +106,7 @@ def score_public(logits, modes, tgts, df, space, temps=None):
 def predictions_table(logits, modes, tgts, df, space):
     """One row per image: unique_id, image, task, and per field the top-1 label, the target labels and a correct flag (NA if masked)."""
     top, hit, ann = _hits(logits, modes, tgts, space)
-    out = df[["unique_id", "image", "task"]].reset_index(drop=True).copy()
+    out = df[[c for c in ("unique_id", "image", "image_sha1", "task") if c in df]].reset_index(drop=True).copy()
     for f in space.fields:
         names = space.classes[f]
         out[f"{f}_pred"] = [names[i] for i in top[f]]

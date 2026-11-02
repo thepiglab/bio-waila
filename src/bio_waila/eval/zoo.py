@@ -3,7 +3,7 @@
     waila-zoo list [--porcelain]                      the registry (configs/zoo.yaml) with enabled flags
     waila-zoo prefetch [--models a,b] [--strict]      CPU: download weights into HF_HOME, build plan/eval_public.parquet
     waila-zoo run --model SLUG [--limit N] [--batch B] [--base-url URL] [--enable]    GPU: score one model → runs/zoo/<slug>/
-    waila-zoo rescore [--models a,b]                  CPU: re-map saved generative answers with the current mapper
+    waila-zoo rescore [--models a,b] [--previous-public DIR]    CPU: re-score finished runs on the current eval set
     waila-zoo purge --models a,b                      CPU: delete those models' weights from HF_HOME
     waila-zoo lanes [--models a,b] [--lanes 4]        the Slurm chain plan: lane<TAB>group<TAB>slug<TAB>gpus<TAB>mem_gb
     waila-zoo leaderboard                             aggregate runs/zoo/*/public_metrics.json → leaderboard.{csv,md}
@@ -538,6 +538,7 @@ def _decision_cols(logits, modes, space):
 def run_model(entry, limit=None, batch=None, out_root=None, backend=None, public=None, seed=0):
     """Score one zoo entry on mmbu-public and write runs/zoo/<slug>/ (public_metrics.json, public_predictions.parquet,
     raw_outputs.jsonl for generative) plus a line in plan/public_looks.jsonl. Returns the result dict."""
+    from bio_waila.data import eval_set
     from bio_waila.eval import public as pub
     from bio_waila.train.labels import LabelSpace
     got = public or pub.try_load_public({}, limit=None)
@@ -563,7 +564,7 @@ def run_model(entry, limit=None, batch=None, out_root=None, backend=None, public
                   "total_sec": secs, "limit": limit, "batch": bs,
                   "backend": entry.backend or None, "max_new_tokens": entry.max_new_tokens if entry.mode == "generative" else None,
                   "k_max": (entry.k_max or 26) if entry.mode == "decision" and entry.readout == "letters" else entry.k_max,
-                  **extra}
+                  "public_revision": eval_set.recorded_revision(pub.PLAN), **extra}
     table = pub.predictions_table(logits, modes, tgts, df, space)
     for k, v in cols.items():
         table[k] = v
@@ -576,46 +577,78 @@ def run_model(entry, limit=None, batch=None, out_root=None, backend=None, public
     return res
 
 
-def rescore(slugs=None, root=None, public=None):
-    """Re-map the saved raw answers of finished generative runs with the current Mapper and rewrite their reports, on CPU
-    (no model is loaded; raw_outputs.jsonl keeps the original mapping). Returns {slug: (old C, new C)}."""
+def rescore(slugs=None, root=None, public=None, previous=None):
+    """Re-score finished runs on the current eval set (after a mapper change or an mmbu-public re-sync), on CPU: no model
+    is loaded. Generative runs re-map their saved raw answers with the current Mapper; decision runs keep their saved top-1
+    class per field, so C and the field accuracies are exact but the probability-based metrics are dropped. Rows are
+    matched by unique_id and image content: rows the current set dropped are left out, and rows it added or whose image
+    changed have no prediction, so they are not scored and are counted in zoo.n_unscored (a GPU run of the model covers
+    them). Image content is compared by the image_sha1 the predictions carry; runs made before that column existed need
+    `previous`, the mmbu-public copy they were scored on (otherwise only file names are compared, and releases change
+    pixels under the same name). The first report is kept as public_metrics.before_rescore.json; raw_outputs.jsonl keeps
+    the original mapping. Returns {slug: (old C, new C)}."""
+    from bio_waila.data import eval_set
     from bio_waila.eval import public as pub
     from bio_waila.train.labels import MASKED, LabelSpace
     got = public or pub.try_load_public({}, limit=None)
     if got is None:
         raise SystemExit("mmbu-public is not available (set WAILA_PUBLIC; `waila-zoo prefetch` builds the eval set)")
-    full = got[0].set_index("unique_id")
+    full = got[0].drop_duplicates("unique_id").set_index("unique_id")
+    revision = eval_set.recorded_revision(pub.PLAN)
     space = LabelSpace.load()
     mapper = Mapper(space)
     out = {}
     for p in sorted(Path(root or RUNS / "zoo").glob("*/public_metrics.json")):
         m = json.loads(p.read_text())
         z = m.get("zoo") or {}
-        if z.get("mode") != "generative" or (slugs and z.get("slug") not in slugs):
+        if z.get("mode") not in MODES or (slugs and z.get("slug") not in slugs):
             continue
         old = pd.read_parquet(p.parent / "public_predictions.parquet")
-        df = full.loc[old["unique_id"]].reset_index()  # the run's rows in its order (also for --limit runs)
+        now = full.reindex(old["unique_id"])  # NaN rows: dropped from the current set
+        if "image_sha1" in old and "image_sha1" in now:
+            same = old["image_sha1"].to_numpy() == now["image_sha1"].to_numpy()
+        elif previous is not None and "image_sha1" in now:
+            seen = [eval_set.image_sha1(Path(previous) / im) for im in old["image"]]
+            same = (np.array(seen, dtype=object) == now["image_sha1"].to_numpy()) & now["image"].notna().to_numpy()
+        else:
+            same = old["image"].to_numpy() == now["image"].to_numpy()
+        old = old[same].reset_index(drop=True)
+        df = full.loc[old["unique_id"]].reset_index()  # the run's surviving rows in its order (also for --limit runs)
         modes, tgts = encode_rows(df, space)
         ann = {f: modes[f].numpy() != MASKED for f in space.fields}
         pred = {f: [None] * len(df) for f in space.fields}
         how = {f: ["missing"] * len(df) for f in space.fields}
         for f in space.fields:
             for i in np.nonzero(ann[f])[0]:
+                if z["mode"] == "decision":
+                    pred[f][i] = space.index[f].get(old[f"{f}_pred"].iloc[i])
+                    continue
                 raw, was = old[f"{f}_raw"].iloc[i], old[f"{f}_map"].iloc[i]
                 value = json.loads(raw) if isinstance(raw, str) else None
                 pred[f][i], h = _map_field(mapper, space, f, value)
                 how[f][i] = "parse_failed" if was == "parse_failed" and value is None else h
         logits = {f: onehot_logits(pred[f], tgts[f], space.n(f)) for f in space.fields}
         res = pub.score_public(logits, modes, tgts, df, space)
-        res["zoo"] = {**z, **_mapping_extra(how, ann, space), "rescored": time.strftime("%Y-%m-%dT%H:%M:%S")}
+        extra = _mapping_extra(how, ann, space) if z["mode"] == "generative" else {}
+        if z["mode"] == "decision":  # top-1 only: the saved predictions hold no full probability vectors
+            res["metrics_by_task"] = res["metrics_pooled"] = None
+        res["zoo"] = {**z, **extra, "rescored": time.strftime("%Y-%m-%dT%H:%M:%S"), "public_revision": revision,
+                      "n_unscored": int(len(full) - len(df))}
         table = pub.predictions_table(logits, modes, tgts, df, space)
-        for f in space.fields:
-            table[f"{f}_raw"] = old[f"{f}_raw"].to_numpy()
-            table[f"{f}_map"] = [how[f][i] if ann[f][i] else None for i in range(len(df))]
+        for c in old.columns:
+            if c.endswith(("_raw", "_prob")):
+                table[c] = old[c].to_numpy()
+        if z["mode"] == "generative":
+            for f in space.fields:
+                table[f"{f}_map"] = [how[f][i] if ann[f][i] else None for i in range(len(df))]
+        first = p.parent / "public_metrics.before_rescore.json"
+        if not first.exists():
+            first.write_text(p.read_text())
         pub.write_public_report(p.parent, f"zoo:{z['slug']}:rescore", res, table)
         out[z["slug"]] = (m["C"], res["C"])
-        print(f"[rescore] {z['slug']}: C {m['C']:.4f} → {res['C']:.4f}, unmapped rate {z.get('unmapped_rate') or 0:.3f} → "
-              f"{res['zoo']['unmapped_rate']:.3f}", flush=True)
+        print(f"[rescore] {z['slug']}: C {m['C']:.4f} → {res['C']:.4f} on {len(df)} rows ({len(full) - len(df)} unscored)"
+              + (f", unmapped rate {z.get('unmapped_rate') or 0:.3f} → {res['zoo']['unmapped_rate']:.3f}"
+                 if z["mode"] == "generative" else ""), flush=True)
     return out
 
 
@@ -745,11 +778,11 @@ def leaderboard(root=None):
             continue
         r = {"slug": z["slug"], "mode": z["mode"], "hf_id": z["hf_id"], "params_b": z.get("params_b"), "n": m.get("n_images"),
              "C": m.get("C"), "mean_field_acc": m.get("mean_field_acc"), "sec_per_image": z.get("sec_per_image"),
-             "unmapped_rate": z.get("unmapped_rate"), "limit": z.get("limit")}
+             "unmapped_rate": z.get("unmapped_rate"), "limit": z.get("limit"), "unscored": z.get("n_unscored")}
         for f in FIELDS:
             r[f"acc_{f}"] = (m.get("field_acc", {}).get(f) or {}).get("acc")
         rows.append(r)
-    cols = ["slug", "mode", "hf_id", "params_b", "n", "C", "mean_field_acc"] + [f"acc_{f}" for f in FIELDS] + \
+    cols = ["slug", "mode", "hf_id", "params_b", "n", "unscored", "C", "mean_field_acc"] + [f"acc_{f}" for f in FIELDS] + \
            ["sec_per_image", "unmapped_rate", "limit"]
     df = pd.DataFrame(rows, columns=cols)
     if len(df):
@@ -767,16 +800,15 @@ def _markdown(df):
             return "–"
         if c in ("params_b", "sec_per_image"):
             return f"{v:.2f}"
-        if c == "n":
-            return str(int(v))
-        if c == "limit":
+        if c in ("n", "unscored", "limit"):
             return str(int(v))
         return f"{v:.3f}" if isinstance(v, (float, np.floating)) else str(v)
     head = {"params_b": "params (B)", "sec_per_image": "s/img", "mean_field_acc": "mean acc", "unmapped_rate": "unmapped"}
     cols = [c for c in df.columns if c not in ("hf_id", "limit")]
     lines = ["# Model zoo leaderboard (mmbu-public, Pass 2)", "",
              "C = context score (mean over images of the fraction of annotated fields whose top-1 is correct); acc_* = per-field top-1 accuracy. "
-             "`unmapped` = share of requested fields whose generated answer could not be mapped to a class (generative only).", "",
+             "`unmapped` = share of requested fields whose generated answer could not be mapped to a class (generative only). "
+             "`unscored` = rows of the current mmbu-public a rescored run has no prediction for (new rows or changed images).", "",
              "| " + " | ".join(head.get(c, c) for c in cols) + " |", "|" + "|".join("---" for _ in cols) + "|"]
     for _, r in df.iterrows():
         lines.append("| " + " | ".join(fmt(c, r[c]) for c in cols) + " |")
@@ -800,8 +832,10 @@ def main(argv=None):
     p.add_argument("--out", default=None, help="output root (default runs/zoo)")
     p.add_argument("--base-url", default=None, help="systemone entries: server URL (overrides options.base_url; implies --enable)")
     p.add_argument("--enable", action="store_true", help="run an entry even though it is `enabled: false` in the registry")
-    p = sub.add_parser("rescore", help="CPU: re-map saved generative answers with the current mapper; rewrite the reports")
-    p.add_argument("--models", default=None, help="comma-separated slugs (default: every generative run in runs/zoo)")
+    p = sub.add_parser("rescore", help="CPU: re-score finished runs on the current eval set (mapper change or re-sync)")
+    p.add_argument("--models", default=None, help="comma-separated slugs (default: every run in runs/zoo)")
+    p.add_argument("--previous-public", default=None,
+                   help="the mmbu-public copy older runs were scored on, to find images that changed under the same name")
     p = sub.add_parser("purge", help="CPU: delete these models' weights from the HF cache")
     p.add_argument("--models", required=True, help="comma-separated slugs")
     p = sub.add_parser("lanes", help="the Slurm chain plan as lane<TAB>group<TAB>slug<TAB>gpus<TAB>mem_gb")
@@ -824,7 +858,7 @@ def main(argv=None):
     if a.cmd == "prefetch":
         return prefetch(a.models.split(",") if a.models else None, a.registry, a.strict)
     if a.cmd == "rescore":
-        rescore(a.models.split(",") if a.models else None)
+        rescore(a.models.split(",") if a.models else None, previous=a.previous_public)
         return 0
     if a.cmd == "purge":
         purge(a.models.split(","), a.registry)

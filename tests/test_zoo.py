@@ -17,7 +17,7 @@ from bio_waila.eval import zoo  # noqa: E402
 from bio_waila.models import jev_gemma  # noqa: E402
 from bio_waila.train.labels import LabelSpace  # noqa: E402
 from test_public import _tiny_public_manifest, fake_public  # noqa: E402,F401
-from test_train import KINDS, world  # noqa: E402,F401
+from test_train import KINDS, SPACE, world  # noqa: E402,F401
 
 
 def small_space():
@@ -257,7 +257,7 @@ def test_leaderboard_aggregates(tmp_path):
     df = zoo.leaderboard(tmp_path)
     assert list(df.slug) == ["high", "low"] and df.C.iloc[0] == 0.7
     back = pd.read_csv(tmp_path / "leaderboard.csv")
-    assert list(back.columns[:7]) == ["slug", "mode", "hf_id", "params_b", "n", "C", "mean_field_acc"]
+    assert list(back.columns[:8]) == ["slug", "mode", "hf_id", "params_b", "n", "unscored", "C", "mean_field_acc"]
     assert back.acc_modality.tolist() == [0.7, 0.2] and np.isnan(back.acc_body_part[0]) and np.isnan(back.unmapped_rate[0])
     md = (tmp_path / "leaderboard.md").read_text()
     assert md.index("| high ") < md.index("| low ") and "0.700" in md and "–" in md
@@ -330,6 +330,42 @@ def test_run_generative_end_to_end(zoo_world):
     assert looks[-1]["run"] == "zoo:fake" and looks[-1]["C"] == pytest.approx(res["C"])
     df = zoo.leaderboard(zoo_world / "zoo")
     assert df.slug.tolist() == ["fake"] and df.unmapped_rate[0] == pytest.approx(4 / 17)
+
+
+def test_rescore_follows_a_new_public_revision(zoo_world):
+    zoo.run_model(entry("dec", "decision", k_max=12), backend=FakeDecider(), out_root=zoo_world / "zoo")
+    df, root = pub.load_public()
+    new = df[df.unique_id != "u0"].reset_index(drop=True)              # u0 dropped from the current set
+    new.loc[new.unique_id == "u1", "image"] = "images/9.jpg"           # u1's image replaced: its old answer no longer applies
+    i3 = int(new.index[new.unique_id == "u3"][0])
+    new.at[i3, "modality_values"] = [next(c for c in SPACE["modality"]["classes"] if c != KINDS[0][0])]  # relabelled
+    new = pd.concat([new, new[new.unique_id == "u2"].assign(unique_id="u4")], ignore_index=True)        # a row never seen
+    got = zoo.rescore(None, zoo_world / "zoo", public=(new, root))
+    n3 = sum(new.at[i3, f"{f}_mode"] != "masked" for f in SPACE)
+    assert got["dec"][0] == pytest.approx(1.0) and got["dec"][1] == pytest.approx((1 + (n3 - 1) / n3) / 2)
+    out = zoo_world / "zoo" / "dec"
+    m = json.loads((out / "public_metrics.json").read_text())
+    assert m["n_images"] == 2 and m["zoo"]["n_unscored"] == 2 and m["metrics_by_task"] is None
+    assert json.loads((out / "public_metrics.before_rescore.json").read_text())["n_images"] == 4
+    assert list(pd.read_parquet(out / "public_predictions.parquet").unique_id) == ["u2", "u3"]
+    assert zoo.leaderboard(zoo_world / "zoo").unscored.tolist() == [2]
+
+
+def test_rescore_finds_images_changed_under_the_same_name(zoo_world, tmp_path):
+    import shutil
+    from PIL import Image
+    from bio_waila.data import eval_set
+    zoo.run_model(entry("dec", "decision", k_max=12), backend=FakeDecider(), out_root=zoo_world / "zoo")
+    df, root = pub.load_public()
+    prev = tmp_path / "prev"                                         # the copy the run was scored on
+    shutil.copytree(root, prev)
+    Image.new("RGB", (32, 32), (9, 9, 9)).save(root / "images" / "2.jpg")   # the new release redraws u2's image
+    new = df.assign(image_sha1=[eval_set.image_sha1(root / im) for im in df.image])
+    zoo.rescore(None, zoo_world / "zoo", public=(new, root), previous=prev)
+    m = json.loads((zoo_world / "zoo" / "dec" / "public_metrics.json").read_text())
+    assert m["n_images"] == 3 and m["zoo"]["n_unscored"] == 1
+    pr = pd.read_parquet(zoo_world / "zoo" / "dec" / "public_predictions.parquet")
+    assert "u2" not in set(pr.unique_id) and pr.image_sha1.notna().all()   # later rescores compare these hashes directly
 
 
 def test_rescore_remaps_saved_answers(zoo_world):
