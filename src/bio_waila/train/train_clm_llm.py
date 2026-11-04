@@ -137,7 +137,8 @@ def cmd_train(cfg, fold):
     folds = load_or_make_folds(tr_all, k=d.get("folds_k", 5), path=d.get("folds_path"))
     train, heldout = split(tr_all, folds, fold)
     train, xtr, mtr, ttr = tensors(train, root, X, pos, space)
-    sets = {name: tensors(s, root, X, pos, space) for name, s in (("val", val), ("heldout", heldout)) if len(s)}
+    sets = {name: t for name, s in (("val", val), ("heldout", heldout))
+            for t in [tensors(s, root, X, pos, space)] if len(t[0])}  # a set with no embedded rows (partial embed) is skipped
     log(event="data", train=len(train), **{k: len(v[0]) for k, v in sets.items()}, dim=int(X.shape[1]))
 
     hc = cfg.get("heads", {})
@@ -237,6 +238,12 @@ def main(argv=None):
     if a.cmd == "embed":
         return cmd_embed(cfg, a.shard, a.limit)
     return cmd_train(cfg, a.fold if a.fold is not None else cfg["data"].get("fold", 0))
+
+
+def cli():
+    """Console-script entry point. main() returns the report dict for tests and callers; passed to sys.exit, a dict
+    would print and exit with status 1, so the console script discards it."""
+    main()
 
 
 if __name__ == "__main__":

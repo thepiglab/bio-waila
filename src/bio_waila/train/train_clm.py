@@ -266,5 +266,11 @@ def main(argv=None):
     return report
 
 
+def cli():
+    """Console-script entry point. main() returns the report dict for tests and callers; passed to sys.exit, a dict
+    would print and exit with status 1, so the console script discards it."""
+    main()
+
+
 if __name__ == "__main__":
     main()

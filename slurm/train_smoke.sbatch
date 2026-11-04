@@ -21,12 +21,12 @@ set -euo pipefail
 nvidia-smi --query-gpu=name,memory.total --format=csv
 echo "== 1/3 CLM-vision (SigLIP 2)"
 uv run --no-sync waila-train-clm --config configs/clm_siglip2.yaml --limit 3000 --out "$WAILA_RUNS/smoke_clm" \
-  --set train.epoch_size=2048 train.epochs_a=1 train.epochs_b=1 train.batch=64 train.max_steps=20 'train.wise_alphas=[0.5,1.0]'
+  --set train.epoch_size=2048 train.epochs_a=1 train.epochs_b=1 train.global_batch=64 train.max_steps=20 'train.wise_alphas=[0.5,1.0]'
 echo "== 2/3 CLM-LLM (Gemma-4-E4B embeddings)"
 uv run --no-sync waila-train-clm-llm embed --config configs/clm_llm_gemma4.yaml --limit 256 \
   --set cache="$WAILA_RUNS/smoke_clm_llm_cache" out="$WAILA_RUNS/smoke_clm_llm"
 uv run --no-sync waila-train-clm-llm train --config configs/clm_llm_gemma4.yaml \
-  --set cache="$WAILA_RUNS/smoke_clm_llm_cache" out="$WAILA_RUNS/smoke_clm_llm" train.epochs=3 train.epoch_size=4096 train.batch=256
+  --set cache="$WAILA_RUNS/smoke_clm_llm_cache" out="$WAILA_RUNS/smoke_clm_llm" train.epochs=3 train.epoch_size=4096 train.global_batch=256
 echo "== 3/3 Jev (Gemma-4-E4B + LoRA)"
 uv run --no-sync waila-train-jev --config configs/jev_gemma4_e4b.yaml --out "$WAILA_RUNS/smoke_jev" \
   --set train.examples_per_epoch=256 train.max_steps=10 train.eval_per_dataset=1 train.grad_accum=1

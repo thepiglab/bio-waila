@@ -49,9 +49,9 @@ waila-zoo = "bio_waila.eval.zoo:main"
 waila-autolabel = "bio_waila.data.autolabel:main"
 waila-validate = "bio_waila.data.validate:main"
 waila-cache = "bio_waila.data.cache:main"
-waila-train-clm = "bio_waila.train.train_clm:main"
-waila-train-clm-llm = "bio_waila.train.train_clm_llm:main"
-waila-train-jev = "bio_waila.train.train_jev:main"
+waila-train-clm = "bio_waila.train.train_clm:cli"
+waila-train-clm-llm = "bio_waila.train.train_clm_llm:cli"
+waila-train-jev = "bio_waila.train.train_jev:cli"
 waila-convert-moondream = "bio_waila.models.moondream_vision:main"
 
 [dependency-groups]
