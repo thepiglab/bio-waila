@@ -14,9 +14,15 @@ from bio_waila.paths import PLAN
 
 
 def make_folds(df: pd.DataFrame, k: int = 5, seed: int = 0) -> dict:
-    """Greedy balance: biggest groups first, each into the fold with the fewest images (ties broken by seed)."""
+    """Greedy balance over the manifest's images per group (see balance)."""
+    return balance(df.groupby("group").size(), k, seed)
+
+
+def balance(sizes, k: int = 5, seed: int = 0) -> dict:
+    """{group: fold} from {group: images}: biggest groups first, each into the fold with the fewest images (ties broken
+    by seed). scripts/freeze_folds.py feeds it the plan's planned images, so the folds don't depend on what is downloaded."""
     import random
-    sizes = df.groupby("group").size().sort_values(ascending=False)
+    sizes = pd.Series(sizes, dtype="int64").sort_index().sort_values(ascending=False, kind="stable")
     rng = random.Random(seed)
     load = [0] * k
     out = {}
